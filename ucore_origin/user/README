@@ -1,0 +1,5 @@
+There maybe a bug in ucore: when interacting with **sh** via serial bus,
+it may miss inputs, replicate or create additional inputs (as pure serial bus
+data transfer is very stable), other than the first character.
+These "one-character" programs are workaround to this bug.
+run: fetch and run

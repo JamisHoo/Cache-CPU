@@ -1,0 +1,7 @@
+class Main {
+	static void main() {
+		Print(42, "hello, world\n");
+	}
+}
+
+// vim: ft=java

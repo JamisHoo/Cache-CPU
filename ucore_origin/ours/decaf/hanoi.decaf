@@ -1,0 +1,29 @@
+class Hanoi {
+	int totNrStep;
+
+	void init() {
+		totNrStep = 0;
+	}
+
+	void move(int n, string from, string to, string temp) {
+		if (n == 0)
+			return;
+		move(n - 1, from, temp, to);
+		totNrStep = totNrStep + 1;
+		Print("#", totNrStep, ": move ", n, " from ", from, " to ",to, "\n");
+		move(n - 1, temp, to, from);
+	}
+}
+class Main {
+	static void main() {
+		Print ("number of disks: ");
+		int n;
+		n = ReadInteger();
+		class Hanoi hanoi;
+		hanoi = new Hanoi();
+		hanoi.init();
+		hanoi.move(n, "A", "C", "B");
+	}
+}
+
+// vim: ft=java

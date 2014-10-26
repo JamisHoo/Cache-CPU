@@ -1,0 +1,5 @@
+#!/bin/sh -e
+
+ON_FPGA=n make
+./qemu-system-mipsel -M mipssim -m 32M -serial stdio -bios boot/loader.bin
+

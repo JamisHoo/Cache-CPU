@@ -1,0 +1,8 @@
+*.out
+*.o
+tags
+dep
+qemu-system-mipsel
+loader
+loader.bin
+bin
