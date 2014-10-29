@@ -19,6 +19,10 @@ ifeq ($(UNAME), Darwin)
 	OPEN = open
 endif
 
+ifeq ($(OPEN),)
+	OPEN = @echo OS $(UNAME) not supported. Target file is
+endif
+
 # Please compile TWICE
 compile: $(HEADER) $(SECTIONS)
 	mkdir -p $(OUTPUTDIR)
