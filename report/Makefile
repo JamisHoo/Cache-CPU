@@ -7,13 +7,26 @@ SECTIONS = section1_introduction.tex \
            section3_performance.tex \
            section4_environment.tex
 
-OUTPUTDIR = output
+OUTPUTDIR = output/
+JOBNAME = prd
+
+UNAME := $(shell uname)
+
+ifeq ($(UNAME), Linux)
+	OPEN = xdg-open
+endif
+ifeq ($(UNAME), Darwin)
+	OPEN = open
+endif
 
 # Please compile TWICE
 compile: $(HEADER) $(SECTIONS)
 	mkdir -p $(OUTPUTDIR)
-	xelatex -output-directory=$(OUTPUTDIR) $< 
+	xelatex -output-directory=$(OUTPUTDIR) -jobname=$(JOBNAME) $< 
 
+.PHONY: open
+open:
+	$(OPEN) $(OUTPUTDIR)$(JOBNAME).pdf
 
 .PHONY: clean
 clean:
