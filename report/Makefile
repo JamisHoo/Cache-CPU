@@ -35,4 +35,7 @@ open:
 .PHONY: clean
 clean:
 	latexmk -c -outdir=$(OUTPUTDIR) -jobname=$(JOBNAME) $(HEADER)
-	$(RM) missfont.log
+
+.PHONY: cleanall
+cleanall: clean
+	$(RM) -r $(OUTPUTDIR)
