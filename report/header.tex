@@ -1,0 +1,63 @@
+\documentclass{article}
+\usepackage[usenames,dvipsnames]{color} % Required for custom colors
+\usepackage{graphicx} % Required to insert images
+\usepackage{listings} % Required for insertion of code
+\usepackage{amsmath} % Required for some math formulas
+\usepackage{enumitem} % Required for customed enum
+\usepackage{url} % Auto line break in URL
+\def\UrlBreaks{\do\[\do\\\do\]\do\^\do\_\do\`\do\.\do\@\do\\\do\/\do\!\do\_\do\|\do\;\do\>\do\]\do\)\do\,\do\?\do\'\do+\do\=\do\#}
+
+% Uncomment the lines below if you wish to use Chinese characters
+\usepackage{fontspec}  % Chinese characters support
+\usepackage{indentfirst} % Add indent at the first paragraph
+\XeTeXlinebreaklocale "zh" % Automatic line break
+\XeTeXlinebreakskip = 0pt plus 1pt % Automatic line break
+\setmainfont{STSong} % Use a Chinese font
+
+% Use Chinese for figure name
+\renewcommand\figurename{图}
+
+% Use Chinese for contents name
+\renewcommand\contentsname{目录}
+
+% contents depth
+\setcounter{tocdepth}{4}
+
+% numbered paragraph
+\setcounter{secnumdepth}{4}
+
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION
+%----------------------------------------------------------------------------------------
+
+\newcommand{\horrule}[1]{\rule{\linewidth}{#1}} % Create horizontal rule command with 1 argument of height
+
+\title{	
+\normalfont \normalsize 
+% \textsc{university, school or department name} \\ [25pt] % Your university, school and/or department name(s)
+\horrule{0.5pt} \\[0.4cm] % Thin top horizontal rule
+\huge 32位MIPS处理器实验需求文档 \\ % The assignment title
+\horrule{2pt} \\[0.5cm] % Thick bottom horizontal rule
+}
+
+\author{Cache小组} % Your name
+
+\date{\normalsize\the\year 年\the\month 月\the\day 日} % Today's date or a custom date
+
+
+
+
+% document begin
+\begin{document}
+\maketitle % Print the title
+
+\tableofcontents % Print the contents
+
+\newpage % blank after contents
+
+\input{section1_introduction.tex}
+\input{section2_functional.tex}
+\input{section3_performance.tex}
+\input{section4_environment.tex}
+
+\end{document}

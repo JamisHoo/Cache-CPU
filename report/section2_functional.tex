@@ -1,0 +1,220 @@
+\section{功能需求}
+    \subsection{CPU}
+        \subsubsection{ALU}
+            功能需求：
+            \begin{enumerate}
+            \item
+            完成数据和地址的算术、逻辑和移位运算，两个输入数据根据ALUOp得出输出结果。
+            \item
+            根据指令系统的需求，完成指令系统中乘法之外的算术指令。
+            \end{enumerate}
+
+            实现方式：
+            \begin{enumerate}
+            \item
+            ALU两个输入数据，ALUOp目前整理出9种运算。
+            \item
+            输出最终运算结果，标志位三种。
+            \end{enumerate}
+
+        \subsubsection{乘法器}
+            功能需求：
+            \begin{enumerate}
+            \item
+            完成乘法功能，结果保存在LO和HI中，可以访问计算结果。
+            \end{enumerate}
+
+            实现方式：
+            \begin{enumerate}
+            \item
+            使用IPCore实现。
+            \item
+            是否与ALU放在一起，之后测试乘法器的速度再做决定。
+            \item
+            MFLO，MFHI，MTLO，MTHI，MULT指令查看。
+            \end{enumerate}
+
+        \subsubsection{CP0}
+            功能需求：
+            \begin{enumerate}
+            \item
+            辅助操作系统，实现内存管理、异常处理等方面的硬件支持。
+            \item
+            对硬件运行过程进行控制。
+            \end{enumerate}
+
+            实现方式：
+            \begin{enumerate}
+            \item
+            MMU、TLB相关的寄存器：Index、EntryLo0、EntryLo1、EntryHi。
+            \item
+            异常处理相关寄存器：BadVAddr、Status、Cause、EPC、EBase。
+            \item
+            时钟相关的寄存器：Count、Compare。
+            \item
+            具体实现方式参照下面两个小节。
+            \end{enumerate}
+
+        \subsubsection{MMU与TLB}
+            功能需求：
+            \begin{enumerate}
+            \item
+            实现虚拟地址（线性地址）到物理地址的转换。
+            \item
+            实现相对应的异常处理：TLBS、TLBL、TLB Modified。
+            \end{enumerate}
+
+            实现方式：
+            \begin{enumerate}
+            \item
+                硬件支持：
+                \begin{enumerate}
+                \item
+                TLB表项并行查询EntryHi部分。
+                \item
+                如果查找到，EntryLo部分直接与低12位结合得到真实的物理地址。
+                \item
+                如果未查找到，触发TLBMiss异常：%
+                设置Cause寄存器中的ExcCode为TLB异常，%
+                EPC寄存器为当前指令的地址，%
+                BadvAddr寄存器为错误的地址，%
+                之后触发一个异常，由操作系统接管。
+                \end{enumerate}
+            \item
+                操作系统：
+                \begin{enumerate}
+                \item
+                进入异常处理向量（trap/vector.S）。
+                \item
+                跳转到处理函数部分（trap/exception.S）。
+                \item
+                先保存异常现场，之后进入mips\_trap函数（trap/trap.c）。
+                \item
+                根据cause寄存器的值进行分类，调用handle\_tlbmiss函数。
+                \item
+                得到异常地址对应的物理页号，%
+                之后进行tlb\_refill（include/thumips\_tlb.h）。
+                \item
+                操作系统维护index，%
+                写EntryLo0、EntryLo1、EntryHi、 PageMask、Index五个寄存器，%
+                之后用tlbwi写到TLB的Index项。
+                \item
+                异常返回，重新执行取地址命。%
+                \end{enumerate}
+            \end{enumerate}
+        \subsubsection{中断处理}
+            功能需求：
+            \begin{enumerate}
+            \item
+            实现对异常和外部中断的处理。
+            \item
+            实现的中断和异常有外部中断、地址不对齐异常、%
+            系统调用、未定义的指令异常。
+            \item
+            外部中断：键盘、通讯端口。
+            \end{enumerate}
+
+            实现方式：
+            \begin{enumerate}
+            \item
+            硬件支持
+                \begin{enumerate}
+                \item
+                异常处理，在数据通路上添加异常处理部分，%
+                在多周期的任意一个周期检测到异常后，%
+                设置Cause、EPC寄存器，之后跳转到异常处理向量基地址，%
+                之后操作系统接管。
+                \item
+                外部中断处理，设置外部中断检查信号，外部设备触发时，%
+                异步地将检查信号置1；每个指令IF检查该信号，%
+                若为1则进入外部中断处理，否则正常执行指令。
+                \item
+                时钟中断处理。
+                \end{enumerate}
+            \item
+            操作系统
+                \begin{enumerate}
+                \item
+                进入异常处理向量（trap/vector.S）。
+                \item
+                跳转到处理函数部分（trap/exception.S）。
+                \item
+                先保存异常现场，之后进入mips\_trap函数（trap/trap.c）。
+                \item
+                根据cause寄存器的值进行分类，%
+                调用interrupt\_handler、syscall等等函数进行处理，%
+                如果是地址不对齐异常，未定义的指令或未定义的异常，直接退出。
+                \item
+                异常返回，重新执行取地址命令
+                \end{enumerate}
+            \end{enumerate}
+        \subsubsection{其他功能部件}
+            \paragraph{PC}
+                \mbox{} \\ 
+
+                功能需求：
+                \begin{enumerate}
+                \item
+                实现PC的多种变换方式：正常执行、分支、跳转。
+                \item
+                实现异常处理时对PC的处理，跳转到异常处理向量部分。
+                \end{enumerate}
+
+                实现方式
+                \begin{enumerate}
+                \item
+                将PC与ALU结合实现PC的改变，同时通过多路选择器选择PC的变化方式。
+                \end{enumerate}
+
+            \paragraph{寄存器堆}
+                \mbox{} \\ 
+
+                功能需求：
+                \begin{enumerate}
+                \item
+                实现通用寄存器，以及在数据通路中的读写控制。
+                \end{enumerate}
+
+                实现方式
+                \begin{enumerate}
+                \item
+                在CPU中实现寄存器堆并实现读写控制。
+                \end{enumerate}
+
+            \paragraph{串口}
+                \mbox{} \\
+
+                功能需求：
+                \begin{enumerate}
+                \item
+                可能要与计算机交互，如果需要，会添加串口需求。
+                \end{enumerate}
+
+                实现方式
+                \begin{enumerate}
+                \item
+                开发过程中，根据实际需求进行串口开发。
+                \end{enumerate}
+        \subsubsection{扩展部分}
+            目前没有关于扩展部分的想法，先完成基本部分。
+
+            网络部分比较有明确的开发目标，但组内无操作系统开发经验。
+
+            测试工具部分没有明确的开发目标，不太清楚如何入手开发。
+
+        \subsubsection{指令集与数据通路}
+            实现多周期CPU，针对指令集设计数据通路。
+
+            仿照《软件硬件接口》书中的多周期CPU进行设计。
+
+            得到指令之后对指令进行解码，得到相应的控制线。%
+            在多周期的不同周期利用控制线对数据通路进行控制。
+    
+    \subsection{BIOS}
+        准备阶段：操作系统和其他程序烧写到Flash中，%
+        bootasm.S编译出的二进制文件写到ROM中，再把CPU写到FPGA中。
+
+        启动阶段：从ROM中的bootasm.S启动，%
+        将Flash中的操作系统拷贝到RAM中，然后控制权交给操作系统。
+
+
