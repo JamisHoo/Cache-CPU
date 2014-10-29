@@ -18,3 +18,4 @@ compile: $(HEADER) $(SECTIONS)
 .PHONY: clean
 clean:
 	latexmk -c -outdir=$(OUTPUTDIR)
+	$(RM) missfont.log
