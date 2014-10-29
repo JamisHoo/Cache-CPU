@@ -7,6 +7,14 @@
 \usepackage{url} % Auto line break in URL
 \def\UrlBreaks{\do\[\do\\\do\]\do\^\do\_\do\`\do\.\do\@\do\\\do\/\do\!\do\_\do\|\do\;\do\>\do\]\do\)\do\,\do\?\do\'\do+\do\=\do\#}
 
+\usepackage{hyperref} % add clickable link to contents
+\hypersetup {
+    % colorlinks=true, % make links colored
+    linkcolor=normal, % color TOC links in blue
+    urlcolor=red, % color URLs in red
+    linktoc=all % 'all' will create links for everything in the TOC
+}
+
 % Uncomment the lines below if you wish to use Chinese characters
 \usepackage{fontspec}  % Chinese characters support
 \usepackage{indentfirst} % Add indent at the first paragraph
