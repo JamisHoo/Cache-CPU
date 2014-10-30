@@ -121,7 +121,6 @@ NET "step[0]" LOC = B26;
 
 #NET "debug" LOC = F26;
 
-# PlanAhead Generated physical constraints 
 
 NET "display[15]" LOC = F26;
 NET "display[14]" LOC = G26;
@@ -139,3 +138,62 @@ NET "display[3]" LOC = L26;
 NET "display[2]" LOC = L25;
 NET "display[1]" LOC = M26;
 NET "display[0]" LOC = N26;
+
+
+NET "extrram_data[31]" LOC = AF12;
+NET "extrram_data[30]" LOC = AF11;
+NET "extrram_data[29]" LOC = AE11;
+NET "extrram_data[28]" LOC = AF10;
+NET "extrram_data[27]" LOC = AF9;
+NET "extrram_data[26]" LOC = AE9;
+NET "extrram_data[25]" LOC = AF8;
+NET "extrram_data[24]" LOC = AF7;
+NET "extrram_data[23]" LOC = AA1;
+NET "extrram_data[22]" LOC = AA2;
+NET "extrram_data[21]" LOC = AB1;
+NET "extrram_data[20]" LOC = AC2;
+NET "extrram_data[19]" LOC = AC1;
+NET "extrram_data[18]" LOC = AD1;
+NET "extrram_data[17]" LOC = AE1;
+NET "extrram_data[16]" LOC = AE2;
+NET "extrram_data[15]" LOC = AF14;
+NET "extrram_data[14]" LOC = AD13;
+NET "extrram_data[13]" LOC = AC12;
+NET "extrram_data[12]" LOC = AD12;
+NET "extrram_data[11]" LOC = AC11;
+NET "extrram_data[10]" LOC = AD11;
+NET "extrram_data[9]" LOC = AF13;
+NET "extrram_data[8]" LOC = AE13;
+NET "extrram_data[7]" LOC = AE7;
+NET "extrram_data[6]" LOC = AF6;
+NET "extrram_data[5]" LOC = AF5;
+NET "extrram_data[4]" LOC = AE5;
+NET "extrram_data[3]" LOC = AF4;
+NET "extrram_data[2]" LOC = AE4;
+NET "extrram_data[1]" LOC = AE3;
+NET "extrram_data[0]" LOC = AF2;
+NET "extrram_addr[19]" LOC = AB6;
+NET "extrram_addr[18]" LOC = AB5;
+NET "extrram_addr[17]" LOC = AB4;
+NET "extrram_addr[16]" LOC = AB3;
+NET "extrram_addr[15]" LOC = AA4;
+NET "extrram_addr[14]" LOC = AC7;
+NET "extrram_addr[13]" LOC = AD7;
+NET "extrram_addr[12]" LOC = AB8;
+NET "extrram_addr[11]" LOC = AD8;
+NET "extrram_addr[10]" LOC = AC9;
+NET "extrram_addr[9]" LOC = AD9;
+NET "extrram_addr[8]" LOC = AD10;
+NET "extrram_addr[7]" LOC = AB10;
+NET "extrram_addr[6]" LOC = AC13;
+NET "extrram_addr[5]" LOC = AD14;
+NET "extrram_addr[4]" LOC = AD5;
+NET "extrram_addr[3]" LOC = AC5;
+NET "extrram_addr[2]" LOC = AD6;
+NET "extrram_addr[1]" LOC = AD3;
+NET "extrram_addr[0]" LOC = AD4;
+
+
+NET "extrram_ce" LOC = AC3;
+NET "extrram_oe" LOC = AB9;
+NET "extrram_we" LOC = AC4;

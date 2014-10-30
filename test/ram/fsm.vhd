@@ -42,7 +42,13 @@ entity fsm is
            baseram_data: inout std_logic_vector(31 downto 0);
            baseram_ce: out std_logic;
            baseram_oe: out std_logic;
-           baseram_we: out std_logic
+           baseram_we: out std_logic;
+           
+           extrram_addr: out std_logic_vector(19 downto 0);
+           extrram_data: inout std_logic_vector(31 downto 0);
+           extrram_ce: out std_logic;
+           extrram_oe: out std_logic;
+           extrram_we: out std_logic
     );
 end fsm;
 
@@ -55,14 +61,21 @@ component ram
          write_data: in std_logic_vector(31 downto 0);
          read_data: out std_logic_vector(31 downto 0);
          ope_we: in std_logic;
-         
-         enable: in std_logic;
+         ope_ce1: in std_logic;
+         ope_ce2: in std_logic;
          
          baseram_addr: out std_logic_vector(19 downto 0);
          baseram_data: inout std_logic_vector(31 downto 0);
          baseram_ce: out std_logic;
          baseram_oe: out std_logic;
-         baseram_we: out std_logic
+         baseram_we: out std_logic;
+         
+         extrram_addr: out std_logic_vector(19 downto 0);
+         extrram_data: inout std_logic_vector(31 downto 0);
+         extrram_ce: out std_logic;
+         extrram_oe: out std_logic;
+         extrram_we: out std_logic
+         
     );
 end component;
 
@@ -71,19 +84,21 @@ signal write_data: std_logic_vector(31 downto 0);
 signal read_data: std_logic_vector(31 downto 0);
 signal ope_we: std_logic;
 
-signal ram_clk: std_logic := '1';
-
-signal enable: std_logic := '0';
+signal ope_ce1: std_logic := '0';
+signal ope_ce2: std_logic := '0';
 
 begin
     display <= read_data(15 downto 0);
     
-    u1: ram port map(clock => cpu_clk, reset => reset, enable => enable,
+    u1: ram port map(clock => cpu_clk, reset => reset, ope_ce1 => ope_ce1, ope_ce2 => ope_ce2,
                      ope_addr => ope_addr, write_data => write_data, 
                      read_data => read_data, ope_we => ope_we,
                      baseram_addr => baseram_addr, baseram_data => baseram_data,
                      baseram_ce => baseram_ce, baseram_oe => baseram_oe,
-                     baseram_we => baseram_we);
+                     baseram_we => baseram_we,
+                     extrram_addr => extrram_addr, extrram_data => extrram_data,
+                     extrram_ce => extrram_ce, extrram_oe => extrram_oe,
+                     extrram_we => extrram_we);
                      
 
      
@@ -115,12 +130,22 @@ begin
             end if;
             -- step 2, write data
             if (state = 2) then
-                enable <= '1';
+                if (ope(0) = '1') then
+                    ope_ce1 <= '1';
+                    ope_ce2 <= '0';
+                elsif (ope(1) = '1') then
+                    ope_ce1 <= '0';
+                    ope_ce2 <= '1';
+                else 
+                    ope_ce1 <= '0';
+                    ope_ce2 <= '0';
+                end if;
                 ope_we <= '0';
             end if;
             -- step 3, remove write signal
             if (state = 3) then
-                enable <= '0';
+                ope_ce1 <= '0';
+                ope_ce2 <= '0';
                 ope_we <= '1';
             end if;
             -- step 4, input read address
@@ -129,12 +154,22 @@ begin
             end if;
             -- step 5, read data
             if (state = 5) then
-                enable <= '1';
+                if (ope(0) = '1') then
+                    ope_ce1 <= '1';
+                    ope_ce2 <= '0';
+                elsif (ope(1) = '1') then
+                    ope_ce1 <= '0';
+                    ope_ce2 <= '1';
+                else 
+                    ope_ce1 <= '0';
+                    ope_ce2 <= '0';
+                end if;
                 ope_we <= '1';
             end if;
             -- step 6, remove read signal
             if (state = 6) then
-                enable <= '0';
+                ope_ce1 <= '0';
+                ope_ce2 <= '0';
             end if;
             
             state := state + 1;
