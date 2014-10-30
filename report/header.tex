@@ -9,10 +9,10 @@
 
 \usepackage{hyperref} % add clickable link to contents
 \hypersetup {
-    % colorlinks=true, % make links colored
-    linkcolor=normal, % color TOC links in blue
-    urlcolor=red, % color URLs in red
-    linktoc=all % 'all' will create links for everything in the TOC
+    % colorlinks = true, % make links colored
+    linkcolor = normal, % color TOC links in blue
+    urlcolor = red, % color URLs in red
+    linktoc = all % 'all' will create links for everything in the TOC
 }
 
 % Uncomment the lines below if you wish to use Chinese characters
@@ -20,7 +20,9 @@
 \usepackage{indentfirst} % Add indent at the first paragraph
 \XeTeXlinebreaklocale "zh" % Automatic line break
 \XeTeXlinebreakskip = 0pt plus 1pt % Automatic line break
-\setmainfont{STSong} % Use a Chinese font
+% \setmainfont{STSong} % Use a Chinese font
+% \setmainfont[Path = ./]{AdobeSongStd-Light.otf} % use font in ./
+\setmainfont[Path = ./]{AdobeFangsongStd-Regular.otf}
 
 % Use Chinese for figure name
 \renewcommand\figurename{图}

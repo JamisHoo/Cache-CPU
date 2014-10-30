@@ -19,6 +19,10 @@ ifeq ($(UNAME), Darwin)
 	OPEN = open
 endif
 
+ifeq ($(OPEN),)
+	OPEN = @echo OS $(UNAME) not supported. Target file is
+endif
+
 # Please compile TWICE
 compile: $(HEADER) $(SECTIONS)
 	mkdir -p $(OUTPUTDIR)
@@ -30,5 +34,8 @@ open:
 
 .PHONY: clean
 clean:
-	latexmk -c -outdir=$(OUTPUTDIR)
-	$(RM) missfont.log
+	latexmk -c -outdir=$(OUTPUTDIR) -jobname=$(JOBNAME) $(HEADER)
+
+.PHONY: cleanall
+cleanall: clean
+	$(RM) -r $(OUTPUTDIR)
