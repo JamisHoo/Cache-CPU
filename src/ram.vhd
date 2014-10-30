@@ -65,56 +65,49 @@ begin
             baseram_oe <= '1';
             baseram_we <= '1';
         elsif (clock'event and clock = '1') then
-            if (state = "00000") then
-                baseram_data <= (others => 'Z');
-                if (ope_we = '1' and enable = '1') then
-                    -- read
-                    state <= "00001";
-                elsif (ope_we = '0' and enable = '1') then
-                    -- write
-                    state <= "10000";
-                else
-                    state <= "00000";
-                end if;
-            -- read stage 1, select ram, set read address
-            elsif (state = "00001") then
-                baseram_ce <= '0';
-                baseram_oe <= '0';
-                baseram_addr <= ope_addr;
-                state <= "00010";
-            -- read stage 2, get read data
-            elsif (state = "00010") then
-                read_data <= baseram_data;
-                state <= "00011";
-            -- read stage 3, unselect ram
-            elsif (state = "00011") then
-                baseram_ce <= '1';
-                baseram_oe <= '1';
-                state <= "00000";
-            -- write stage 1, select ram, set write address and data
-            elsif (state = "10000") then
-                baseram_oe <= '1';
-                baseram_ce <= '0';
-                baseram_we <= '1';
-                baseram_addr <= ope_addr;
-                baseram_data <= write_data;
-                state <= "10010";
-            -- write stage 2, write data
-            elsif (state = "10010") then
-                baseram_we <= '0';
-                state <= "10011";
-            -- write stage 3, unselect ram
-            elsif (state = "10011") then
-                baseram_we <= '1';
-                baseram_ce <= '1';
-                state <= "00000";
-            else
-                state <= (others => '0');
-                baseram_data <= (others => 'Z');
-                baseram_ce <= '1';
-                baseram_oe <= '1';
-                baseram_we <= '1';
-            end if;
+            case state is
+                when "00000" => baseram_data <= (others => 'Z');
+                                if (ope_we = '1' and enable = '1') then
+                                    -- read
+                                    state <= "00001";
+                                elsif (ope_we = '0' and enable = '1') then
+                                    -- write
+                                    state <= "10000";
+                                else
+                                    state <= "00000";
+                                end if;
+                -- read stage 1, select ram, set read address
+                when "00001" => baseram_ce <= '0';
+                                baseram_oe <= '0';
+                                baseram_addr <= ope_addr;
+                                state <= "00010";
+                -- read stage 2, get read data
+                when "00010" => read_data <= baseram_data;
+                                state <= "00011";
+                -- read stage 3, unselect ram
+                when "00011" => baseram_ce <= '1';
+                                baseram_oe <= '1';
+                                state <= "00000";
+                -- write stage 1, select ram, set write address and data
+                when "10000" => baseram_oe <= '1';
+                                baseram_ce <= '0';
+                                baseram_we <= '1';
+                                baseram_addr <= ope_addr;
+                                baseram_data <= write_data;
+                                state <= "10010";
+                -- write stage 2, write data
+                when "10010" => baseram_we <= '0';
+                                state <= "10011";
+                -- write stage 3, unselect ram
+                when "10011" => baseram_we <= '1';
+                                baseram_ce <= '1';
+                                state <= "00000";
+                when others =>  state <= (others => '0');
+                                baseram_data <= (others => 'Z');
+                                baseram_ce <= '1';
+                                baseram_oe <= '1';
+                                baseram_we <= '1';
+            end case;
         end if;
     end process;
 

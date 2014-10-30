@@ -85,17 +85,9 @@ begin
                      baseram_ce => baseram_ce, baseram_oe => baseram_oe,
                      baseram_we => baseram_we);
                      
---     process(cpu_clk)
---        variable count: integer:= 0;
---     begin
---        count:= count + 1;
---        if (count > 1000000) then
---            count:= 0;
---            ram_clk <= not ram_clk;
---        end if;
---     end process;
+
      
-     process(clock) 
+     process(clock, reset) 
         variable state: integer:= 0;
      begin
         case state is
@@ -111,17 +103,15 @@ begin
             when 9 => step <= "1101111";
             when others => step <= "0000000";
         end case;
-        
+
         if (clock'event and clock = '1') then
             -- step 0, input write address
             if (state = 0) then
                 ope_addr <= ope(19 downto 0);
-                -- display <= ope_addr(15 downto 0);
             end if;
             -- step 1, input write data
             if (state = 1) then 
                 write_data <= ope;
-                -- display <= write_data(15 downto 0);
             end if;
             -- step 2, write data
             if (state = 2) then
@@ -136,7 +126,6 @@ begin
             -- step 4, input read address
             if (state = 4) then
                 ope_addr <= ope(19 downto 0);
-                -- display <= read_data(15 downto 0);
             end if;
             -- step 5, read data
             if (state = 5) then
@@ -154,6 +143,9 @@ begin
             end if;
         end if;
         
+        if (reset = '0' and (state = 0 or state = 4)) then
+            state := 0;
+        end if;
         
      end process;
 
