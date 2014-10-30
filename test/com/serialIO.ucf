@@ -1,0 +1,27 @@
+
+
+NET "output[7]" LOC = N26;
+NET "output[6]" LOC = M26;
+NET "output[5]" LOC = L25;
+NET "output[4]" LOC = L26;
+NET "output[3]" LOC = K26;
+NET "output[2]" LOC = M23;
+NET "output[1]" LOC = K24;
+NET "output[0]" LOC = L24;
+NET "clk" LOC = U26;
+NET "txd" LOC = P24;
+NET "rxd" LOC = R26;
+
+
+
+
+# PlanAhead Generated physical constraints 
+
+NET "input[7]" LOC = R2;
+NET "input[6]" LOC = R1;
+NET "input[5]" LOC = U2;
+NET "input[4]" LOC = U1;
+NET "input[3]" LOC = V1;
+NET "input[2]" LOC = W2;
+NET "input[1]" LOC = W1;
+NET "input[0]" LOC = Y5;
