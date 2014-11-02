@@ -1,0 +1,109 @@
+
+
+NET "clk" LOC = T3;
+NET "flash_control_byte" LOC = F3;
+NET "flash_control_ce0" LOC = E6;
+NET "flash_control_ce1" LOC = E4;
+NET "flash_control_ce2" LOC = E3;
+NET "flash_control_oe" LOC = J1;
+NET "flash_control_rp" LOC = A5;
+NET "flash_control_vpen" LOC = D5;
+NET "flash_control_we" LOC = K1;
+NET "ope[21]" LOC = R4;
+NET "ope[20]" LOC = T4;
+NET "ope[19]" LOC = U3;
+NET "ope[18]" LOC = U4;
+NET "ope[17]" LOC = V3;
+NET "ope[16]" LOC = V4;
+NET "ope[15]" LOC = W3;
+NET "ope[14]" LOC = W5;
+NET "ope[13]" LOC = L2;
+NET "ope[12]" LOC = L1;
+NET "ope[11]" LOC = M1;
+NET "ope[10]" LOC = N2;
+NET "ope[9]" LOC = N1;
+NET "ope[8]" LOC = P1;
+NET "ope[7]" LOC = R2;
+NET "ope[6]" LOC = R1;
+NET "ope[5]" LOC = U2;
+NET "ope[4]" LOC = U1;
+NET "ope[3]" LOC = V1;
+NET "ope[2]" LOC = W2;
+NET "ope[1]" LOC = W1;
+NET "ope[0]" LOC = Y5;
+NET "flash_data[15]" LOC = H1;
+NET "flash_data[14]" LOC = G2;
+NET "flash_data[13]" LOC = E1;
+NET "flash_data[12]" LOC = D1;
+NET "flash_data[11]" LOC = B1;
+NET "flash_data[10]" LOC = H5;
+NET "flash_data[9]" LOC = J4;
+NET "flash_data[8]" LOC = H3;
+NET "flash_data[7]" LOC = G1;
+NET "flash_data[6]" LOC = F1;
+NET "flash_data[5]" LOC = E2;
+NET "flash_data[4]" LOC = C1;
+NET "flash_data[3]" LOC = K5;
+NET "flash_data[2]" LOC = K3;
+NET "flash_data[1]" LOC = J3;
+NET "flash_data[0]" LOC = G4;
+NET "flash_addr[22]" LOC = G5;
+NET "flash_addr[21]" LOC = D3;
+NET "flash_addr[20]" LOC = F5;
+NET "flash_addr[19]" LOC = C2;
+NET "flash_addr[18]" LOC = A2;
+NET "flash_addr[17]" LOC = B2;
+NET "flash_addr[16]" LOC = C3;
+NET "flash_addr[15]" LOC = C4;
+NET "flash_addr[14]" LOC = A4;
+NET "flash_addr[13]" LOC = B4;
+NET "flash_addr[12]" LOC = E5;
+NET "flash_addr[11]" LOC = C5;
+NET "flash_addr[10]" LOC = B6;
+NET "flash_addr[9]" LOC = A6;
+NET "flash_addr[8]" LOC = D6;
+NET "flash_addr[7]" LOC = C6;
+NET "flash_addr[6]" LOC = C7;
+NET "flash_addr[5]" LOC = A7;
+NET "flash_addr[4]" LOC = E8;
+NET "flash_addr[3]" LOC = D7;
+NET "flash_addr[2]" LOC = D8;
+NET "flash_addr[1]" LOC = C8;
+NET "flash_addr[0]" LOC = G3;
+NET "data_out[15]" LOC = F26;
+NET "data_out[14]" LOC = G26;
+NET "data_out[13]" LOC = G25;
+NET "data_out[12]" LOC = H26;
+NET "data_out[11]" LOC = J26;
+NET "data_out[10]" LOC = J25;
+NET "data_out[9]" LOC = G23;
+NET "data_out[8]" LOC = J24;
+NET "data_out[7]" LOC = L24;
+NET "data_out[6]" LOC = K24;
+NET "data_out[5]" LOC = M23;
+NET "data_out[4]" LOC = K26;
+NET "data_out[3]" LOC = L26;
+NET "data_out[2]" LOC = L25;
+NET "data_out[1]" LOC = M26;
+NET "data_out[0]" LOC = N26;
+
+
+NET "step_display[6]" LOC = D26;
+NET "step_display[5]" LOC = C26;
+NET "step_display[4]" LOC = B24;
+NET "step_display[3]" LOC = A25;
+NET "step_display[2]" LOC = D24;
+NET "step_display[1]" LOC = C25;
+NET "step_display[0]" LOC = B26;
+
+
+NET "cpu_clk" LOC = U26;
+
+
+NET "read_enable" LOC = L3;
+
+
+NET "write_enable" LOC = L4;
+
+
+NET "erase_enable" LOC = M3;
