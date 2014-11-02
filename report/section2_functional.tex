@@ -45,15 +45,17 @@
                 \item
                     异常处理：检测指令执行过程中可能出现的异常、对异常进行分类、记录异常出现的指令地址或错误的内存地址
                 \item
-                    外部中断：负责检测外部中断，辅助实现ＣＰＵ与外设之间的交互
+                    外部中断：负责检测外部中断，辅助实现CPU与外设之间的交互
                 \end{enumerate}
             \item
 
             \end{enumerate}
 
             实现方式：
-            \begin{longtable}{|p{0.1\linewidth}|p{0.2\linewidth}|p{0.5\linewidth}|}
+            \begin{table}[!hbp]
+            \centering
             \caption{需要实现的CP0寄存器}
+            \begin{tabularx}{\textwidth}{|l|l|X|}
             \hline
             序号 & 名称 & 功能 \\
             \hline
@@ -65,21 +67,22 @@
             \hline
             3 & EntryHi & TLB异常时,系统将虚拟地址部分写入EntryHi寄存器中用于TLB匹配 \\
             \hline
-            ４ & BadVAddr & 捕捉最近一次地址错误或TLB异常(重填、失效、修改)时的虚拟地址 \\
+            4 & BadVAddr & 捕捉最近一次地址错误或TLB异常(重填、失效、修改)时的虚拟地址 \\
             \hline
-            ５ & Count & 每隔一个时钟周期增加1,用作计时器,并可使能控制 \\
+            5 & Count & 每隔一个时钟周期增加1,用作计时器,并可使能控制 \\
             \hline
-            ６ & Compare & 当Count值与Compare相等时,SI\_TimerInt 引脚是变高电平直到有数值写入Compare，用于定时中断 \\
+            6 & Compare & 当Count值与Compare相等时,SI\_TimerInt 引脚是变高电平直到有数值写入Compare，用于定时中断 \\
             \hline
-            ７ & Status & 表示协理器的操作模式、中断使能及诊断状态 \\
+            7 & Status & 表示协理器的操作模式、中断使能及诊断状态 \\
             \hline
-            ８ & Cause & 记录最近依次异常的原因,控制软件中断请求以及中断协理派分的向量 \\
+            8 & Cause & 记录最近依次异常的原因,控制软件中断请求以及中断协理派分的向量 \\
             \hline
             9 & EPC & 存储异常处理之后程序恢复执行的地址 \\
             \hline
             10 & EBase & 识别多协理器系统中不同的协理器异常向量的基地址 \\
             \hline
-            \end{longtable}
+            \end{tabularx}
+            \end{table}
             具体实现方式参照下面两个小节。
 
         \subsubsection{MMU与TLB}
@@ -101,20 +104,20 @@
                 TLB电路组成：
                 \begin{enumerate}
                 \item
-                    TLB共16项，每项可以将连续两个虚页映射到两个不同的物理页，相当于可以处理３２个页
+                    TLB共16项，每项可以将连续两个虚页映射到两个不同的物理页，相当于可以处理32个页
                 \item
-                    虚拟地址高19位作为虚页号VPN进行选择TLB表项，第２０位通过奇偶判断，选择两个物理页之一
+                    虚拟地址高19位作为虚页号VPN进行选择TLB表项，第20位通过奇偶判断，选择两个物理页之一
                 \item
-                    出于简化的考虑，不维护进程号ASID、全局标记G，默认所有Ｇ均为１，只维护每个物理地址的Ｄ标记
+                    出于简化的考虑，不维护进程号ASID、全局标记G，默认所有G均为1，只维护每个物理地址的D标记
                 \end{enumerate}
-                此处贴上向勇老师ｐｐｔ里面的那张图片
+                此处贴上向勇老师ppt里面的那张图片
             \item
                 硬件支持：
                 \begin{enumerate}
                 \item
-                    虚拟地址高１９位在TLB表项中并行查询EntryHi部分。
+                    虚拟地址高19位在TLB表项中并行查询EntryHi部分。
                 \item
-                    如果查找到，根据第２０位选择EntryLo，直接与低12位结合得到真实的物理地址。
+                    如果查找到，根据第20位选择EntryLo，直接与低12位结合得到真实的物理地址。
                 \item
                     如果未查找到，触发TLBMiss异常：%
                     设置Cause寄存器中的ExcCode为TLB异常，%
@@ -163,8 +166,10 @@
             \end{enumerate}
 
             实现方式：
-            \begin{longtable}{|p{0.1\linewidth}|p{0.4\linewidth}|p{0.4\linewidth}|}
+            \begin{table}
+            \centering
             \caption{需要实现的异常}
+            \begin{tabular}{|c|c|c|}
             \hline
             异常号 & 异常名 & 描述 \\
             \hline
@@ -176,9 +181,9 @@
             \hline
             3 & TLBS & 写未在TLB中映射的内存地址触发的异常 \\
             \hline
-            ４ & ADEL　& 读访问一个非对齐地址触发的异常 \\
+            4 & ADEL　& 读访问一个非对齐地址触发的异常 \\
             \hline
-            ５ & ADES & 写访问一个非对齐地址触发的异常 \\
+            5 & ADES & 写访问一个非对齐地址触发的异常 \\
             \hline
             8 & SYSCALL & 系统调用 \\
             \hline
@@ -186,7 +191,8 @@
             \hline
             11 & Co-Processor Unavailable & 试图访问不存在的协处理器异常 \\
             \hline
-            \end{longtable}
+            \end{tabular}
+            \end{table}
 
             \begin{enumerate}
             \item
@@ -197,7 +203,7 @@
                 在多周期的任意一个周期检测到异常后，%
                 在Cause设置异常代码、
                 在EPC寄存器设置异常处理的返回地址，
-                将Status寄存器的EXL为设置为１，表示进入内核态处理异常
+                将Status寄存器的EXL为设置为1，表示进入内核态处理异常
                 之后根据EBase跳转到异常处理向量基地址，%
                 之后操作系统接管。
                 \item
@@ -285,11 +291,11 @@
             测试工具部分没有明确的开发目标，不太清楚如何入手开发。
 
         \subsubsection{指令集与数据通路}
-            指令集为标准ＭＩＰＳ系统子集
+            指令集为标准MIPS系统子集
 
             实现多周期CPU，针对指令集设计数据通路。
             仿照《软件硬件接口》书中的多周期CPU进行设计，
-            在书中７条指令的原型上进行扩展，以支持标准ＭＩＰＳ系统的子集。
+            在书中７条指令的原型上进行扩展，以支持标准MIPS系统的子集。
             
             指令执行过程主要分为取指、解码、执行、访存、写回五个周期，
             某些指令可能需要其他特殊的周期支持，采用多周期实现比较灵活。
