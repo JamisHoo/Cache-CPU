@@ -275,15 +275,22 @@
                 功能需求：
                 \begin{enumerate}
                 \item
-                可能要与计算机交互，如果需要，会添加串口需求。
+                实现与PC机通信，通过计算机键盘输入数据，向计算机输出数据。
                 \end{enumerate}
 
                 实现方式
                 \begin{enumerate}
                 \item
-                开发过程中，根据实际需求进行串口开发。
-                通过计算机上的终端对开发板上的操作系统和ＣＰＵ进行控制，
-                并且监测当前工作状态
+                使用开源的%
+                \href{http://www.fpga4fun.com/SerialInterface.html}{ASync transmitter and receiver}，%
+                通过在每个信号周期内多次采样，并滤波得到稳定的信号。%
+                CPLD仅负责TX/RX端口数据的转发，%
+                对数据的编码与解码在FPGA中进行。%
+                这样设计提高了数据传送的准确率，%
+                并且串口数据不需要占用内存数据线，%
+                无需处理冲突，简化了设计。%
+                数据通信协议在开发过程中设计，有待进一步说明。
+
                 \end{enumerate}
         \subsubsection{扩展部分}
             目前没有关于扩展部分的想法，先完成基本部分。
