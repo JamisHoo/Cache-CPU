@@ -5,6 +5,8 @@
 \usepackage{amsmath} % Required for some math formulas
 \usepackage{enumitem} % Required for customed enum
 \usepackage{url} % Auto line break in URL
+\usepackage{tabularx} % Auto line break in tabular
+
 \def\UrlBreaks{\do\[\do\\\do\]\do\^\do\_\do\`\do\.\do\@\do\\\do\/\do\!\do\_\do\|\do\;\do\>\do\]\do\)\do\,\do\?\do\'\do+\do\=\do\#}
 
 \usepackage{hyperref} % add clickable link to contents
@@ -30,6 +32,9 @@
 
 % Use Chinese for contents name
 \renewcommand\contentsname{目录}
+
+%use Chinese for table name
+\renewcommand\tablename{表}
 
 % contents depth
 \setcounter{tocdepth}{4}
@@ -70,5 +75,7 @@
 \input{section2_functional.tex}
 \input{section3_performance.tex}
 \input{section4_environment.tex}
+
+\newpage
 
 \end{document}
