@@ -60,9 +60,20 @@
             \end{enumerate}
 
             实现方式：
-            具体实现方式参照下面两个小节。
+            \begin{enumerate}
+                \item
+                    CP0记录CPU当前状态，通过MFC0、MTC0指令等进行读写操作，与通用寄存器建立联系
+                \item
+                    在异常状态发生时保存异常的返回地址，异常类型等信息
+                \item
+                    在内存映射中对TLB表项进行支持，为TLB充填等功能提供硬件支持
+            \end{enumerate}
 
-            \begin{table}[!hbp]
+            CP0具体实现方式参照下面两个小节。
+
+            此次实验中需要实现的CP0寄存器见表2
+
+            \begin{table}
             \centering
             \caption{需要实现的CP0寄存器}
             \begin{tabularx}{\textwidth}{|l|l|X|}
@@ -120,7 +131,7 @@
                 \begin{figure}[!hbp]
                     \centering
                     \caption{内存访问流程图}
-                    \includegraphics[width=0.75\textwidth]{picture/Memory.jpg}
+                    \includegraphics[width=0.5\textwidth]{picture/Memory.jpg}
                 \end{figure}
                 
                 \begin{enumerate}
@@ -190,7 +201,7 @@
             \begin{figure}[!hbp]
                     \centering
                     \caption{异常中断处理流程}
-                    \includegraphics[width=0.9\textwidth]{picture/Exception.jpg}
+                    \includegraphics[width=0.5\textwidth]{picture/Exception.jpg}
             \end{figure}
                 
             \begin{table}
