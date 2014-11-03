@@ -131,7 +131,7 @@
                 \begin{figure}[!hbp]
                     \centering
                     \caption{内存访问流程图}
-                    \includegraphics[width=0.5\textwidth]{picture/Memory.jpg}
+                    \includegraphics[width=0.4\textwidth]{picture/Memory.jpg}
                 \end{figure}
                 
                 \begin{enumerate}
@@ -203,35 +203,7 @@
                     \caption{异常中断处理流程}
                     \includegraphics[width=0.5\textwidth]{picture/Exception.jpg}
             \end{figure}
-                
-            \begin{table}
-            \centering
-            \caption{需要实现的异常}
-            \begin{tabular}{|c|c|c|}
-            \hline
-            异常号 & 异常名 & 描述 \\
-            \hline
-            0 & Interrupt & 外部中断,异步发生,由硬件引起 \\
-            \hline
-            1 & TLB Modified & 内存修改异常, 发生在Memory阶段 \\
-            \hline
-            2 & TLBL & 读未在TLB中映射的内存地址触发的异常 \\
-            \hline
-            3 & TLBS & 写未在TLB中映射的内存地址触发的异常 \\
-            \hline
-            4 & ADEL　& 读访问一个非对齐地址触发的异常 \\
-            \hline
-            5 & ADES & 写访问一个非对齐地址触发的异常 \\
-            \hline
-            8 & SYSCALL & 系统调用 \\
-            \hline
-            10 & RI & 执行未定义指令异常 \\
-            \hline
-            11 & Co-Processor Unavailable & 试图访问不存在的协处理器异常 \\
-            \hline
-            \end{tabular}
-            \end{table}
-
+            
             \begin{enumerate}
             \item
             硬件支持
@@ -270,6 +242,34 @@
                 重新执行取地址命令
                 \end{enumerate}
             \end{enumerate}
+
+            \begin{table}
+            \centering
+            \caption{需要实现的异常}
+            \begin{tabular}{|c|c|c|}
+            \hline
+            异常号 & 异常名 & 描述 \\
+            \hline
+            0 & Interrupt & 外部中断,异步发生,由硬件引起 \\
+            \hline
+            1 & TLB Modified & 内存修改异常, 发生在Memory阶段 \\
+            \hline
+            2 & TLBL & 读未在TLB中映射的内存地址触发的异常 \\
+            \hline
+            3 & TLBS & 写未在TLB中映射的内存地址触发的异常 \\
+            \hline
+            4 & ADEL　& 读访问一个非对齐地址触发的异常 \\
+            \hline
+            5 & ADES & 写访问一个非对齐地址触发的异常 \\
+            \hline
+            8 & SYSCALL & 系统调用 \\
+            \hline
+            10 & RI & 执行未定义指令异常 \\
+            \hline
+            11 & Co-Processor Unavailable & 试图访问不存在的协处理器异常 \\
+            \hline
+            \end{tabular}
+            \end{table}
 
         \subsubsection{其他功能部件}
             \paragraph{PC}
@@ -349,12 +349,9 @@
             而且对指令进行解码，能够得到相应的控制线。%
             在多周期的不同周期利用控制线对数据通路进行控制，使指令正常执行。
             
-            \begin{figure}[!hbp]
-                    \centering
-                    \caption{数据通路设计图}
-                    \includegraphics[width=\textwidth]{picture/CPU_Design.jpg}
-            \end{figure}
+            数据通路图比较大，因此不显示在需求文档中。另附图片文件显示。
 
+            
     \subsection{BIOS}
         准备阶段：操作系统和其他程序烧写到Flash中，%
         bootasm.S编译出的二进制文件写到ROM中，再把CPU写到FPGA中。
