@@ -1,5 +1,12 @@
 \section{功能需求}
     \subsection{CPU}
+        CPU整体工作流程图
+        \begin{figure}[!hbp]
+                    \centering
+                    \caption{CPU各阶段转换图}
+                    \includegraphics[width=0.75\textwidth]{picture/Stages.jpg}
+        \end{figure}
+                
         \subsubsection{ALU}
             功能需求：
             \begin{enumerate}
@@ -53,6 +60,8 @@
             \end{enumerate}
 
             实现方式：
+            具体实现方式参照下面两个小节。
+
             \begin{table}[!hbp]
             \centering
             \caption{需要实现的CP0寄存器}
@@ -84,7 +93,6 @@
             \hline
             \end{tabularx}
             \end{table}
-            具体实现方式参照下面两个小节。
 
         \subsubsection{MMU与TLB}
             功能需求：
@@ -103,7 +111,18 @@
             实现方式：
             \begin{enumerate}
             \item
-                TLB电路组成：
+                \begin{figure}[!hbp]
+                    \centering
+                    \caption{TLB电路结构}
+                    \includegraphics[width=0.9\textwidth]{picture/TLB.jpg}
+                \end{figure}
+
+                \begin{figure}[!hbp]
+                    \centering
+                    \caption{内存访问流程图}
+                    \includegraphics[width=0.75\textwidth]{picture/Memory.jpg}
+                \end{figure}
+                
                 \begin{enumerate}
                 \item
                     TLB共16项，每项可以将连续两个虚页映射到两个不同的物理页，相当于可以处理32个页
@@ -112,7 +131,7 @@
                 \item
                     出于简化的考虑，不维护进程号ASID、全局标记G，默认所有G均为1，只维护每个物理地址的D标记
                 \end{enumerate}
-                此处贴上向勇老师ppt里面的那张图片
+
             \item
                 硬件支持：
                 \begin{enumerate}
@@ -168,6 +187,12 @@
             \end{enumerate}
 
             实现方式：
+            \begin{figure}[!hbp]
+                    \centering
+                    \caption{异常中断处理流程}
+                    \includegraphics[width=0.9\textwidth]{picture/Exception.jpg}
+            \end{figure}
+                
             \begin{table}
             \centering
             \caption{需要实现的异常}
@@ -312,7 +337,13 @@
             数据通路包括状态机与控制线设计，每条指令有不同的状态机变化，
             而且对指令进行解码，能够得到相应的控制线。%
             在多周期的不同周期利用控制线对数据通路进行控制，使指令正常执行。
-    
+            
+            \begin{figure}[!hbp]
+                    \centering
+                    \caption{数据通路设计图}
+                    \includegraphics[width=\textwidth]{picture/CPU_Design.jpg}
+            \end{figure}
+
     \subsection{BIOS}
         准备阶段：操作系统和其他程序烧写到Flash中，%
         bootasm.S编译出的二进制文件写到ROM中，再把CPU写到FPGA中。
