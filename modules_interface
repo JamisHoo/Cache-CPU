@@ -1,119 +1,143 @@
 IF:
-    in: PCSrc               std_logic_vector(31 downto 0)
-    in: EBase               std_logic_vector(31 downto 0)
-    in: EPC                 std_logic_vector(31 downto 0)
-    in: sel                 std_logic_vector(1 downto 0)
+    in: clk                     std_logic
+    in: PCSrc                   std_logic_vector(31 downto 0)
+    in: EBase                   std_logic_vector(31 downto 0)
+    in: EPC                     std_logic_vector(31 downto 0)
+    in: pc_sel                  std_logic_vector(1 downto 0)
 
-    in: state               std_logic_vector(3 downto 0)
+    in: state                   std_logic_vector(3 downto 0)
     
     // PC寄存器 
-    out: PC                 std_logic_vector(31 downto 0)
+    out: PC                     std_logic_vector(31 downto 0)
     // 组合逻辑
-    out: PCmmu              std_logic_vector(31 downto 0)
+    out: PCmmu                  std_logic_vector(31 downto 0)
 
 ID: 
-    in: instruction         std_logic_vector(31 downto 0)
-    in: state               std_logic_vector(3 downto 0)
+    in: clk                     std_logic
+    in: instruction             std_logic_vector(31 downto 0)
+    in: state                   std_logic_vector(3 downto 0)
 
-    // 保存至下一次ID上    升沿
-    out: instr_reg          std_logic_vector(31 downto 0)
+    // 保存至下一次ID上升沿
+    out: instr_reg              std_logic_vector(31 downto 0)
     // 组合逻辑
-    out: rs_addr            std_logic_vector(4 downto 0)
-    out: rt_addr            std_logic_vector(4 downto 0)
+    out: rs_addr                std_logic_vector(4 downto 0)
+    out: rt_addr                std_logic_vector(4 downto 0)
     
-    out: rd_addr            std_logic_vector(4 downto 0)
+    out: rd_addr                std_logic_vector(4 downto 0)
     
-    out: pc_op              std_logic_vector(2 downto 0)
-    out: eret_enable        std_logic
-    out: imme               std_logic_vector(31 downto 0)
-    out: alu_srcA           std_logic_vector(1 downto 0)
-    out: alu_srcB           std_logic_vector(1 downto 0)
-    out: alu_op             std_logic_vector(3 downto 0)
-    out: comp_op            std_logic_vector(2 downto 0)
-    out: mem_op             std_logic_vector(2 downto 0)
-    out: wb_op              std_logic_vector(5 downto 0)
+    out: pc_op                  std_logic_vector(2 downto 0)
+    out: eret_enable            std_logic
+    out: imme                   std_logic_vector(31 downto 0)
+    out: alu_srcA               std_logic_vector(1 downto 0)
+    out: alu_srcB               std_logic_vector(1 downto 0)
+    out: alu_op                 std_logic_vector(3 downto 0)
+    out: comp_op                std_logic_vector(2 downto 0)
+    out: mem_op                 std_logic_vector(2 downto 0)
+    out: wb_op                  std_logic_vector(5 downto 0)
 
-    out: cp0_op             std_logic_vector(1 downto 0)
-    out: cp0_addr           std_logic_vecotr(4 downto 0)
-    out: tlbwi_enable       std_logic
+    out: cp0_op                 std_logic_vector(1 downto 0)
+    out: cp0_addr               std_logic_vecotr(4 downto 0)
+    out: tlbwi_enable           std_logic
 
 ALU:   
-    in: rs_value            std_logic_vector(31 downto 0)
-    in: rt_value            std_logic_vector(31 downto 0)
-    in: imme                std_logic_vector(31 downto 0)
-    in: cp0_value           std_logic_vector(31 downto 0)
+    in: clk                     std_logic
+    in: rs_value                std_logic_vector(31 downto 0)
+    in: rt_value                std_logic_vector(31 downto 0)
+    in: imme                    std_logic_vector(31 downto 0)
+    in: cp0_value               std_logic_vector(31 downto 0)
     
-    in: state               std_logic_vector(3 downto 0)
+    in: state                   std_logic_vector(3 downto 0)
 
-    in: alu_op              std_logic_vector(31 downto 0)
-    in: alu_srcA            std_logic_vector(1 downto 0)
-    in: alu_srcB            std_logic_vector(1 downto 0)
+    in: alu_op                  std_logic_vector(31 downto 0)
+    in: alu_srcA                std_logic_vector(1 downto 0)
+    in: alu_srcB                std_logic_vector(1 downto 0)
 
-    out: alu_result         std_logic_vector(31 downto 0)
+    out: alu_result             std_logic_vector(31 downto 0)
     /*
-    out: sf                 std_logic
-    out: zf                 std_logic
-    out: of                 std_logic
-    out: cf                 std_logic
+    out: sf                     std_logic
+    out: zf                     std_logic
+    out: of                     std_logic
+    out: cf                     std_logic
     */
-    out: hi                 std_logic_vector(31 downto 0)
-    out: lo                 std_logic_vector(31 downto 0)
+    out: hi                     std_logic_vector(31 downto 0)
+    out: lo                     std_logic_vector(31 downto 0)
 
 MEM:  
-    in: state               std_logic_vector(3 down to 0)
-    in: result              std_logic_vector(31 downto 0)
-    in: rt_value            std_logic_vector(31 downto 0)
-    in: mem_op              std_logic_vector(2 downto 0)
+    in: clk                     std_logic
+    in: state                   std_logic_vector(3 down to 0)
+    in: result                  std_logic_vector(31 downto 0)
+    in: rt_value                std_logic_vector(31 downto 0)
+    in: mem_op                  std_logic_vector(2 downto 0)
     // just for SB
-    in: mmu_value           std_logic_vector(31 downto 0)
+    in: mmu_value               std_logic_vector(31 downto 0)
     
-    out: addr_mmu           std_logic_vector(31 downto 0)
-    out: write_value        std_logic_vector(31 downto 0)
-    out: read_enable        std_logic
-    out: write_enable       std_logic
+    out: addr_mmu               std_logic_vector(31 downto 0)
+    out: write_value            std_logic_vector(31 downto 0)
+    out: read_enable            std_logic
+    out: write_enable           std_logic
     
 WB:
-    in: state               std_logic_vector(3 downto 0)
+    in: clk                     std_logic
+    in: state                   std_logic_vector(3 downto 0)
     // PC + 4
-    in: RPC                 std_logic_vector(31 downto 0)
-    in: mmu_value           std_logic_vector(31 downto 0)
-    in: cp0_value           std_logic_vector(31 downto 0)
-    in: alu_result          std_logic_vector(31 downto 0)
-    in: wb_op               std_logic_vector(5 downto 0)
-    in: rd_addr             std_logic_vector(4 dwonto 0)
+    in: RPC                     std_logic_vector(31 downto 0)
+    in: mmu_value               std_logic_vector(31 downto 0)
+    in: cp0_value               std_logic_vector(31 downto 0)
+    in: alu_result              std_logic_vector(31 downto 0)
+    in: wb_op                   std_logic_vector(5 downto 0)
+    in: rd_addr                 std_logic_vector(4 dwonto 0)
 
-    out: write_addr         std_logic_vector(4 downto 0)
-    out: write_value        std_logic_vector(31 downto 0)
-    out: write_enable       std_logic
+    out: write_addr             std_logic_vector(4 downto 0)
+    out: write_value            std_logic_vector(31 downto 0)
+    out: write_enable           std_logic
 
     
-    in: pc_op               std_logic_vector(2 downto 0)
-    in: comp_op             std_logic_vector(2 downto 0)
-    in: rs_value            std_logic_vector(31 downto 0)
-    in: rt_value            std_logic_vector(31 downto 0)
-    in: imme                std_logic_vector(31 downto 0)
+    in: pc_op                   std_logic_vector(2 downto 0)
+    in: comp_op                 std_logic_vector(2 downto 0)
+    in: rs_value                std_logic_vector(31 downto 0)
+    in: rt_value                std_logic_vector(31 downto 0)
+    in: imme                    std_logic_vector(31 downto 0)
 
-    out: PcSrc              std_logic_vector(31 downto 0)
+    out: PcSrc                  std_logic_vector(31 downto 0)
 
 MMU:   
-    in: state               std_logic_vector(3 downto 0)
-    in: mem_read_enable     std_logic
-    in: mem_write_enable    std_logic
-    in: if_addr             std_logic_vector(31 downto 0)
-    in: mem_addr            std_logic_vector(31 downto 0)
-    in: mem_write_value     std_logic_vector(31 downto 0)
+    in: clk                     std_logic
+    in: mmu_clock               std_logic
+    in: state                   std_logic_vector(3 downto 0)
+    in: mem_read_enable         std_logic
+    in: mem_write_enable        std_logic
+    in: if_addr                 std_logic_vector(31 downto 0)
+    in: mem_addr                std_logic_vector(31 downto 0)
+    in: mem_write_value         std_logic_vector(31 downto 0)
 
-    in: cp0_value           std_logic_vector(159 downto 0)
-    in: tlbwi_enable        std_logic
+    in: cp0_value               std_logic_vector(159 downto 0)
+    in: tlbwi_enable            std_logic
 
-    out: mem_value          std_logic_vector(31 downto 0)
-
+    out: mem_value              std_logic_vector(31 downto 0)
 
 CP0:
-    in: state               std_logic_vector(3 downto 0)
-    in: normal_cp0_in       std_logic_vector(37 downto 0)
-    in: interupt_cp0_in     std_logic_vector(37 downto 0)
+    in: clk                     std_logic
+    in: state                   std_logic_vector(3 downto 0)
+    in: normal_cp0_in           std_logic_vector(37 downto 0)
+    in: bad_v_addr_in           std_logic_vector(31 downto 0)
+    in: entry_hi_in             std_logic_vector(19 downto 0)
+    in: interrupt_start_in      std_logic
+    in: cause_in                std_logic_vector(4 downto 0)
+    in: epc_in                  std_logic_vector(31 downto 0)
+    in: eret_enable             std_logic
 
-    out: addr_value         std_logic_vector(31 downto 0)
-    out: all_regs           std_logic_vector(1023 downto 0)
+    out: addr_value             std_logic_vector(31 downto 0)
+    out: all_regs               std_logic_vector(1023 downto 0)
+
+EXCEPTION:
+    in: exception_type          std_logic_vector(3 downto 0)
+    in: PC                      std_logic_vector(31 downto 0)
+    in: bad_v_addr_in           std_logic_vector(31 downto 0)
+
+    out: bad_v_addr_out         std_logic_vector(31 downto 0)
+    out: entry_hi_out           std_logic_vector(19 downto 0)
+    out: interrupt_start_out    std_logic
+    out: cause_out              std_logic_vector(4 downto 0)
+    out: epc_out                std_logic_vector(31 downto 0)
+
 
