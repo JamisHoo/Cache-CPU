@@ -39,6 +39,9 @@ ID:
     out: cp0_addr               std_logic_vecotr(4 downto 0)
     out: tlbwi_enable           std_logic
 
+    out: to_lo_enable           std_logic
+    out: to_hi_enable           std_logic
+
 ALU:   
     in: clk                     std_logic
     in: rs_value                std_logic_vector(31 downto 0)
@@ -52,6 +55,9 @@ ALU:
     in: alu_srcA                std_logic_vector(1 downto 0)
     in: alu_srcB                std_logic_vector(1 downto 0)
 
+    in: to_lo_enable            std_logic
+    in: to_hi_enable            std_logic
+
     out: alu_result             std_logic_vector(31 downto 0)
     /*
     out: sf                     std_logic
@@ -59,8 +65,6 @@ ALU:
     out: of                     std_logic
     out: cf                     std_logic
     */
-    out: hi                     std_logic_vector(31 downto 0)
-    out: lo                     std_logic_vector(31 downto 0)
 
 MEM:  
     in: clk                     std_logic
