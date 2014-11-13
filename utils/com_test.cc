@@ -8,7 +8,7 @@
 #include <fstream>
 
 #define MODEM "/dev/ttyUSB0"
-#define BAUDRATE B9600
+#define BAUDRATE B38400
 
 int main(int argc,char** argv)
 {   
@@ -44,6 +44,7 @@ int main(int argc,char** argv)
     cfsetispeed(&tio,BAUDRATE);            // baudrate is declarated above
     tcsetattr(tty_fd,TCSANOW,&tio);
 
+    std::cout << "Prepare to send. " << std::endl;
     std::ifstream fin("send", std::ifstream::in | std::ifstream::binary);
     std::ofstream fout("receive", std::ofstream::out | std::ofstream::binary);
 
@@ -52,8 +53,9 @@ int main(int argc,char** argv)
         write(tty_fd, buff, 1);
 
         // waiting for the response
-        while (read(tty_fd, buff, 1) <= 0);
-            fout.write(buff, 1);
+        //while (read(tty_fd, buff, 1) <= 0);
+        //    fout.write(buff, 1);
+        sleep(1);
     }
 
     /*
