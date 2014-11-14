@@ -2,9 +2,9 @@
     \subsection{CPU}
         CPU整体工作流程图
         \begin{figure}[!hbp]
-                    \centering
-                    \caption{CPU各阶段转换图}
-                    \includegraphics[width=0.75\textwidth]{chart/Stages.jpg}
+            \centering
+            \caption{CPU各阶段转换图}
+            \includegraphics[width=0.75\textwidth]{chart/Stages.jpg}
         \end{figure}
                 
         \subsubsection{ALU}
@@ -29,7 +29,7 @@
             功能需求：
             \begin{enumerate}
             \item
-            完成乘法功能，结果保存在LO和HI寄存器中，可以访问计算结果。
+            完成乘法功能，结果保存在LO和HI寄存器中，可以通过MT和MF类指令访问和修改计算结果。
             \end{enumerate}
 
             实现方式：
@@ -37,9 +37,14 @@
                 \item
             使用IPCore实现。
             \item
-            是否与ALU放在一起，之后测试乘法器的速度再做决定。
+            直接与主ALU相结合，在ALUOp中加入乘法的操作码，实现乘法的计算。
             \item
-            MFLO，MFHI，MTLO，MTHI，MULT指令查看。
+            由于乘法指令需要的计算时间较长，因此在乘法单元中加入乘法是否完成的标志位，标志位连接到CPU的控制单元中。
+            当乘法运算真正完成之后，再将此标志位置1，CPU的控制单元进入下一条指令的执行。
+            \item
+            MFLO，MFHI，MTLO，MTHI，MULT指令查看与修改。
+            在ALUOp中也加入支持MTHI、MTLO的操作码，实现对LO和HI的修改。
+            同时LO和HI始终处于可读的状态，连接至写回阶段，MFLO与MFHI通过对写回阶段RegValue的控制来实现。
             \end{enumerate}
 
         \subsubsection{CP0}
@@ -64,6 +69,26 @@
                     在异常状态发生时保存异常的返回地址，异常类型等信息
                 \item
                     在内存映射中对TLB表项进行支持，为TLB充填等功能提供硬件支持
+                \item
+                    CP0寄存器的写方式有两种：
+                    \begin{enumerate}
+                        \item
+                            正常执行状态下，通过MTC0指令，将CP0寄存器编号，CP0写入值,
+                            CP0控制信号传递给CP0寄存器，进行写入操作。
+                        \item
+                            异常状态下，通过异常处理模块到CP0的连接，直接将异常原因、异常指令地址、
+                            访存错误地址等信息，写入cause、EPC、BadVAddr寄存器中
+                    \end{enumerate}
+                \item
+                    CP0寄存器的读方式有两种：
+                    \begin{enumerate}
+                        \item
+                            正常执行状态下，通过MFC0指令，将CP0寄存器编号传递给CP0寄存器，
+                            之后读取的值通过写回阶段写到通用寄存器中
+                        \item
+                            针对TLBWI等指令对CP0寄存器的读需求（需要同时读取5个CP0寄存器），
+                            将CP0寄存器与TLB相关的直接连接到MMU单元，通过TLBWI的使能信号控制写入TLB
+                    \end{enumerate}
             \end{enumerate}
 
             CP0具体实现方式参照下面两个小节。
@@ -285,6 +310,12 @@
                 \item
                 通过多路选择器选择ALU的输入数据，与当前PC进行运算%
                 实现PC的多种变化方式。
+                \item
+                针对异常状态、从异常返回两种情况的PC变化，从CP0寄存器中引出EPC与EBase两个地址到PC计算单元。
+                通过当前的状态进行判断PC的取值。
+                \item
+                下一条指令的PC在本条指令执行的最后一个阶段得到确定，
+                保证在下一条指令的取指令时钟上升沿开始之前，正确送到MMU进行取指令。
                 \end{enumerate}
 
             \paragraph{寄存器堆}
@@ -300,6 +331,9 @@
                 \begin{enumerate}
                 \item
                 在CPU中实现寄存器堆并实现读写控制。
+                \item
+                在解码指令阶段，根据指令的rs、rt、rd位置读取通用寄存器。
+                与写回模块相配合，完成寄存器堆的写入
                 \end{enumerate}
 
             \paragraph{串口}
@@ -326,11 +360,18 @@
 
                 \end{enumerate}
         \subsubsection{扩展部分}
-            目前没有关于扩展部分的想法，先完成基本部分。
+            在开发过程中需要分模块进行测试，因此在开发阶段计划实现一个分模块的测试工具。
 
-            网络部分比较有明确的开发目标，但组内无操作系统开发经验。
+            初步想法为：首先使用仿真工具ModelSim或者Xilinx自带的ISim进行仿真，
+            在给定的输入波形下产生对应的输出波形，将输入与输出波形都输出到文件中。
+            之后再使用该测试工具（用python或者c++等高级语言实现），对输出与标准输出进行比较，判断该模块是否正常工作。
 
-            测试工具部分没有明确的开发目标，不太清楚如何入手开发。
+            每个模块正常工作之后，将各个模块进行组合，形成整体的CPU设计，再进行后续调试工作。
+
+            对于测试工具部分会实时与老师进行沟通，明确老师对于测试工具的要求。
+
+            如果操作系统已经能够在CPU上正常运行，而且距离项目结束还有比较长的时间，则可以考虑对网口进行扩展。
+
 
         \subsubsection{指令集与数据通路}
             指令集为标准MIPS系统子集
@@ -350,16 +391,34 @@
 
             
     \subsection{BIOS}
-        准备阶段：操作系统和其他程序烧写到Flash中，%
-        bootasm.S编译出的二进制文件写到ROM中，再把CPU写到FPGA中。
+        准备阶段：
+        \begin{enumerate}
+            \item
+                操作系统和其他程序烧写到Flash中%
+            \item
+                bootasm.S编译出的二进制文件写到ROM中
+            \item
+                CPU代码烧写到FPGA中。
+        \end{enumerate}
 
-        启动阶段：从ROM中的bootasm.S启动，%
-        将Flash中的全部操作系统拷贝到RAM中，然后控制权交给操作系统。
+        启动阶段：
+        \begin{enumerate}
+            \item
+                从ROM中的bootasm.S启动
+            \item
+                将Flash中的全部操作系统拷贝到RAM中，然后控制权交给操作系统。
+        \end{enumerate}
 
-        操作系统启动：bootasm.S工作结束后，进入操作系统entry.S文件中进行寄存器初始化。
-        包括对通用寄存器，CP0寄存器，异常处理基地址进行初始化，之后跳转到init.c中的kern\_init。
-        在此完成TLB初始化，中断异常的初始化，物理内存与虚拟内存的转换页表的初始化，
-        最后完成操作系统的进程和文件管理系统，至此ucore系统开始正常工作
-
-
+        操作系统启动阶段：
+        \begin{enumerate}
+            \item
+                bootasm.S工作结束后，进入操作系统entry.S文件中进行寄存器初始化。
+            \item
+                entry.S：通用寄存器清零，CP0寄存器设置为默认值，异常处理基地址进行初始化，之后跳转到init.c中的kern\_init。
+            \item
+                kern\_init：完成TLB初始化（全部TLB表项清零），物理内存与虚拟内存的转换页表的初始化（创建初始页表）
+            \item
+                最后完成操作系统的进程和文件管理系统，至此ucore系统开始正常工作,
+        \end{enumerate}
+        
 
