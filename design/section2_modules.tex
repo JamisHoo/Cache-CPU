@@ -1,0 +1,38 @@
+\section{模块设计}
+    \subsection{取指令模块}
+        \subsubsection{代码文件}
+            IFetch.vhd
+
+            IFetch\_test.vhd
+        \subsubsection{接口说明}
+
+            \begin{table}
+            \centering
+            \caption{取指令模块接口}
+            \begin{tabularx}{\textwidth}{|l|l|l|X|}
+            \hline
+            端口名 & 出/入 & 类型 &　功能 \\
+            \hline
+            clk & in & std\_logic & 时钟信号　\\
+            \hline
+            PCSrc & in & std\_logic\_vector(31 downto 0) & 正常状态下下一个PC值 \\
+            \hline
+            EBase & in & std\_logic\_vector(31 downto 0) & 异常处理基地址 \\
+            \hline
+            EPC & in & std\_logic\_vector(31 downto 0) & 异常返回地址 \\
+            \hline
+            pc\_sel & in & std\_logic\_vector(1 downto 0) & PC选择信号 \\
+            \hline
+            state & in & std\_logic\_vector(3 downto 0) & 状态信息 \\
+            \hline
+            PC & out & std\_logic\_vector(31 downto 0) & 指令地址（生成PCSrc） \\
+            \hline
+            PCmmu & out & std\_logic\_vector(31 downto 0) & 指令地址（连接至MMU进行取指） \\
+            \hline
+            \end{tabularx}
+            \end{table}            
+
+        \subsubsection{内部实现}
+            
+    \subsection{指令解码模块}
+    \subsection{}
