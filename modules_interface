@@ -22,7 +22,6 @@ ID:
     // 组合逻辑
     out: rs_addr                std_logic_vector(4 downto 0)
     out: rt_addr                std_logic_vector(4 downto 0)
-    
     out: rd_addr                std_logic_vector(4 downto 0)
     
     out: pc_op                  std_logic_vector(2 downto 0)
