@@ -1,0 +1,60 @@
+IFetch模块接口说明
+
+clk : in std_logic;
+state : in status;
+
+PCSrc : in std_logic_vector(31 downto 0);
+    说明：非异常状态下的指令地址
+    来源：WB模块
+    到达时间：当前指令InsF上升沿之前
+    产生时间：上一条指令WB上升沿之后
+    
+EBase : in std_logic_vector(31 downto 0);
+    说明：异常处理基地址
+    来源：CP0模块
+    到达时间：当前指令InsF上升沿到来之前
+    
+EPC : in std_logic_vector(31 downto 0);
+    说明：ERET指令的返回地址
+    来源：CP0模块
+    到达时间：当前指令InsF上升沿到来之前
+    
+pc_sel : in std_logic_vector(1 downto 0);		-- eret_enable, pc_control
+	pc_sel(1):
+        说明：eret_enable，使能信号
+        来源：ID模块
+        到达时间：当前指令InsF上升沿到来之前
+        产生时间：上一条指令ID上升沿之后
+        
+    pc_sel(0)：
+        说明：pc_control，判断是否为异常状态
+        来源：异常模块
+        到达时间：当前指令InsF上升沿到来之前
+    
+PC : out std_logic_vector(31 downto 0);		-- register, with sequential logic
+    说明：PC寄存器
+    产生时间：当前指令InsF上升沿到来之后
+    有效时间：直到下一条指令的IF阶段
+    
+PCmmu : out std_logic_vector(31 downto 0)		-- combinatory, for mmu
+    说明：为MMU单元提供的PC
+    产生时间：当前指令InsF上升沿到来之前
+    有效时间：直到当前指令IF阶段结束
+    
+    
+IFetch模块内部实现
+需要的数据有PcSrc、EBase、EPC
+PcSrc产生于上一条指令的WB阶段。
+EBase为固定值，直接从CP0部分连接过来。
+EPC在异常阶段写入，直接从CP0部分连接过来。
+pc_sel为上一条指令的解码阶段产生
+因此，所有的数据都能够在InsF时钟上升沿之前准备完毕。
+
+内部分为两个部分对PC进行计算：
+1、首先为组合逻辑部分，需要在InsF时钟上升沿到来之前为MMU计算出PC值
+    因此建立一个process，敏感信号为全部的PC选择信息，即时计算出PC值，连接到MMU部分，使得MMU能够在InsF上升沿进行取指令的操作
+    
+2、其次为时序逻辑部分，在InsF时钟上升沿时，对PC进行选择，选择方式与PCmmu相同
+    此process产生的PC，在当前指令的全部周期有效，是计算RPC、branch、jump的地址的基础
+    
+    

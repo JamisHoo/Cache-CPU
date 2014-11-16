@@ -1,0 +1,85 @@
+IDecode模块接口说明
+clk : in std_logic;
+state : in status;
+instruction : in std_logic_vector(31 downto 0);
+	说明：当前指令
+    来源：MMU模块
+    到达时间：当前指令InsD上升沿之前
+    产生时间：当前指令InsF上升沿之后
+    
+instr_out : out std_logic_vector(31 downto 0);
+	说明：指令寄存器
+    产生时间：当前指令InsD上升沿之后
+    
+rs_addr : out std_logic_vector(4 downto 0);
+    说明：通用寄存器编号1
+    产生时间：当前指令InsD上升沿之前
+    
+rt_addr : out std_logic_vector(4 downto 0);
+    说明：通用寄存器编号2、写入寄存器编号
+    产生时间：当前指令InsD上升沿之前
+    
+rd_addr : out std_logic_vector(4 downto 0);
+	说明：CP0寄存器编号、写入寄存器编号
+    产生时间：当前指令InsD上升沿之前
+
+以下信号产生时间均为当前指令InsD上升沿之后
+有效时间到下一条指令InsD上升沿之后
+
+pc_op : out std_logic_vector(1 downto 0);
+    说明：PCSrc选择器，正常状态下PC的选择方式
+    
+eret_enable : out std_logic;
+    说明：ERET使能，对PC进行选择
+    
+comp_op : out std_logic_vector(2 downto 0);
+	说明：比较信号，branch指令的跳转条件
+    
+imme : out std_logic_vector(31 downto 0);
+    说明：32位立即数，针对不同指令的需求产生
+    
+alu_ops : out std_logic_vector(8 downto 0);
+	说明：控制ALU模块
+        ALUSrcA(8 downto 7)：ALU第一输入的选择信号
+        ALUSrcB(6 downto 5)：ALU第二输入的选择信号
+        ALUOp(4 downto 0)：ALU操作
+    
+mem_op : out std_logic_vector(2 downto 0);
+    说明：控制MEM模块
+        MEMRead(2)：是否可读内存
+        MEMWrite(1)：是否可写内存
+        MEMValue(0)：选择写入内存的值
+        
+wb_op : out std_logic_vector(5 downto 0);
+    说明：控制WB模块
+        RegDst(5 downto 4)：写回寄存器编号
+        RegValue(3 downto 1)：写回寄存器的内容
+        RegWrite(0)：寄存器是否可写
+    
+cp0_op : out std_logic_vector(1 downto 0);
+	说明：控制CP0模块
+        EPCValue(1)：异常产生时，EPC写入的内容
+        CP0Write(0)：CP0寄存器是否可写
+        
+tlbwi_enable : out std_logic;
+    说明：TLB写使能
+    
+to_lo_enable : out std_logic;
+    说明：MTLO写使能
+
+to_hi_enable : out std_logic;
+    说明：MTHI写使能
+    
+    
+IDecode内部实现
+需要的数据有instruction
+产生于当前指令InsF上升沿之后，能够在当前指令InsD上升沿之前到达
+
+内部实现分为两部分：
+1、在InsD阶段除了解码指令之外，还需要读取通用寄存器和CP0寄存器的值。
+需要在InsD上升沿到来之前，将三个寄存器编号发送给寄存器堆
+
+因此将instruction的三个5位的寄存器编号直接连接到输出的rs、rt、rd部分
+
+2、其他指令的解码均通过时钟驱动
+    在InsD时钟上升沿之后，根据指令解码产生控制信号。    
