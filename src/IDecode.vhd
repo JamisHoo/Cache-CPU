@@ -58,9 +58,7 @@ port(
 	wb_op : out std_logic_vector(5 downto 0);
 	cp0_op : out std_logic_vector(1 downto 0);
 	
-	tlbwi_enable : out std_logic;
-	to_lo_enable : out std_logic;
-	to_hi_enable : out std_logic
+	tlbwi_enable : out std_logic
 );
 end IDecode;
 
@@ -80,8 +78,6 @@ architecture Behavioral of IDecode is
 	signal cp0_op_reg : std_logic_vector(1 downto 0);		-- epc_value, cp0_write
 	
 	signal tlbwi_enable_reg : std_logic;
-	signal to_lo_enable_reg : std_logic;
-	signal to_hi_enable_reg : std_logic;
 	
 begin
 	
@@ -106,8 +102,6 @@ begin
 	cp0_op <= cp0_op_reg;
 	
 	tlbwi_enable <= tlbwi_enable_reg;
-	to_lo_enable <= to_lo_enable_reg;
-	to_hi_enable <= to_hi_enable_reg;
 	
 	-- decode special control sequences
 	process(clk)
@@ -136,18 +130,6 @@ begin
 					tlbwi_enable_reg <= '1';
 				else
 					tlbwi_enable_reg <= '0';
-				end if;
-				
-				-- generate to_lo/hi_enable
-				if First = F_ZERO and Last = L_MTLO then
-					to_lo_enable_reg <= '1';
-					to_hi_enable_reg <= '0';
-				elsif First = F_ZERO and Last = L_MTHI then
-					to_hi_enable_reg <= '1';
-					to_lo_enable_reg <= '0';
-				else
-					to_hi_enable_reg <= '0';
-					to_lo_enable_reg <= '0';
 				end if;
 				
 				-- generate comp_op
@@ -289,11 +271,11 @@ begin
 											when L_SLT => alu_ops_reg <= "000001010";
 											when L_SLTU => alu_ops_reg <= "000001011";
 											when L_SUBU => alu_ops_reg <= "000000001";
-											when L_MULT => alu_ops_reg <= "000001100";
-											when L_MFLO => alu_ops_reg <= "000001111";
-											when L_MFHI => alu_ops_reg <= "000001110";
-											when L_MTLO => alu_ops_reg <= "000001101";
-											when L_MTHI => alu_ops_reg <= "000001101";
+											when L_MULT => alu_ops_reg <= "000010000";
+											when L_MFLO => alu_ops_reg <= "000010001";
+											when L_MFHI => alu_ops_reg <= "000010010";
+											when L_MTLO => alu_ops_reg <= "000010011";
+											when L_MTHI => alu_ops_reg <= "000010100";
 											when L_JALR => alu_ops_reg <= "001000000";
 											when L_JR => alu_ops_reg <= "001000000";
 											when L_AND => alu_ops_reg <= "000000011";
