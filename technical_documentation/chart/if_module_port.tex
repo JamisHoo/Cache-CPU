@@ -1,0 +1,102 @@
+        \begin{tabularx}{\textwidth}{lll}
+            \toprule
+            端口名          & 端口方向  & 端口类型 \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{端口描述} \\
+            \midrule
+            clk             & in        & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                原作者很懒，没有写端口描述。
+            } \\
+            \midrule
+            state           & in        & std\_logic\_vector(3 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                原作者很懒，没有写端口描述。
+            } \\
+            \midrule
+            PCSrc           & in        & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：非异常状态下的指令地址。
+
+                来源：WB模块。
+
+                到达时间：当前指令InsF上升沿之前。
+
+                产生时间：上一条指令WB上升沿之后。
+            } \\
+            \midrule
+            EBase           & in        & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：异常处理基地址。
+
+                来源：CP0模块。
+
+                到达时间：当前指令InsF上升沿到来之前。
+            } \\
+            \midrule
+            EPC             & in        & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：ERET指令的返回地址。
+
+                来源：CP0模块。
+
+                到达时间：当前指令InsF上升沿到来之前。
+            } \\
+            \midrule
+            pc\_sel         & in        & std\_logic\_vector(1 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                pc\_sel(1):
+
+                    说明：eret\_enable，使能信号。
+
+                    来源：ID模块。
+
+                    到达时间：当前指令InsF上升沿到来之前。
+
+                    产生时间：上一条指令ID上升沿之后。
+                    
+                pc\_sel(0)：
+
+                    说明：pc\_control，判断是否为异常状态。
+
+                    来源：异常模块。
+
+                    到达时间：当前指令InsF上升沿到来之前。
+            } \\
+            \midrule
+            PC              & out       & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：PC寄存器，时序逻辑。
+
+                产生时间：当前指令InsF上升沿到来之后。
+
+                有效时间：直到下一条指令的IF阶段。
+            } \\
+            \midrule
+            PCmmu           & out       & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：为MMU单元提供的PC，组合逻辑。
+
+                产生时间：当前指令InsF上升沿到来之前。
+
+                有效时间：直到当前指令IF阶段结束。
+            } \\
+            \bottomrule
+            \end{tabularx}

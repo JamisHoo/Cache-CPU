@@ -1,0 +1,204 @@
+        \begin{tabularx}{\textwidth}{lll}
+            \toprule
+            端口名          & 端口方向  & 端口类型 \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{端口描述} \\
+            \midrule
+            clk             & in        & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                原作者很懒，没有写端口描述。
+            } \\
+            \midrule
+            state           & in        & std\_logic\_vector(3 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                原作者很懒，没有写端口描述。
+            } \\
+            \midrule
+            instruction     & in        & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：当前指令。
+
+                来源：MMU模块。
+
+                到达时间：当前指令InsD上升沿之前。
+
+                产生时间：当前指令InsF上升沿之后。
+            } \\
+            \midrule
+            instr\_out      & out       & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：指令寄存器，除三个寄存器的编号，%
+                其他所有控制线均从此产生。%
+                之后周期中如果需要用到指令也从此处获得。
+
+                产生时间：当前指令InsD上升沿之后。
+            } \\
+            \midrule
+            rs\_addr        & out       & std\_logic\_vector(4 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：通用寄存器编号1，在InsD阶段需要读取到值。
+
+                产生时间：当前指令InsD上升沿之前。
+            } \\
+            \midrule
+            rt\_addr        & out       & std\_logic\_vector(4 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：通用寄存器编号2、写入寄存器编号，在InsD阶段需要读取到值。
+
+                产生时间：当前指令InsD上升沿之前。
+            } \\
+            \midrule
+            rd\_addr        & out       & std\_logic\_vector(4 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：CP0寄存器编号、写入寄存器编号，在InsD阶段需要读取到值。
+
+                产生时间：当前指令InsD上升沿之前。
+            } \\
+            \midrule
+            pc\_op          & out       & std\_logic\_vector(1 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：PCSrc选择器，正常状态下PC的选择方式。%
+                输出到WB模块，4选1数据选择器的控制信号，选择正确的PC。
+
+                产生时间：当前指令InsD上升沿之后。
+
+                有效时间：下一条指令InsD上升沿之后。 
+            } \\
+            \midrule
+            eret\_enable    & out       & std\_logic \\
+
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：ERET使能，对PC进行选择。%
+                专门对ERET指令使用，输出到IFetch模块。
+
+                产生时间：当前指令InsD上升沿之后。
+
+                有效时间：下一条指令InsD上升沿之后。 
+            } \\
+            \midrule
+            comp\_op        & out       & std\_logic\_vector(2 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：比较信号，branch指令的跳转条件。%
+                输出到WB模块，如果为branch系列指令则通过此信号进行选择。
+
+                产生时间：当前指令InsD上升沿之后。
+
+                有效时间：下一条指令InsD上升沿之后。 
+            } \\
+            \midrule
+            imme            & out       & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：32位立即数，针对不同指令的需求产生。%
+                立即数本身作为ALUSrc的来源之一。
+
+                产生时间：当前指令InsD上升沿之后。
+
+                有效时间：下一条指令InsD上升沿之后。 
+            } \\
+            \midrule
+            alu\_ops        & out       & std\_logic\_vector(8 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：控制ALU模块。
+
+                ALUSrcA(8 downto 7)：ALU第一输入的选择信号，%
+                四选一数据选择。
+
+                ALUSrcB(6 downto 5)：ALU第二输入的选择信号，%
+                四选一数据选择。
+
+                ALUOp(4 downto 0)：ALU操作，%
+                暂定4位，可以扩展为5位，详细说明见表格。
+
+                产生时间：当前指令InsD上升沿之后。
+
+                有效时间：下一条指令InsD上升沿之后。 
+            } \\
+            \midrule
+            mem\_op         & out       & std\_logic\_vector(2 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：控制MEM模块。
+
+                MEMRead(2)：是否可读内存。
+
+                MEMWrite(1)：是否可写内存。
+
+                MEMValue(0)：选择写入内存的值，%
+                寄存器的数据或者SB指令处理之后的数据。
+
+                产生时间：当前指令InsD上升沿之后。
+
+                有效时间：下一条指令InsD上升沿之后。
+            } \\
+            \midrule
+            wb\_op          & out       & std\_logic\_vector(5 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：控制WB模块。
+
+                RegDst(5 downto 4)：写回寄存器编号，%
+                            rt或者rd或者31号寄存器。
+                RegValue(3 downto 1)：写回寄存器的内容，%
+                                信号详细说明见表格。
+                RegWrite(0)：寄存器是否可写。
+
+                产生时间：当前指令InsD上升沿之后。
+
+                有效时间：下一条指令InsD上升沿之后。 
+            } \\
+            \midrule
+            cp0\_op         & out       & std\_logic\_vector(1 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：控制CP0模块。
+
+                EPCValue(1)：异常产生时，EPC写入的内容，%
+                选择写入PC或者PC+4。
+
+                CP0Write(0)：CP0寄存器是否可写。
+
+                产生时间：当前指令InsD上升沿之后。
+
+                有效时间：下一条指令InsD上升沿之后 
+            } \\
+            \midrule
+            tlbwi\_enable   & out       & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：TLB写使能。
+
+                产生时间：当前指令InsD上升沿之后。
+
+                有效时间：下一条指令InsD上升沿之后。
+            } \\
+            \bottomrule
+            \end{tabularx}
