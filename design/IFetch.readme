@@ -41,8 +41,12 @@ PCmmu : out std_logic_vector(31 downto 0)		-- combinatory, for mmu
     产生时间：当前指令InsF上升沿到来之前
     有效时间：直到当前指令IF阶段结束
     
+
+
+
     
 IFetch模块内部实现
+
 需要的数据有PcSrc、EBase、EPC
 PcSrc产生于上一条指令的WB阶段。
 EBase为固定值，直接从CP0部分连接过来。
