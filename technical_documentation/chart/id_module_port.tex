@@ -9,14 +9,14 @@
             \cmidrule(l){2-3}
             &
             \multicolumn{2}{X}{
-                原作者很懒，没有写端口描述。
+                CPU时钟信号
             } \\
             \midrule
             state           & in        & std\_logic\_vector(3 downto 0) \\
             \cmidrule(l){2-3}
             &
             \multicolumn{2}{X}{
-                原作者很懒，没有写端口描述。
+                CPU当前状态
             } \\
             \midrule
             instruction     & in        & std\_logic\_vector(31 downto 0) \\
@@ -81,6 +81,16 @@
 
                 有效时间：下一条指令InsD上升沿之后。 
             } \\
+            &
+            \multicolumn{2}{X}{
+                00 PC+4的计算结果
+
+                01 branch指令PC计算的结果
+
+                10 jump指令目标地址
+
+                11 主ALUOut计算结果
+            } \\
             \midrule
             eret\_enable    & out       & std\_logic \\
 
@@ -106,6 +116,20 @@
 
                 有效时间：下一条指令InsD上升沿之后。 
             } \\
+            &
+            \multicolumn{2}{X}{
+                000 BEQ（R[s] = R[t]）
+
+                001 BGEZ(R[s] >= 0)
+
+                010 BGTZ(R[s] > 0)
+
+                011 BLEZ(R[s] <= 0)
+
+                100 BLTZ(R[s] < 0)
+
+                101 BNE(R[s] != R[t])
+            } \\
             \midrule
             imme            & out       & std\_logic\_vector(31 downto 0) \\
             \cmidrule(l){2-3}
@@ -117,6 +141,13 @@
                 产生时间：当前指令InsD上升沿之后。
 
                 有效时间：下一条指令InsD上升沿之后。 
+            } \\
+            &
+            \multicolumn{2}{X}{
+                立即数产生方式有四种，均为从不同立即数长度扩展为32位
+
+                16位有符号扩展，16位无符号扩展，
+                移位指令需要的5位到32位扩展，jump指令的立即数扩展
             } \\
             \midrule
             alu\_ops        & out       & std\_logic\_vector(8 downto 0) \\
@@ -132,7 +163,7 @@
                 四选一数据选择。
 
                 ALUOp(4 downto 0)：ALU操作，%
-                暂定4位，可以扩展为5位，详细说明见表格。
+                5位，整合了乘法器相关运算，详细说明见ALU模块说明。
 
                 产生时间：当前指令InsD上升沿之后。
 
@@ -163,15 +194,35 @@
             \multicolumn{2}{X}{
                 说明：控制WB模块。
 
-                RegDst(5 downto 4)：写回寄存器编号，%
-                            rt或者rd或者31号寄存器。
-                RegValue(3 downto 1)：写回寄存器的内容，%
-                                信号详细说明见表格。
-                RegWrite(0)：寄存器是否可写。
-
                 产生时间：当前指令InsD上升沿之后。
 
                 有效时间：下一条指令InsD上升沿之后。 
+
+                RegDst(5 downto 4)：写回寄存器编号
+
+                如果为00则写回16到20位rt寄存器，
+                如果为01则写回11到15位rd寄存器，
+                如果为10则写回31号寄存器
+
+                RegWrite(0)：寄存器是否可写。
+            } \\
+            &
+            \multicolumn{2}{X}{
+                RegValue(3 downto 1)：写回寄存器的内容%
+
+                000 主ALU计算结果
+
+                001 读取内存的数据
+
+                010 RPC
+
+                011 Zero-extend内存byte
+
+                100 Signed-extend内存byte
+
+                101 Zero-extend内存word
+
+                110 CP0寄存器
             } \\
             \midrule
             cp0\_op         & out       & std\_logic\_vector(1 downto 0) \\
