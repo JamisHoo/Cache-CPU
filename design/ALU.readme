@@ -1,1 +1,44 @@
-TODO
+信号说明：
+    clk: in std_logic
+        cpu时钟信号。为保证乘法计算完成，时钟频率不能太高。
+    enable: in std_logic
+        ALU模块是否使能，为1时工作，为0时不工作。需要在clk时钟上升沿之前准备好，并保持到clk时钟上升沿之后一极短时间。
+    rs_value: in std_logic_vector(31 down to 0)
+        来自通用寄存器堆的第一个值。需要在clk时钟上升沿之前准备好，并保持到clk时钟上升沿之后一极短时间。
+    rt_value: in std_logic_vector(31 down to 0)
+        来自通用寄存器堆的第二个值。需要在clk时钟上升沿之前准备好，并保持到clk时钟上升沿之后一极短时间。
+    imme: in std_logic_vector(31 downto 0)
+        指令中包含的立即数，来自指令解析模块。需要在clk时钟上升沿之前准备好，并保持到clk时钟上升沿之后一极短时间。
+    cp0_value: in std_logic_vector(31 downto 0)
+        来自cp0寄存器，mfc0指令需要。需要在clk时钟上升沿之前准备好，并保持到clk时钟上升沿之后一极短时间。
+    state: in std_logic_vector(3 downto 0)
+        来自状态控制模块，用来指示当前处于工作状态的模块。若当前非ALU工作状态，则任何外部输入都不会对ALU的hi、lo寄存器以及ALU的输出造成修改。需要在clk时钟上升沿之前准备好，并保持到clk时钟上升沿之后一极短时间。
+    alu_op: in std_logic_vector(4 downto 0)
+        来自指令解析模块的ALU运算操作符。需要在clk时钟上升沿之前准备好，并保持到clk时钟上升沿之后一极短时间。各操作符代表的意义为（A、B分别代表经过alu_srcA、alu_srcB选择后的值，result代表alu_result，lo、hi代表乘法寄存器）：
+            00000 result = A + B
+            00001 result = A - B
+            00010 result = A - B（比较大小，实际做减法）
+            00011 result = A & B
+            00100 result = A | B
+            00101 result = A ^ B
+            00110 result = ~(A | B)
+            00111 result = B << A
+            01000 result = B >> A（算术右移）
+            01001 result = B >> A（逻辑右移）
+            01010 result = A < B?（有符号比较，结果真时最低位输出1，否则输出0，其他位总是输出0）
+            01011 result = A < B?（无符号比较，结果真时最低位输出1，否则输出0，其他位总是输出0）
+
+            10000 hi_lo = A * B（补码乘法）
+            10001 result = lo
+            10010 result = hi
+            10011 lo = A
+            10100 hi = A
+    alu_srcA: in std_logic_vector(1 downto 0)
+        ALU的第一个操作数的选择码，当值为“00”时选取rs_value，当值为“01”时选取imme，当值为“10”时选取cp0_value，当值为“11”时选取立即数16。需要在clk时钟上升沿之前准备好，并保持到clk时钟上升沿之后一极短时间。
+    alu_srcB: in std_logic_vector(1 downto 0)
+        ALU的第二个操作数的选择码，当值为“00”时选取rt_value，当值为“01”时选取imme，当值为“10”时选取cp0_value。需要在clk时钟上升沿之前准备好，并保持到clk时钟上升沿之后一极短时间。
+    alu_result: out std_logic_vector(31 downto 0)
+        ALU的输出，在下一个时钟上升沿之前准备好，并保持直到下一次能使ALU输出改变（state为ALU工作状态、enable为1、alu_op非写hi、lo寄存器）的时钟上升沿。
+
+内部实现：
+    每次时钟上升沿到来时，检查enable、state，若不是ALU工作状态则不进行任何操作。根据alu_srcA选择第一个操作数，根据alu_srcB选择第二个操作数，根据操作码进行相应的运算，将结果输出或保存到hi、lo寄存器中。注意乘法运算需要较多的时间，因此若在某一个时钟上升沿进行乘法运算，不能认为在下一个时钟上升沿就能在hi、lo寄存器中取到正确的结果。一般来说，在12.5MHz时钟频率下进行乘法运算需要大约2个时钟周期，那么如果在多周期CPU上，可以保证两条连续的乘法、取hi(lo)寄存器指令能得到正确的结果，但是在流水线CPU上不能保证。乘法运算时间需要根据不同的硬件平台、时钟频率进行测量，不能一概而论。
