@@ -1,38 +1,203 @@
 \section{模块设计}
-    \subsection{取指令模块}
-        \subsubsection{代码文件}
-            IFetch.vhd
-
-            IFetch\_test.vhd
-        \subsubsection{接口说明}
-
-            \begin{table}
-            \centering
-            \caption{取指令模块接口}
-            \begin{tabularx}{\textwidth}{|l|l|l|X|}
-            \hline
-            端口名 & 出/入 & 类型 &　功能 \\
-            \hline
-            clk & in & std\_logic & 时钟信号　\\
-            \hline
-            PCSrc & in & std\_logic\_vector(31 downto 0) & 正常状态下下一个PC值 \\
-            \hline
-            EBase & in & std\_logic\_vector(31 downto 0) & 异常处理基地址 \\
-            \hline
-            EPC & in & std\_logic\_vector(31 downto 0) & 异常返回地址 \\
-            \hline
-            pc\_sel & in & std\_logic\_vector(1 downto 0) & PC选择信号 \\
-            \hline
-            state & in & std\_logic\_vector(3 downto 0) & 状态信息 \\
-            \hline
-            PC & out & std\_logic\_vector(31 downto 0) & 指令地址（生成PCSrc） \\
-            \hline
-            PCmmu & out & std\_logic\_vector(31 downto 0) & 指令地址（连接至MMU进行取指） \\
-            \hline
-            \end{tabularx}
-            \end{table}            
-
-        \subsubsection{内部实现}
+%    \subsection{取指令模块}
+%        \subsubsection{代码文件}
+%            IFetch.vhd
+%
+%            IFetch\_test.vhd
+%        \subsubsection{接口说明}
+%
+%            \begin{table}
+%            \centering
+%            \caption{取指令模块接口}
+%            \begin{tabularx}{\textwidth}{|l|l|l|X|}
+%            \hline
+%            端口名 & 出/入 & 类型 &　功能 \\
+%            \hline
+%            clk & in & std\_logic & 时钟信号　\\
+%            \hline
+%            PCSrc & in & std\_logic\_vector(31 downto 0) & 正常状态下下一个PC值 \\
+%            \hline
+%            EBase & in & std\_logic\_vector(31 downto 0) & 异常处理基地址 \\
+%            \hline
+%            EPC & in & std\_logic\_vector(31 downto 0) & 异常返回地址 \\
+%            \hline
+%            pc\_sel & in & std\_logic\_vector(1 downto 0) & PC选择信号 \\
+%            \hline
+%            state & in & std\_logic\_vector(3 downto 0) & 状态信息 \\
+%            \hline
+%            PC & out & std\_logic\_vector(31 downto 0) & 指令地址（生成PCSrc） \\
+%            \hline
+%            PCmmu & out & std\_logic\_vector(31 downto 0) & 指令地址（连接至MMU进行取指） \\
+%            \hline
+%            \end{tabularx}
+%            \end{table}            
+%
+%        \subsubsection{内部实现}
+%            
+%    \subsection{指令解码模块}
+    \subsection{ALU模块}
+        \subsubsection{端口说明}
+            % \begin{tabularx}{\textwidth}{llX}
+            \begin{tabularx}{\textwidth}{lll}
+            \toprule
+            端口名          & 端口方向 & 端口类型 \\
+            \cmidrule(l){2-3}
+                            & \multicolumn{2}{l}{端口描述} \\
+            \midrule
+            clk             & in       & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{CPU时钟信号。} \\
+            \midrule
             
-    \subsection{指令解码模块}
-    \subsection{}
+            enable          & in       & std\_logic \\
+            \cmidrule(l){2-3}
+            & 
+            \multicolumn{2}{X}{
+            ALU模块是否使能，为1时工作，为0时不工作，%
+            需要在clk时钟上升沿之前准备好，%
+            并保持到clk时钟上升沿之后一极短时间。} \\
+            \midrule
+            rs\_value        & in       & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+            来自通用寄存器堆的第一个值。需要在clk时钟上升沿之前准备好，%
+            并保持到clk时钟上升沿之后一极短时间。} \\
+            \midrule
+            rt\_value        & in       & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            & 
+            \multicolumn{2}{X}{
+            来自通用寄存器堆的第二个值。需要在clk时钟上升沿之前准备好，%
+            并保持到clk时钟上升沿之后一极短时间。} \\
+            \midrule
+            imme            & in       & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+            指令中包含的立即数，来自指令解析模块。%
+            需要在clk时钟上升沿之前准备好，%
+            并保持到clk时钟上升沿之后一极短时间。} \\
+            \midrule
+            cp0\_value      & in       & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+            来自cp0寄存器，mfc0指令需要。%
+            需要在clk时钟上升沿之前准备好，%
+            并保持到clk时钟上升沿之后一极短时间。} \\
+            \midrule
+            state           & in       & std\_logic\_vector(3 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+            来自状态控制模块，用来指示当前处于工作状态的模块。%
+            若当前非ALU工作状态，%
+            则任何外部输入都不会对ALU的hi、lo寄存器以及ALU的输出造成修改。%
+            需要在clk时钟上升沿之前准备好，%
+            并保持到clk时钟上升沿之后一极短时间。} \\
+            \midrule
+            alu\_op         & in       & std\_logic\_vector(4 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+            来自指令解析模块的ALU运算操作符。%
+            需要在clk时钟上升沿之前准备好，%
+            并保持到clk时钟上升沿之后一极短时间。%
+            各操作符代表的意义为%
+            （A、B分别代表经过alu\_srcA、alu\_srcB选择后的值，%
+            result代表alu\_result，lo、hi代表乘法寄存器）：%
+            } \\
+            &
+            \multicolumn{2}{X}{
+            00000 result = A + B
+
+            00001 result = A - B
+
+            00010 result = A - B（比较大小，实际做减法）
+
+            00011 result = A \& B
+            } \\
+            &
+            \multicolumn{2}{X}{
+            00100 result = A | B
+
+            00101 result = A \textasciicircum \ B
+
+            00110 result = ~(A | B)
+
+            00111 result = B << A
+            } \\
+            &
+            \multicolumn{2}{X}{
+            01000 result = B >> A（算术右移）
+
+            01001 result = B >> A（逻辑右移）
+            } \\
+            &
+            \multicolumn{2}{X}{
+            01010 result = A < B?（有符号比较，结果真时最低位输出1，否则输出0，其他位总是输出0）
+
+            01011 result = A < B?（无符号比较，结果真时最低位输出1，否则输出0，其他位总是输出0）
+            } \\
+            &
+            \multicolumn{2}{X}{
+            10000 hi\_lo = A * B（补码乘法）
+
+            10001 result = lo
+
+            10010 result = hi
+            } \\
+            &
+            \multicolumn{2}{X}{
+            10011 lo = A
+
+            10100 hi = A} \\
+            \midrule
+            alu\_srcA & in & std\_logic\_vector(1 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+            ALU的第一个操作数的选择码，%
+            当值为“00”时选取rs\_value，%
+            当值为“01”时选取imme，当值为“10”时选取cp0\_value，%
+            当值为“11”时选取立即数16。需要在clk时钟上升沿之前准备好，%
+            并保持到clk时钟上升沿之后一极短时间。
+            } \\
+            \midrule
+            alu\_srcB & in & std\_logic\_vector(1 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+            ALU的第二个操作数的选择码，当值为“00”时选取rt\_value，%
+            当值为“01”时选取imme，当值为“10”时选取cp0\_value。%
+            需要在clk时钟上升沿之前准备好，%
+            并保持到clk时钟上升沿之后一极短时间。
+            } \\
+            \midrule
+            alu\_result & out & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+            ALU的输出，在下一个时钟上升沿之前准备好，%
+            并保持直到下一次能使ALU输出改变%
+            （state为ALU工作状态、enable为1、alu\_op非写hi、lo寄存器）%
+            的时钟上升沿。
+            } \\
+            \bottomrule
+            \end{tabularx}
+        \subsubsection{内部实现}
+            每次时钟上升沿到来时，检查enable、state，%
+            若不是ALU工作状态则不进行任何操作。%
+            根据alu\_srcA选择第一个操作数，根据alu\_srcB选择第二个操作数，%
+            根据操作码进行相应的运算，将结果输出或保存到hi、lo寄存器中。
+
+            注意乘法运算需要较多的时间，因此若在某一个时钟上升沿进行乘法运算，%
+            不能认为在下一个时钟上升沿就能在hi、lo寄存器中取到正确的结果。%
+            一般来说，在12.5MHz时钟频率下进行乘法运算需要大约2个时钟周期，%
+            那么如果在多周期CPU上，%
+            可以保证两条连续的乘法、取hi(lo)寄存器指令能得到正确的结果，%
+            但是在流水线CPU上不能保证。%
+            乘法运算时间需要根据不同的硬件平台、时钟频率进行测量，%
+            不能一概而论。
