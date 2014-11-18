@@ -3,9 +3,12 @@ all: compile
 HEADER = header.tex
 
 SECTIONS = section1_introduction.tex \
+		   section2_modules.tex \
+		   section3_topEntity.tex \
+		   section4_dirtree.tex
 
 OUTPUTDIR = output/
-JOBNAME = desd
+JOBNAME = td
 
 UNAME := $(shell uname)
 
