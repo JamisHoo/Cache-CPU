@@ -1,0 +1,88 @@
+WB模块接口说明：
+	clk : in std_logic;
+	时钟信号
+	state : in std_logic_vector(3 downto 0);
+	状态机
+
+	WB_e : in std_logic;
+	WB文件的使能信号
+	RPC : in std_logic_vector(31 downto 0);
+	即本周期的PC+4，要求ALU阶段上升沿之前准备好。
+	mmu_value : in std_logic_vector(31 downto 0);
+	来自MMU的读取值，要求WB阶段上升沿之前准备好。
+	cp0_value : in std_logic_vector(31 downto 0);
+	来自CP0的读取值，要求WB阶段上升沿之前准备好。
+	alu_result : in std_logic_vector(31 downto 0);
+	来自ALU的读取值，要求WB阶段上升沿之前准备好。
+	wb_op : in std_logic_vector(5 downto 0);
+	WB阶段写入寄存器编号的来源与写入数据的来源选择，要求WB阶段上升沿之前准备好。
+	4-3位为写入寄存器编号来源的控制信号：
+		00表示写入rt寄存器；
+		01表示写入rd寄存器；
+		10表示写入31寄存器；
+		11或其他信号表示不写；
+	2-0位为写入数据来源的控制信号：
+		000表示数据来自ALU；
+		001表示数据来自MMU；
+		010表示数据来自RPC；
+		011表示数据来自MMU，此时为LBU操作，根据alu_result的低2位决定使用MMU数据的哪一字节，高位零扩展；
+		100表示数据来自MMU，此时为LB操作，根据alu_result的低2位决定使用MMU数据的哪一字节，高位符号扩展；
+		101表示数据来自MMU，此时为LHU操作，根据alu_result的低2位决定使用MMU数据的哪一字节，高位零扩展；
+		110表示数据来自CP0寄存器；
+	rd_addr : in std_logic_vector(4 downto 0);
+	Rd寄存器编号，要求WB阶段上升沿之前准备好。
+	rt_addr : in std_logic_vector(4 downto 0);
+	Rt寄存器编号，要求WB阶段上升沿之前准备好。
+
+	对于IP core的片内RAM模块组成的通用寄存器组，以下三个信号请直接接至通用寄存器组。
+	write_addr : out std_logic_vector(4 downto 0);
+	写入通用寄存器组的地址，请在每一时钟上升沿使用。保持到下一WB阶段时钟上升沿。
+	write_value : out std_logic_vector(31 downto 0);
+	写入通用寄存器组的数据，请在每一时钟上升沿使用。保持到下一WB阶段时钟上升沿。
+	write_enable : out std_logic;
+	写入通用寄存器组的使能，请在每一时钟上升沿使用。保持到下一WB阶段时钟上升沿。
+ 
+
+	pc_op : in std_logic_vector(2 downto 0);
+	非ERET指令时，选择新PC的控制信号
+		00时，选PC+4，即RPC；
+		01时，根据比较是否成立进行选择，成立则跳转到PC+4+immediate，即RPC；否则跳转到RPC
+		！！！！！！！PC+4+immediate是否已交给ALU计算。
+		10时，跳转到immediate，对应某些jump语句；
+		11时，跳转到ALU的计算结果，对应某些jump语句；
+	要求WB阶段上升沿之前准备好
+	comp_op : in std_logic_vector(2 downto 0);
+	比较跳转时的比较控制信号，一般对应B系列指令。跳转条件如下：
+		000时，条件为Rs的值等于Rt的值；
+		001时，条件为Rs的值>=0；
+		010时，条件为Rs的值>0；
+		011时，条件为Rs的值<=0；
+		100时，条件为Rs的值<0；
+		101时，条件为Rs的值不等于Rt的值；
+		其他情况，恒为非；
+	要求ALU阶段上升沿之前准备好
+	rs_value : in std_logic_vector(31 downto 0);
+	Rs的值，要求ALU阶段上升沿之前准备好
+	rt_value : in std_logic_vector(31 downto 0);
+	Rt的值，要求ALU阶段上升沿之前准备好
+	imme : in std_logic_vector(31 downto 0);
+	指令中包含的立即数，要求WB阶段上升沿之前准备好
+
+	PcSrc : out std_logic_vector(31 downto 0);
+	非ERET指令时，新PC值。
+	WB阶段上升沿之后可读。
+
+WB模块内部实现:
+	WB文件包含两个模块，即WB模块与PC模块。
+	WB模块在WB阶段上升沿运行。
+	根据输入的控制信号，选择是否写入以及写入的寄存器编号的来源。
+	同时，根据输入的控制信号，选择从哪里获得写入数据。
+		非扩展的情况比较简单，直接将写出数据赋为相应输入值即可。
+		对于扩展的情况，需要根据alu_result选择使用mmu_value的哪一部分作为写入数据的低位。
+		对于符号扩展的情况，扩展方法是根据有效位最高位决定扩展位写全0或写全1。
+	
+	
+	PC模块在ALU阶段上升沿进行比较。比较方式使用compare_op控制；
+	在WB阶段，根据pc_op控制对输出PC的赋值。
+	其中，如果输出PC需要由比较结果决定，使用ALU阶段的比较结果控制输出PC的值。
+	这一步输出的PC还需在之后使用别的控制信号决定是否用于IF。

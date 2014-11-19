@@ -1,0 +1,48 @@
+CP0模块接口说明：
+	clk: in std_logic;
+	时钟信号
+	state: in std_logic_vector(3 downto 0);
+	状态机
+	normal_cp0_in : in std_logic_vector(37 downto 0);
+	指令引发的CP0读写操作的输入，格式上，37位为写使能，36-32位为地址，31-0位为数据。
+	读写均在时钟上升沿触发，因此要求数据在时钟上升沿之前准备好。
+	状态方面，读操作发生在ID阶段的上升沿，写操作发生在ALU阶段的上升沿。
+	
+	bad_v_addr_in : in std_logic_vector(31 downto 0);
+	异常发生时写入bad_v_addr_in的数据，要求数据在时钟上升沿之前准备好。使能为interrupt_start_in。
+	entry_hi_in : in std_logic_vector(19 downto 0);
+	异常发生时写入entry_hi_in高20位的数据，要求数据在时钟上升沿之前准备好。使能为interrupt_start_in。
+	interrupt_start_in : in std_logic;
+	异常写入的使能，控制异常数据的写入，并将status(1)制1.
+	cause_in : in std_logic_vector(4 downto 0);
+	异常发生时写入cause的6-2位的数据，要求数据在时钟上升沿之前准备好。使能为interrupt_start_in。	
+	epc_in : in std_logic_vector(31 downto 0);
+	异常发生时写入epc的数据，要求数据在时钟上升沿之前准备好。使能为interrupt_start_in。	
+	eret_enable : in std_logic;
+	eret的使能信号，将status(1)置0.优先于interrupt_start_in起效。
+	请注意，这一数据应当在ALU阶段上升沿之前准备好。
+	cp0_e : in std_logic;
+	CP0部分的使能信号。
+
+	addr_value : out std_logic_vector(31 downto 0);
+	normal_cp0_in读操作时读出的数据，ID阶段上升沿之后起效，下一ID阶段上升沿之前均不变。
+	初始值为全0.
+	all_regs : out std_logic_vector(1023 downto 0);
+	即时输出全部CP0寄存器的值，CP0寄存器数值被修改的时间内不保证数值稳定。
+	compare_interrupt: out std_logic;
+	clock寄存器与compare寄存器数值相同之后被置1；修改compare寄存器的值后置0且该周期不比较clock寄存器与compare寄存器的值
+	缺少将此值恢复为0的信号。
+	变为1后，若不手动恢复为0或者修改compare寄存器，则1保持。此输出值被检测到为1时触发中断，任一上升沿均可检测，不需太早处理。
+
+CP0模块内部实现：
+	时钟触发。
+	检测到cp0_e为0时，对内部值进行初始化。
+	否则，时钟上升沿时根据state进行相应操作。
+	若state为ID，根据输入地址进行读取操作。
+	若state为ALU，首先本次指令是否为ERET，即检查eret_enable，如果为1则将status(1)置0
+	然后检测本次指令是否为写CP0，即检查normal_cp0_in(37)，如果需要写则进行CP0写入。注意，此时不进行clock的自增。
+	对于其他state，检查interrunp_start_in是否为1，如果为1说明要进行异常信息的写入。
+	
+	除此之外，还要进行clock寄存器与compare寄存器的比较，compare寄存器的原有值被保存，如果修改，则更新原有值，并将时钟中断置0；
+	否则，比较两寄存器的值，如果相等则置1，否则不变。因此两寄存器第一次相等之后，触发时钟中断。
+	！！！！需要将时钟中断恢复的信号。

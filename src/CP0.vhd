@@ -105,14 +105,17 @@ begin
 			old_compare <= (others => '0');
 			m_compare_interrupt <= '0';
 		elsif rising_edge(clk) then
+			--question state
 			if state = "0001" then
 				m_addr_value <= register_values(conv_integer(normal_cp0_in(36 downto 32)));
 			end if;
-			if state = "0010" and normal_cp0_in(37) = '1' then
-				register_values(conv_integer(normal_cp0_in(36 downto 32))) <= normal_cp0_in(31 downto 0);
-			elsif state = "0001" and eret_enable = '1' then
+			--question state
+			if state = "0010" and eret_enable = '1' then
 				register_values(13)(1) <= '0';
 				register_values(10) <= register_values(10) + 1;
+			--question state
+			elsif state = "0010" and normal_cp0_in(37) = '1' then
+				register_values(conv_integer(normal_cp0_in(36 downto 32))) <= normal_cp0_in(31 downto 0);
 			elsif interrupt_start_in = '1' then
 				register_values(9) <= bad_v_addr_in;
 				register_values(11)(31 downto 12) <= entry_hi_in;
@@ -123,6 +126,7 @@ begin
 			else
 				register_values(10) <= register_values(10) + 1;
 			end if;
+			--question lack of compare_interrupt recover enable
 			if register_values(12) /= old_compare then
 				old_compare <= register_values(12);
 				m_compare_interrupt <= '0';
