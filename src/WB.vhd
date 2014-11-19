@@ -66,6 +66,7 @@ signal m_write_value : std_logic_vector(31 downto 0);
 signal m_write_enable : std_logic;
 signal m_PcSrc : std_logic_vector(31 downto 0);
 signal zeros : std_logic_vector(31 downto 0) := (others => '0');
+signal m_compare : std_logic;
 begin
 
 	write_addr <= m_write_addr;
@@ -79,8 +80,8 @@ begin
 			m_write_enable <= '0';
 			m_write_addr <= (others => '0');
 			m_write_value <= (others => '0');
-			m_PcSrc <= (others => '0');
 		elsif rising_edge(clk) then
+			--qusetion state
 			if state ="0100" then
 				case wb_op(4 downto 3) is
 					when "00" =>
@@ -170,6 +171,80 @@ begin
 					when others =>
 				end case;
 			end if;
+		end if;
+	end process;
+	
+	process(clk)
+	begin
+		if WB_e = '0' then
+			m_PcSrc <= (others => '0');
+			m_compare <= '0';
+		elsif rising_edge(clk) then
+			case state is
+				--qusetion state
+				when "0010" =>
+					case comp_op is
+						when "000" =>
+							if rs_value = rt_value then
+								m_compare <= '1';
+							elsif rs_value /= rt_value then
+								m_compare <= '0';
+							end if;
+						when "001" =>
+							if rs_value(31) = '0' then
+								m_compare <= '1';
+							elsif rs_value(31) /= '0' then
+								m_compare <= '0';
+							end if;
+						when "010" =>
+							if rs_value(31) = '0' and rs_value /= zeros then
+								m_compare <= '1';
+							else
+								m_compare <= '0';
+							end if;
+						when "011" =>
+							if rs_value(31) = '1' or rs_value = zeros then
+								m_compare <= '1';
+							else
+								m_compare <= '0';
+							end if;
+						when "100" =>
+							if rs_value(31) = '1' then
+								m_compare <= '1';
+							else
+								m_compare <= '0';
+							end if;
+						when "101" =>
+							if rs_value /= rt_value then
+								m_compare <= '1';
+							elsif rs_value = rt_value then
+								m_compare <= '0';
+							end if;
+						when others =>
+							m_compare <= '0';
+					end case;
+				--qusetion state
+				when "0100" =>
+					case pc_op is
+						--question 2bit or 3bit?
+						when "000" =>
+							m_PcSrc <= RPC;
+						when "001" =>
+							if m_compare = '1' then
+								--question from where?
+								m_PcSrc <= RPC + imme;
+							else
+								m_PcSrc <= RPC;
+							end if;
+						when "010" =>
+							m_PcSrc <= imme;
+						when "011" =>
+							m_PcSrc <= alu_result;
+						when others =>
+							m_PcSrc <= RPC;
+					end case;
+				when others =>
+			end case;
 		end if;
 	end process;
 
