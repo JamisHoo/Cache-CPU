@@ -1,0 +1,119 @@
+        \begin{tabularx}{\textwidth}{lll}
+            \toprule
+            端口名          & 端口方向  & 端口类型 \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{端口描述} \\
+            \midrule
+            clk             & in        & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                CPU时钟信号
+            } \\
+            \midrule
+            state           & in        & std\_logic\_vector(3 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：CPU状态机信号
+            } \\
+            \midrule
+            mmu\_clock      & in        & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：访存相关时钟信号。
+
+                内存的时钟频率和CPU工作的时钟频率并不相同，%
+                内存的时钟频率比CPU快。
+            } \\
+            \midrule
+            mem\_read\_enable & in      & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：内存读使能
+
+                来源：MEM模块
+
+                到达时间：访存阶段时钟上升沿之前
+            } \\
+            \midrule
+            mem\_write\_enable & in     & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：内存写使能
+
+                来源：MEM模块
+
+                到达时间：访存阶段时钟上升沿之前
+            } \\
+            \midrule
+            if\_addr        & in        & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：取指令地址
+
+                来源：IFetch模块
+
+                到达时间：取指令时钟上升沿之前
+            } \\
+            \midrule
+            mem\_addr       & in        & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：访存阶段（不包括取指令）的访存地址
+
+                来源：MEM模块
+
+                到达时间：访存阶段时钟上升沿之前
+            } \\
+            \midrule
+            mem\_write\_value & in      & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：内存写入值
+
+                来源：MEM模块
+
+                到达时间：访存阶段时钟上升沿之前
+            } \\
+            \midrule
+            cp0\_value      & in        & std\_logic\_vector(159 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：来自CP0的数据，支持TLBWI指令
+
+                来源：CP0模块
+
+                到达时间：TLBWI指令执行阶段时钟上升沿之前
+            } \\
+            \midrule
+            tlbwi\_enable   & in        & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：TLB写使能
+
+                来源：IDecode模块
+
+                到达时间：当前指令解码时钟上升沿之后
+            } \\
+            \midrule
+            mem\_value      & out       & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：读取内存的结果
+
+                产生时间：访存阶段时钟下降沿之后
+            } \\
+
+            \bottomrule
+        \end{tabularx}

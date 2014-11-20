@@ -1,5 +1,4 @@
 MEM模块接口说明
-    
     in: result                  std_logic_vector(31 downto 0)
         说明：访存地址
         来源：ALU模块

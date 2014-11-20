@@ -2,11 +2,6 @@ all: compile
 
 HEADER = header.tex
 
-SECTIONS = section1_introduction.tex \
-		   section2_modules.tex \
-		   section3_topEntity.tex \
-		   section4_dirtree.tex
-
 OUTPUTDIR = output/
 JOBNAME = td
 
@@ -24,7 +19,7 @@ ifeq ($(OPEN),)
 endif
 
 # Please compile TWICE
-compile: $(HEADER) $(SECTIONS)
+compile: $(HEADER)
 	mkdir -p $(OUTPUTDIR)
 	xelatex -output-directory=$(OUTPUTDIR) -jobname=$(JOBNAME) $< 
 

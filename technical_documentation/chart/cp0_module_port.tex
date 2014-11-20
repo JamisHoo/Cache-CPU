@@ -1,0 +1,130 @@
+        \begin{tabularx}{\textwidth}{lll}
+            \toprule
+            端口名          & 端口方向  & 端口类型 \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{端口描述} \\
+            \midrule
+            clk             & in        & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                CPU时钟信号
+            } \\
+            \midrule
+            state           & in        & std\_logic\_vector(3 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                CPU当前状态
+            } \\
+            \midrule
+	        normal\_cp0\_in & in        & std\_logic\_vector(37 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+	            指令引发的CP0读写操作的输入，格式上，%
+                37位为写使能，36-32位为地址，31-0位为数据。
+
+	            读写均在时钟上升沿触发，%
+                因此要求数据在时钟上升沿之前准备好。
+
+	            状态方面，读操作发生在ID阶段的上升沿，%
+                写操作发生在ALU阶段的上升沿。
+            } \\
+            \midrule
+	        bad\_v\_addr\_in & in       & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+	            异常发生时写入bad\_v\_addr\_in的数据，%
+                要求数据在时钟上升沿之前准备好。%
+                使能为interrupt\_start\_in。
+            } \\
+            \midrule
+	        entry\_hi\_in   & in        & std\_logic\_vector(19 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+	            异常发生时写入entry\_hi\_in高20位的数据，%
+                要求数据在时钟上升沿之前准备好。%
+                使能为interrupt\_start\_in。
+            } \\
+            \midrule
+	        interrupt\_start\_in & in   & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+	            异常写入的使能，控制异常数据的写入，%
+                并将status(1)制1.
+            } \\
+            \midrule
+	        cause\_in       & in        & std\_logic\_vector(4 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+	            异常发生时写入cause的6-2位的数据，%
+                要求数据在时钟上升沿之前准备好。%
+                使能为interrupt\_start\_in。
+            } \\
+            \midrule
+	        epc\_in         & in        & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+	            异常发生时写入epc的数据，%
+                要求数据在时钟上升沿之前准备好。%
+                使能为interrupt\_start\_in。
+            } \\
+            \midrule
+	        eret\_enable    & in        & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+	            eret的使能信号，%
+                将status(1)置0.优先于interrupt\_start\_in起效。
+
+	            请注意，这一数据应当在ALU阶段上升沿之前准备好。
+            } \\
+            \midrule
+	        cp0\_e          & in        & std\_logic \\
+	        \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                CP0部分的使能信号。
+            } \\
+            \midrule
+	        addr\_value     & out       & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+	            normal\_cp0\_in读操作时读出的数据，%
+                ID阶段上升沿之后起效，%
+                下一ID阶段上升沿之前均不变。
+
+	            初始值为全0.
+            } \\
+            \midrule
+	        all\_regs       & out       & std\_logic\_vector(1023 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+	            即时输出全部CP0寄存器的值，%
+                CP0寄存器数值被修改的时间内不保证数值稳定。
+            } \\
+            \midrule
+	        compare\_interrupt & out    & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+	            clock寄存器与compare寄存器数值相同之后被置1；%
+                修改compare寄存器的值后置0%
+                且该周期不比较clock寄存器与compare寄存器的值。%
+	            缺少将此值恢复为0的信号。%
+	            变为1后，若不手动恢复为0或者修改compare寄存器，%
+                则1保持。此输出值被检测到为1时触发中断，%
+                任一上升沿均可检测，不需太早处理。
+            } \\
+
+            \bottomrule
+        \end{tabularx}

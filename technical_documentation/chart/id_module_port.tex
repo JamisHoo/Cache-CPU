@@ -123,7 +123,9 @@
                 001 BGEZ(R[s] >= 0)
 
                 010 BGTZ(R[s] > 0)
-
+            } \\
+            &
+            \multicolumn{2}{X}{
                 011 BLEZ(R[s] <= 0)
 
                 100 BLTZ(R[s] < 0)
@@ -161,7 +163,9 @@
 
                 ALUSrcB(6 downto 5)：ALU第二输入的选择信号，%
                 四选一数据选择。
-
+            } \\
+            &
+            \multicolumn{2}{X}{
                 ALUOp(4 downto 0)：ALU操作，%
                 5位，整合了乘法器相关运算，详细说明见ALU模块说明。
 
@@ -182,7 +186,9 @@
 
                 MEMValue(0)：选择写入内存的值，%
                 寄存器的数据或者SB指令处理之后的数据。
-
+            } \\
+            &
+            \multicolumn{2}{X}{
                 产生时间：当前指令InsD上升沿之后。
 
                 有效时间：下一条指令InsD上升沿之后。
@@ -197,9 +203,10 @@
                 产生时间：当前指令InsD上升沿之后。
 
                 有效时间：下一条指令InsD上升沿之后。 
-
+            } \\
+            &
+            \multicolumn{2}{X}{
                 RegDst(5 downto 4)：写回寄存器编号。
-
                 如果为00则写回16到20位rt寄存器，%
                 如果为01则写回11到15位rd寄存器，%
                 如果为10则写回31号寄存器。
@@ -215,7 +222,9 @@
                 001 读取内存的数据
 
                 010 RPC
-
+            } \\
+            &
+            \multicolumn{2}{X}{
                 011 Zero-extend内存byte
 
                 100 Signed-extend内存byte
@@ -235,7 +244,9 @@
                 选择写入PC或者PC+4。
 
                 CP0Write(0)：CP0寄存器是否可写。
-
+            } \\
+            &
+            \multicolumn{2}{X}{
                 产生时间：当前指令InsD上升沿之后。
 
                 有效时间：下一条指令InsD上升沿之后 

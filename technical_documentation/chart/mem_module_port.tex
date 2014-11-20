@@ -1,0 +1,102 @@
+        \begin{tabularx}{\textwidth}{lll}
+            \toprule
+            端口名      & 端口方向  & 端口类型 \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{端口描述} \\
+            \midrule
+            result      & in   & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                CPU时钟信号
+
+                说明：访存地址                                         
+
+                来源：ALU模块
+
+                到达时间：指令执行阶段时钟上升沿后。
+
+                保持时间：至少保持到访存阶段时钟上升沿之后。
+            } \\
+            \midrule
+            mem\_op      & in    & std\_logic\_vector(2 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：内存操作控制线
+
+                来源：IDecode模块
+                
+                到达时间：指令解码时钟上升沿之后。
+
+                保持时间：至少保持到访存阶段结束。
+            } \\
+            &
+            \multicolumn{2}{X}{
+                mem\_op(2): memRead：内存读使能。
+
+                mem\_op(1): memWrite：内存写使能。
+
+                mem\_op(0): memValue：内存写入数据。
+                如果为0则写入来自寄存器的数据，%
+                如果为1则写入SB指令处理之后的数据。
+            } \\
+            \midrule
+            rt\_value   & in    & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：来自寄存器的数值，访存阶段写入数据的可能来源之一。
+
+                来源：通用寄存器。
+
+                到达时间：指令解码时钟上升沿之后。
+            } \\
+            \midrule
+            mmu\_value  & in    & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：访存得到的数据，为SB指令提供支持。
+
+                来源：MMU模块。
+
+                到达时间：第二次访存操作上升沿之前。
+
+                产生时间：第一次访存操作下降沿之后。
+            } \\
+            \midrule
+            addr\_mmu    & out  & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：访存阶段的地址。
+
+                产生时间：访存阶段时钟上升沿之前。
+            } \\
+            \midrule
+            write\_value & out & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：访存阶段写入数据。
+
+                产生时间：访存阶段时钟上升沿之前。
+            } \\
+            \midrule
+            read\_enable & out & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：访存读使能。
+            } \\
+            \midrule
+            write\_enable & out & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：访存写使能。
+            } \\
+            \bottomrule
+        \end{tabularx}
