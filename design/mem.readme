@@ -1,74 +1,74 @@
-MEMģ��ӿ�˵��
+MEM模块接口说明
     in: result                  std_logic_vector(31 downto 0)
-        ˵�����ô��ַ
-        ��Դ��ALUģ��
-        ����ʱ�䣺ָ��ִ�н׶�ʱ�������غ�
-        ����ʱ�䣺���ٱ��ֵ��ô�׶�ʱ��������֮��
+        说明：访存地址
+        来源：ALU模块
+        到达时间：指令执行阶段时钟上升沿后
+        保持时间：至少保持到访存阶段时钟上升沿之后
         
     in: mem_op                  std_logic_vector(2 downto 0)
-        ˵�����ڴ����������
-        ��Դ��IDecodeģ��
-        ����ʱ�䣺ָ�����ʱ��������֮��
-        ����ʱ�䣺���ٱ��ֵ��ô�׶ν���
+        说明：内存操作控制线
+        来源：IDecode模块
+        到达时间：指令解码时钟上升沿之后
+        保持时间：至少保持到访存阶段结束
         mem_op(2):
-            memRead���ڴ��ʹ��
+            memRead：内存读使能
         mem_op(1):
-            memWrite���ڴ�дʹ��
+            memWrite：内存写使能
         mem_op(0):
-            memValue���ڴ�д������
-            ���Ϊ0��д�����ԼĴ��������ݣ����Ϊ1��д��SBָ���֮�������
+            memValue：内存写入数据
+            如果为0则写入来自寄存器的数据，如果为1则写入SB指令处理之后的数据
         
     in: rt_value                std_logic_vector(31 downto 0)
-        ˵�������ԼĴ�������ֵ���ô�׶�д�����ݵĿ�����Դ֮һ
-        ��Դ��ͨ�üĴ���
-        ����ʱ�䣺ָ�����ʱ��������֮��
+        说明：来自寄存器的数值，访存阶段写入数据的可能来源之一
+        来源：通用寄存器
+        到达时间：指令解码时钟上升沿之后
         
     // just for SB
     in: mmu_value               std_logic_vector(31 downto 0)
-        ˵�����ô�õ������ݣ�ΪSBָ���ṩ֧��
-        ��Դ��MMUģ��
-        ����ʱ�䣺�ڶ��ηô����������֮ǰ
-        ����ʱ�䣺��һ�ηô�����½���֮��
+        说明：访存得到的数据，为SB指令提供支持
+        来源：MMU模块
+        到达时间：第二次访存操作上升沿之前
+        产生时间：第一次访存操作下降沿之后
     
     out: addr_mmu               std_logic_vector(31 downto 0)
-        ˵�����ô�׶εĵ�ַ
-        ����ʱ�䣺�ô�׶�ʱ��������֮ǰ
+        说明：访存阶段的地址
+        产生时间：访存阶段时钟上升沿之前
         
     out: write_value            std_logic_vector(31 downto 0)
-        ˵�����ô�׶�д������
-        ����ʱ�䣺�ô�׶�ʱ��������֮ǰ
+        说明：访存阶段写入数据
+        产生时间：访存阶段时钟上升沿之前
         
     out: read_enable            std_logic
-        ˵�����ô��ʹ��
+        说明：访存读使能
         
     out: write_enable           std_logic
-        ˵�����ô�дʹ��
+        说明：访存写使能
 
         
         
         
-MEMģ���ڲ�ʵ��
-1��MEMģ����ָ���ִ������֮�󣬵����ڴ����ģ����Ҫʹ�÷ô����ڵ�ʱ�������أ�
-    ���MEMģ�鲻��ռ��ʱ�������أ���Ҫ���Ϊһ������߼�ģ�顣
-    ����Ҫ����Ϊ�ô����ڵ�Ԥ������Ϊ�����ɷô�ĵ�ַ��д������ݣ��Լ�����ʹ���ź�
+MEM模块内部实现
+1、MEM模块在指令的执行周期之后，但是内存访问模块需要使用访存周期的时钟上升沿，
+    因此MEM模块不能占用时钟上升沿，需要设计为一个组合逻辑模块。
+    其主要功能为访存周期的预处理，为其生成访存的地址与写入的数据，以及产生使能信号
     
-2��MEMģ���ڲ���ȫ������߼�ʵ��
-    ĿǰMEMģ����һЩ�������֮���ȡ����ֱ�����ߵķ�ʽ����ҪĿ�����ڱȽ����������ֳ��ô�����˼·��
-    ���ڿ��ܽ���������ֱ�����ӵ�MMUģ�飬
-    ������Xilinx�������Ż��Ĺ����У��ɱ�����ֱ���Ż�����
-    ֱ�����߲��֣�
-        addr_mmu���ֱ���������result�˿����������ô��ֱַ�������MMUģ��
-        read_enable���ֱ���������mem_op(2)����������ʹ�������MMUģ��
-        write_enable���ֱ���������mem_op(1)��������дʹ�������MMUģ��
+2、MEM模块内部完全由组合逻辑实现
+    目前MEM模块有一些输入输出之间采取的是直接连线的方式，主要目的在于比较清晰地体现出访存的设计思路。
+    后期可能将部分连线直接连接到MMU模块，
+    或者在Xilinx编译与优化的过程中，由编译器直接优化掉。
+    直接连线部分：
+        addr_mmu输出直接与输入的result端口相连，将访存地址直接输出到MMU模块
+        read_enable输出直接与输入的mem_op(2)相连，将读使能输出到MMU模块
+        write_enable输出直接与输入的mem_op(1)相连，将写使能输出到MMU模块
         
-    ����߼����֣�
-        wrirte_valueΪ�ڴ�д��ֵ����Ҫ����memValue�źŽ���ѡ��
-        ���memValueΪ0����write_value��ȡֵΪrt_value��д��Ĵ���2��ֵ
-        ���memValueΪ1��˵������ָ��ΪSBָ��������ô�׶Ρ�
-            ��һ�ô�׶�Ϊ������ʱ����Ҫwrite_value��ֵ��
-            �ڶ��ô�׶�Ϊд��
-                �ڴ˽׶ο�ʼ֮ǰ����һ�ô�׶��Ѿ�ȡ���ڴ���addr_mmu��ַ�е����ݣ�
-                �ڴ˻����Ͻ���һ��byte���޸ģ�����addr_mmu�����λѡ���޸�λ�ã���rt_value�����λbyteд�룬
-                ������Ϊ�ڴ��д��ֵ���ݸ�MMUģ�顣
+    组合逻辑部分：
+        wrirte_value为内存写入值，需要根据memValue信号进行选择
+        如果memValue为0，则write_value的取值为rt_value，写入寄存器2的值
+        如果memValue为1，说明此条指令为SB指令，有两个访存阶段。
+            第一访存阶段为读，此时不需要write_value的值。
+            第二访存阶段为写，
+                在此阶段开始之前，第一访存阶段已经取出内存中addr_mmu地址中的数据，
+                在此基础上进行一个byte的修改，利用addr_mmu最后两位选择修改位置，将rt_value的最低位byte写入，
+                整体作为内存的写入值传递给MMU模块。
         
         
