@@ -5,8 +5,9 @@ HEADER = header.tex
 SECTIONS = section1_introduction.tex \
            section2_functional.tex \
            section3_performance.tex \
-           section4_environment.tex
-
+           section4_environment.tex \
+           section5_appendix.tex
+           
 OUTPUTDIR = output/
 JOBNAME = prd
 
