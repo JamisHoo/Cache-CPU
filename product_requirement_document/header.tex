@@ -26,7 +26,7 @@
 \XeTeXlinebreakskip = 0pt plus 1pt % Automatic line break
 % \setmainfont{STSong} % Use a Chinese font
 % \setmainfont[Path = ./]{AdobeSongStd-Light.otf} % use font in ./
-\setmainfont[Path = ./]{AdobeFangsongStd-Regular.otf}
+\setmainfont[Path = ./fonts/]{AdobeFangsongStd-Regular.otf}
 
 % Use Chinese for figure name
 \renewcommand\figurename{图}
@@ -72,13 +72,13 @@
 
 \newpage % blank after contents
 
-\input{section1_introduction.tex}
-\input{section2_functional.tex}
-\input{section3_performance.tex}
-\input{section4_environment.tex}
+\input{sections/section1_introduction.tex}
+\input{sections/section2_functional.tex}
+\input{sections/section3_performance.tex}
+\input{sections/section4_environment.tex}
 
 \newpage
-\input{section5_appendix.tex}
+\input{sections/section5_appendix.tex}
 \newpage
 
 \end{document}

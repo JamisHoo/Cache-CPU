@@ -2,12 +2,6 @@ all: compile
 
 HEADER = header.tex
 
-SECTIONS = section1_introduction.tex \
-           section2_functional.tex \
-           section3_performance.tex \
-           section4_environment.tex \
-           section5_appendix.tex
-           
 OUTPUTDIR = output/
 JOBNAME = prd
 
@@ -25,7 +19,7 @@ ifeq ($(OPEN),)
 endif
 
 # Please compile TWICE
-compile: $(HEADER) $(SECTIONS)
+compile: $(HEADER)
 	mkdir -p $(OUTPUTDIR)
 	xelatex -output-directory=$(OUTPUTDIR) -jobname=$(JOBNAME) $< 
 
