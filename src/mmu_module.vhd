@@ -38,11 +38,11 @@ port(
 	clk : in std_logic;
 	state : in status;
 	
-	-- during instruction fetch 
+	-- during instruction fetch time slice
 	if_addr : in std_logic_vector(31 downto 0);
 	instruction : out std_logic_vector(31 downto 0);
 	
-	-- during memory 
+	-- during memory time slice
 	virtual_addr : in std_logic_vector(31 downto 0);
 	data_in : std_logic_vector(31 downto 0);
 	read_enable : in std_logic;
@@ -66,9 +66,20 @@ port(
 	align_type : in std_logic_vector(1 downto 0);
 	
 	-- send to physical level
+	-- the address passed down to physical level of memory
+	-- RAM:"00" + "0" + address(20 downto 0)    
+	-- Flash:"01" + address(21 downto 0)
+	-- Serial:"10" + "0000000000000000000000";
 	to_physical_addr : out std_logic_vector(23 downto 0);
-	to_physical_data : out std_logic_vector(31 downto 0)
+	to_physical_data : out std_logic_vector(31 downto 0);
 	
+	to_physical_read_enable : out std_logic;
+	to_physical_write_enable : out std_logic;
+	
+	-- from physical level
+	from_physical_data : in std_logic_vector(31 downto 0);
+	from_physical_ready : in std_logic;
+	from_physical_serial : in std_logic
 );
 end mmu_module;
 
@@ -76,6 +87,10 @@ architecture Behavioral of mmu_module is
 	
 	-- choose between instruction_addr and virtual_addr
 	signal addr : std_logic_vector(31 downto 0);
+	
+	
+	-- state register, prevent the input of state change
+	signal state_reg : status := InsF;
 	
 	-- related to TLB
 	-- EntryHi(62 downto 44) EntryLo0(43 downto 24) DV0(23 downto 22) EntryLo1(21 downto 2) DV1(1 downto 0)
@@ -100,25 +115,12 @@ architecture Behavioral of mmu_module is
 	
 	-- physical address after TLB transform
 	signal physical_addr : std_logic_vector(31 downto 0);
-	
-	-- the address passed down to physical level of memory
-	-- RAM:"00" + "0" + address(20 downto 0)    
-	-- Flash:"01" + address(21 downto 0)
-	-- Serial:"10" + "0000000000000000000000";
-	signal physical_addr_real : std_logic_vector(23 downto 0);
-	
-	
-	signal physical_write_enable : std_logic := '0';
-	signal physical_read_enable : std_logic := '0';
-	
+		
 	-- related to serial port
 		-- the value of (COM1 + 4)
-	signal serial_status_reg : std_logic_vector(31 downto 0) := "00000000000000000000000000000001";
-		-- int_ack to restore the interrupt
-	signal int_ack : std_logic;
+	signal serial_status_reg : std_logic_vector(31 downto 0) := "00000000000000000000000000000010";
 	
 	-- exception code
-	signal exc_code_reg : std_logic_vector(2 downto 0) := "000";
 	signal no_exception_accur : std_logic := '1';
 	
 begin
@@ -136,6 +138,14 @@ begin
 		end if;
 	end process;
 	
+	-- store state in this time slice
+	process(clk)
+	begin
+		if clk'event and clk = '1' then
+			state_reg <= state;
+		end if;
+	end process;
+	
 	-- handle TLBWI
 	process(clk)
 		variable tlb_index : integer range 15 downto 0 := 0;
@@ -149,36 +159,35 @@ begin
 	end process;
 	
 	-- handle exception
-	exc_code <= exc_code_reg;
 	process(clk)
 	begin
 		-- clear every exception by posedge
 		if clk'event and clk = '1' then
-			exc_code_reg <= NO_MEM_EXC;
-		end if;
+			exc_code <= NO_MEM_EXC;
+		--end if;
 		
 		-- generate exception on falling edge
-		if clk'event and clk = '0' then
+		elsif clk'event and clk = '0' then
 			-- address alignment exception
 			if( (align_type = ALIGN_TYPE_WORD and addr(0) = '1') or (align_type = ALIGN_TYPE_QUAD and addr(1 downto 0) /= "00") ) then
 				if( (state = MEM1 and read_enable = '1' ) or state = InsF )then
-					exc_code_reg <= ADE_L;
+					exc_code <= ADE_L;
 				elsif( (state = MEM1 and write_enable = '1' and read_enable = '0') or state = MEM2 ) then
-					exc_code_reg <= ADE_S;
+					exc_code <= ADE_S;
 				end if;
 			
 			-- tlb missing
 			elsif tlb_missing = '1' then
 				if( (state = MEM1 and read_enable = '1') or state = InsF )then
-					exc_code_reg <= TLB_L;
+					exc_code <= TLB_L;
 				elsif( (state = MEM1 and write_enable = '1' and read_enable = '0') or state = MEM2) then
-					exc_code_reg <= TLB_S;
+					exc_code <= TLB_S;
 				end if;
 			
 			-- tlb modified
 			elsif ( tlb_writable = '0') then
 				if( (state = MEM1 and write_enable = '1' and read_enable = '0') or state = MEM2) then
-					exc_code_reg <= TLB_MODIFIED;
+					exc_code <= TLB_MODIFIED;
 				end if;
 			end if;
 		end if;
@@ -204,23 +213,42 @@ begin
 											and tlb_missing = '0' and tlb_writable = '1'
 								 else '0';
 								 
-	physical_addr_real <= "000" & physical_addr(22 downto 2)		-- RAM
+	-- to physical_level
+	to_physical_addr <= "000" & physical_addr(22 downto 2)		-- RAM
 								when physical_addr(31 downto 23) = "000000000"
 							 else "01" & physical_addr(23 downto 2)	-- Flash
 								when physical_addr(31 downto 24) = x"1E"
-							 else "1000" & x"00000"
+							 else "1000" & x"00000"							-- serial
 								when physical_addr(31 downto 0) = PHYSICAL_SERIAL_DATA
 							 else x"FFFFFF";
-	
-	physical_read_enable <= '1'
-										when( no_exception_accur = '1' and (state = InsF or (state = MEM1 and read_enable = '1')) )
-									else '0';
-									
-	physical_write_enable <= '1'
-										when( no_exception_accur = '1' and ((state = MEM1 and write_enable = '1' and read_enable = '0') or (state = MEM2)) )
-									else '0';
-									
+							 
 	to_physical_data <= data_in;
+	
+	to_physical_read_enable <= '1'
+										when( no_exception_accur = '1' and from_physical_ready = '1' and (state_reg = InsF or (state_reg = MEM1 and read_enable = '1')) )
+									else '0';
+									
+	to_physical_write_enable <= '1'
+										when( no_exception_accur = '1' and from_physical_ready = '1' and ((state_reg = MEM1 and write_enable = '1' and read_enable = '0') or (state_reg = MEM2)) )
+									else '0';
+	
+	-- to instruction fetch
+	instruction <= from_physical_data
+						when (state_reg = InsF)
+						else INVALID_CONTENT;
+	
+	-- to top mem level
+	data_out <= serial_status_reg 
+					when (special_com1_status = '1')
+					else from_physical_data;
+	
+	ready <= from_physical_ready;
+	serial_int <= from_physical_serial;
+	
+	-- register of serial status, return this directly if you load serial status
+	serial_status_reg(1) <= '1' 
+								when (from_physical_serial = '1')
+								else '0';
 	
 	-- handle TLB check
 	-- compare with EntryHi

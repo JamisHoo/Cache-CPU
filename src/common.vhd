@@ -34,6 +34,8 @@ constant ALIGN_TYPE_QUAD : std_logic_vector(1 downto 0) := "00";
 constant ALIGN_TYPE_WORD : std_logic_vector(1 downto 0) := "01";
 constant ALIGN_TYPE_BYTE : std_logic_vector(1 downto 0) := "10";
 
+constant INVALID_CONTENT : std_logic_vector(31 downto 0) := x"FFFFFFFF";
+
 -- type <new_type> is
 --  record
 --    <type_name>        : std_logic_vector( 7 downto 0);
