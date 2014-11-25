@@ -2,8 +2,8 @@ MMU模块与PhysicalMem模块之间的接口
 
     to_physical_addr : out std_logic_vector(23 downto 0);       
         发送给PhysicalMem的地址（24位）
-        RAM：    "00" + "0" + addr_length(20 downto 0)
-        Flash:   "01" + addr_length(21 downto 0)
+        Flash:   "00" + addr_length(21 downto 0)
+        RAM：    "01" + "0" + addr_length(20 downto 0)
         Serial： "10" + "0000000000000000000000"
     
     
