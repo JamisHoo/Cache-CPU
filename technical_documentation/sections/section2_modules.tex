@@ -161,14 +161,20 @@
             
             读写控制：%
             \begin{minipage}[t]{0.8\linewidth}
-                需要通过CPU状态机信号以及内存的读写使能信号共同决定。%
-                如果当前state为取指令阶段，则一定为内存读取状态。%
-                如果当前为第一访存阶段，%
-                    因为SB指令读写使能均为1，所以需要进行。%
-                    如果mem\_read\_enable为1则进行读操作，%
-                    否则如果mem\_write\_enable为1则进行写操作。%
-                如果当前为第二访存阶段，%
-                    则一定为SB指令，进行写操作。%
+                \begin{enumerate}
+                \item
+                    从MEM模块输入的读写使能信号需要经过处理后输出到物理访存模块%
+                    访存条件为上层有使能信号，处于合适的CPU阶段%
+                    地址转换不出现异常，物理访存处于停止状态%
+                \item
+                    如果当前state为取指令阶段，则一定为内存读取状态。%
+                    如果当前为第一访存阶段，%
+                        因为SB指令读写使能均为1，所以需要进行。%
+                        如果mem\_read\_enable为1则进行读操作，%
+                        否则如果mem\_write\_enable为1则进行写操作。%
+                    如果当前为第二访存阶段，%
+                        则一定为SB指令，进行写操作。%
+                \end{enumerate}
             \end{minipage}
             
             地址映射：%
@@ -181,47 +187,6 @@
                 进行映射，其他地址不经转换，直接访问。%
             \end{minipage}
             
-            
-            TLB表查找：%
-            \begin{minipage}[t]{0.8\linewidth}
-                TLB表采取并行查找的策略，%
-                \begin{enumerate}
-                \item
-                    采用for\_generate/if\_generate语句生成TLB查找表。%
-                    实际效果相当于将输入的虚拟地址高19位复制16份，%
-                    同时与16个EntryHi进行比较，%
-                    结果为16位std\_logic\_vector，其中只有1位为1，其余15位为0。%
-                \item
-                    再利用for\_generate/if\_generate语句生成TLB结果暂存表，%
-                    为32*21矩阵%
-                    32行对应一个16个TLB表项全部Lo部分，%
-                    21为20位物理地址加一位D标志位。%
-                \item
-                    利用并行比较结果和虚拟地址最低位，%
-                    共同对暂存表进行与操作，%
-                    由于其中包含大量的0，%
-                    最终只选择出1*21的std\_logic\_vector向量，%
-                    即为20位物理地址与一位D标记位。%
-                \item
-                    如果查找到TLB查找到物理地址，%
-                    且D标记位有效，则TLB查找成功，否则查找失败。%
-                \end{enumerate}
-            \end{minipage}
-                
-            
-            TLB表重填：%
-            \begin{minipage}[t]{0.8\linewidth}
-                TLB数据来源来自于CP0寄存器，%
-                共需要Index、PageMask、EntryHi、EntryLo0、EntryLo1%
-                五个寄存器的数值。%
-                CP0模块与MMU模块之间始终有以上5个寄存器的连线，%
-                始终能够获得CP0寄存器的最新值。%
-
-                TLB充填发生在TLBWI指令的执行阶段，%
-                在时钟上升沿、state为执行阶段、%
-                tlb\_enable使能信号为1的情况下，重填TLB表项。%
-            \end{minipage}
-
             异常与中断：
             \begin{minipage}[t]{0.8\linewidth}
                 MMU模块可能出现5种异常，一种中断%
@@ -253,6 +218,49 @@
                     中断信号产生后将会一直保持，%
                     同时由于EXL位屏蔽中断，并不会产生实际的影响%
                     直到对串口进行读取操作之后，串口中断才消除。
+                \end{enumerate}
+            \end{minipage}
+            
+            TLB表查找：%
+            \begin{minipage}[t]{0.8\linewidth}
+                TLB表查找过程 %
+                \begin{enumerate}
+                \item
+                    采用for\_generate/if\_generate语句生成TLB查找表。%
+                    实际效果相当于将输入的虚拟地址高19位复制16份，%
+                    同时与16个EntryHi进行比较，%
+                    结果为16位std\_logic\_vector，其中只有1位为1，其余15位为0。%
+                \item
+                    再利用for\_generate/if\_generate语句生成TLB结果暂存表，%
+                    为32*21矩阵%
+                    32行对应一个16个TLB表项全部Lo部分，%
+                    21为20位物理地址加一位D标志位。%
+                \item
+                    利用并行比较结果和虚拟地址最低位，%
+                    共同对暂存表进行与操作，%
+                    由于其中包含大量的0，%
+                    最终只选择出1*21的std\_logic\_vector向量，%
+                    即为20位物理地址与一位D标记位。%
+                \item
+                    如果查找到TLB查找到物理地址，%
+                    且D标记位有效，则TLB查找成功，否则查找失败。%
+                \end{enumerate}
+            \end{minipage}
+
+            TLB表重填：%
+            \begin{minipage}[t]{0.8\linewidth}
+                TLB表写入过程%
+                \begin{enumerate}
+                \item
+                    TLB数据来源来自于CP0寄存器，%
+                    共需要Index、PageMask、EntryHi、EntryLo0、EntryLo1%
+                    五个寄存器的数值。%
+                    CP0模块与MMU模块之间始终有以上5个寄存器的连线，%
+                    始终能够获得CP0寄存器的最新值。%
+                \item
+                    TLB充填发生在TLBWI指令的执行阶段，%
+                    在时钟上升沿、state为执行阶段、%
+                    tlb\_enable使能信号为1的情况下，重填TLB表项。%
                 \end{enumerate}
             \end{minipage}
 
