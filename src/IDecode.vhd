@@ -36,6 +36,8 @@ entity IDecode is
 port(
 	clk : in std_logic;
 	state : in status;
+	rst : in std_logic;
+	
 	instruction : in std_logic_vector(31 downto 0);
 	
 	-- remain to next IDecode

@@ -35,6 +35,8 @@ port(
 	-- clk : in std_logic;
 	-- state : in status;
 	
+	rst : in std_logic;
+		
 	result : in std_logic_vector(31 downto 0);		-- address from alu
 	
 	rt_value : in std_logic_vector(31 downto 0);

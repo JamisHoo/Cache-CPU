@@ -12,6 +12,13 @@
                 CPU时钟信号。
             } \\
             \midrule
+            rst             & in        & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                初始化信号，在CPU启动时使用。
+            } \\
+            \midrule
             state           & in        & std\_logic\_vector(3 downto 0) \\
             \cmidrule(l){2-3}
             &
@@ -261,6 +268,25 @@
                 产生时间：当前指令InsD上升沿之后。
 
                 有效时间：下一条指令InsD上升沿之后。
+            } \\
+            \midrule
+            exc\_code   & out       & std\_logic\_vector(1 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：指令解析模块产生的异常
+
+                产生时间：当前指令InsD下降沿之后，在下一条指令的下降沿时消除
+
+                有效时间：一个CPU时钟周期，需要异常模块及时处理。
+            } \\
+            &
+            \multicolumn{2}{X}{
+                00 没有产生异常
+
+                01 syscall
+
+                10 未定义的指令异常
             } \\
             \bottomrule
             \end{tabularx}

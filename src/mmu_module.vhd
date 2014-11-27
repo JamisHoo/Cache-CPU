@@ -37,6 +37,7 @@ entity mmu_module is
 port(
 	clk : in std_logic;
 	state : in status;
+	rst : in std_logic;
 	
 	-- during instruction fetch time slice
 	if_addr : in std_logic_vector(31 downto 0);

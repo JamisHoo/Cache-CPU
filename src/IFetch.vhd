@@ -35,7 +35,8 @@ entity IFetch is
 port(
 	clk : in std_logic;
 	state : in status;
-	
+	rst : in std_logic;
+
 	PCSrc : in std_logic_vector(31 downto 0);
 	EBase : in std_logic_vector(31 downto 0);
 	EPC : in std_logic_vector(31 downto 0);
