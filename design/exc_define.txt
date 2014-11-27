@@ -20,15 +20,15 @@ MMU：
 
 CP0：
     中断：时钟中断
-        这个@孙皓来定义
+        compare_interrupt
+        0：无异常
+        1：时钟中断异常
     
 IDecode：
     异常：exc_code(1 downto 0)
         00：无异常
         01：syscall
         10：RI
-        
-
         
 ucore相关的异常号、中断号、串口说明
     中断号：cause寄存器（15 downto 10）

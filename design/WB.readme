@@ -6,6 +6,8 @@ WB模块接口说明：
 
 	WB_e : in std_logic;
 	WB文件的使能信号
+	WB_stop : in std_logic;
+	WB暂停使能，令写信号置0
 	RPC : in std_logic_vector(31 downto 0);
 	即本周期的PC+4，要求ALU阶段上升沿之前准备好。
 	mmu_value : in std_logic_vector(31 downto 0);

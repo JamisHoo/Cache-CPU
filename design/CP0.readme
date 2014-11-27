@@ -13,7 +13,7 @@ CP0模块接口说明：
 	entry_hi_in : in std_logic_vector(19 downto 0);
 	异常发生时写入entry_hi_in高20位的数据，要求数据在时钟上升沿之前准备好。使能为interrupt_start_in。
 	interrupt_start_in : in std_logic;
-	异常写入的使能，控制异常数据的写入，并将status(1)制1.
+	异常写入的使能，控制异常数据的写入，并将status(1)制1。
 	cause_in : in std_logic_vector(4 downto 0);
 	异常发生时写入cause的6-2位的数据，要求数据在时钟上升沿之前准备好。使能为interrupt_start_in。	
 	epc_in : in std_logic_vector(31 downto 0);
@@ -23,6 +23,10 @@ CP0模块接口说明：
 	请注意，这一数据应当在ALU阶段上升沿之前准备好。
 	cp0_e : in std_logic;
 	CP0部分的使能信号。
+	cp0_stop : in std_logic;
+	CP0部分的暂停信号，置1时不能写入。
+	compare_init: in std_logic;
+	时钟中断的恢复的使能
 
 	addr_value : out std_logic_vector(31 downto 0);
 	normal_cp0_in读操作时读出的数据，ID阶段上升沿之后起效，下一ID阶段上升沿之前均不变。
