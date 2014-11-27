@@ -1,100 +1,138 @@
-----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date:    21:44:03 10/19/2014 
--- Design Name: 
--- Module Name:    alu - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
--- Description: 
---
--- Dependencies: 
---
--- Revision: 
--- Revision 0.01 - File Created
--- Additional Comments: 
---
-----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
 use IEEE.NUMERIC_STD.ALL;
 
--- Uncomment the following library declaration if instantiating
--- any Xilinx primitives in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
-
 entity alu is
-	port(A: in std_logic_vector(31 downto 0);
-		  B: in std_logic_vector(31 downto 0);
-		  Sel: in std_logic_vector(3 downto 0);
-		  Y: out std_logic_vector(31 downto 0)
+	port(clk:               in  std_logic;
+         rs_value:          in  std_logic_vector(31 downto 0);
+         rt_value:          in  std_logic_vector(31 downto 0);
+         imme:              in  std_logic_vector(31 downto 0);
+         cp0_value:         in  std_logic_vector(31 downto 0);
+         
+         state:             in  std_logic_vector(3 downto 0);
+         
+         alu_op:            in  std_logic_vector(4 downto 0);
+         alu_srcA:          in  std_logic_vector(1 downto 0);
+         alu_srcB:          in  std_logic_vector(1 downto 0);
+         
+         hi_lo_enable:      in  std_logic;
+         
+         alu_result:        out std_logic_vector(31 downto 0)
+         
 	);
 end alu;
 
 architecture Behavioral of alu is
-
+signal hi_lo: std_logic_vector(63 downto 0);
 begin
-	process(A, B, Sel)
+	process(clk)
+        variable srcA, srcB: std_logic_vector(31 downto 0);
+        
 	begin
-		case Sel is
+        case alu_srcA is
+            -- rs_value
+            when "00" =>
+                srcA := rs_value;
+            -- immediate 
+            when "01" =>
+                srcA := imme;
+            -- cp0 value
+            when "10" => 
+                srcA := cp0_value;
+            -- 16bit immediat, from LUI instruction
+            when "11" =>
+                srcA := "00000000000000000000000000010000";
+            when others =>
+                NULL;
+        end case;
+        
+        case alu_srcB is
+            -- rt_value
+            when "00" =>
+                srcB := rt_value;
+            -- immediate 
+            when "01" =>
+                srcB := imme;
+            -- cp0 value
+            when "10" => 
+                srcB := cp0_value;
+            when others =>
+                NULL;
+        end case;
+        
+        if (hi_lo_enable = '1') then 
+            case (alu_op) is
+                -- hi & lo = A * B
+                when "10000" =>
+                    hi_lo <= Std_logic_vector(signed(srcA) * signed(srcB));
+                -- lo = A
+                when "10011" =>
+                    hi_lo(31 downto 0) <= srcA;
+                -- hi = A
+                when "10100" =>
+                    hi_lo(63 downto 32) <= srcA;
+                when others =>
+                    NULL;
+            end case;
+        end if;
+        
+		case alu_op is
 			-- addition A + B
-			when "0000" => 
-				Y <= std_logic_vector(unsigned(A) + unsigned(B));
+			when "00000" => 
+				alu_result <= std_logic_vector(unsigned(srcA) + unsigned(srcB));
 			-- subtraction A - B
-			when "0001" => 
-				Y <= std_logic_vector(unsigned(A) + unsigned((not B)) + 1);
-			-- increment A
-			when "0010" =>
-				Y <= std_logic_vector(unsigned(A) + 1);
-			-- decrement A
-			when "0011" =>
-				Y <= std_logic_vector(unsigned(A) - 1);
-			-- increment B
-			when "0100" => 
-				Y <= std_logic_vector(unsigned(B) + 1);
-			-- decrement B
-			when "0101" =>
-				Y <= std_logic_vector(unsigned(B) - 1);
-			-- transfer A
-			when "0110" =>
-				Y <= A;
-			-- transfer B
-			when "0111" => 
-				Y <= B;
-			-- NOT A
-			when "1000" => 
-				Y <= not A;
-			-- NOT B
-			when "1001" =>
-				Y <= not B;
-			-- A AND B
-			when "1010" => 
-				Y <= A and B;
-			-- A OR B
-			when "1011" =>
-				Y <= A or B;
-			-- A NAND B
-			when "1100" =>
-				Y <= A nand B;
-			-- A NOR B 
-			when "1101" =>
-				Y <= A nor B;
-			-- A EX-OR B
-			when "1110" =>
-				Y <= A xor B;
-			-- A EX-NOR B
-			when "1111" =>
-				Y <= not( A xor B);
-			-- uncertain
+			when "00001" => 
+				alu_result <= std_logic_vector(unsigned(srcA) + unsigned((not srcB)) + 1);
+			-- A == B? that is A - B
+			when "00010" =>
+				alu_result <= std_logic_vector(unsigned(srcA) + unsigned((not srcB)) + 1);
+			-- A & B
+			when "00011" =>
+				alu_result <= srcA and srcB;
+			-- A | B
+			when "00100" => 
+				alu_result <= srcA or srcB;
+			-- A ^ B
+			when "00101" =>
+				alu_result <= srcA xor srcB;
+			-- ~(A | B)
+			when "00110" =>
+				alu_result <= not (srcA or srcB);
+			-- B << A
+			when "00111" => 
+				alu_result <= to_stdlogicvector(to_bitvector(srcB) sll to_integer(unsigned(srcA)));
+			-- B >> A (arithmetic)
+			when "01000" => 
+				alu_result <= to_stdlogicvector(to_bitvector(srcB) sra to_integer(unsigned(srcA)));
+			-- B >> A (logical)
+			when "01001" =>
+				alu_result <= to_stdlogicvector(to_bitvector(srcB) srl to_integer(unsigned(srcA)));
+			-- A < B? signed
+			when "01010" => 
+                if (signed(srcA) < signed(srcB)) then
+                    alu_result <= (0 => '1', others => '0');
+                else
+                    alu_result <= (others => '0');
+                end if;
+			-- A < B? unsigned
+			when "01011" =>
+				if (unsigned(srcA) < unsigned(srcB)) then
+                    alu_result <= (0 => '1', others => '0');
+                else
+                    alu_result <= (others => '0');
+                end if;
+
+            -- read lo register
+            when "10001" =>
+                alu_result <= hi_lo(31 downto 0);
+            -- read hi register
+            when "10010" => 
+                alu_result <= hi_lo(63 downto 32);
+			-- others, uncertain
 			when others =>
-				Y <= "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+				alu_result <= "10101010101010101010101010101010";
 		end case;
+        
 	end process;
 
 end Behavioral;

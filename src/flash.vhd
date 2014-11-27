@@ -3,7 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 
 entity flash is
-    Port ( clk : in  STD_LOGIC;
+    Port ( clock : in  STD_LOGIC;
            addr : in  STD_LOGIC_VECTOR (21 downto 0);
            data_in : in STD_LOGIC_VECTOR (15 downto 0);
            data_out : out  STD_LOGIC_VECTOR (15 downto 0);
@@ -35,10 +35,10 @@ begin
     flash_control_vpen <= '1';
     flash_control_rp <= '1';
     
-    process (clk)
+    process (clock)
     variable state: integer := 0;
     begin
-        if (clk'event and clk = '1') then
+        if (clock'event and clock = '1') then
             case (state) is
                 -- initial state
                 -- priority: read > write > erase
