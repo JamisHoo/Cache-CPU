@@ -19,38 +19,6 @@
                 说明：CPU状态机信号
             } \\
             \midrule
-            mmu\_clock      & in        & std\_logic \\
-            \cmidrule(l){2-3}
-            &
-            \multicolumn{2}{X}{
-                说明：访存相关时钟信号。
-
-                内存的时钟频率和CPU工作的时钟频率并不相同，%
-                内存的时钟频率比CPU快。
-            } \\
-            \midrule
-            mem\_read\_enable & in      & std\_logic \\
-            \cmidrule(l){2-3}
-            &
-            \multicolumn{2}{X}{
-                说明：内存读使能
-
-                来源：MEM模块
-
-                到达时间：访存阶段时钟上升沿之前
-            } \\
-            \midrule
-            mem\_write\_enable & in     & std\_logic \\
-            \cmidrule(l){2-3}
-            &
-            \multicolumn{2}{X}{
-                说明：内存写使能
-
-                来源：MEM模块
-
-                到达时间：访存阶段时钟上升沿之前
-            } \\
-            \midrule
             if\_addr        & in        & std\_logic\_vector(31 downto 0) \\
             \cmidrule(l){2-3}
             &
@@ -62,58 +30,209 @@
                 到达时间：取指令时钟上升沿之前
             } \\
             \midrule
-            mem\_addr       & in        & std\_logic\_vector(31 downto 0) \\
+            instruction        & out        & std\_logic\_vector(31 downto 0) \\
             \cmidrule(l){2-3}
             &
             \multicolumn{2}{X}{
-                说明：访存阶段（不包括取指令）的访存地址
+                说明：取指令阶段得到的32位指令
+
+                产生时间：访存阶段结束之后，根据ready位进行判断
+            } \\
+            \midrule
+            virtual\_addr & in      & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：访存阶段的虚拟地址
 
                 来源：MEM模块
 
                 到达时间：访存阶段时钟上升沿之前
             } \\
             \midrule
-            mem\_write\_value & in      & std\_logic\_vector(31 downto 0) \\
+            data\_in & in     & std\_logic\_vector(31 downto 0) \\
             \cmidrule(l){2-3}
             &
             \multicolumn{2}{X}{
-                说明：内存写入值
+                说明：访存阶段的写入数据
 
                 来源：MEM模块
 
                 到达时间：访存阶段时钟上升沿之前
             } \\
             \midrule
-            cp0\_value      & in        & std\_logic\_vector(159 downto 0) \\
+            read\_enable       & in        & std\_logic \\
             \cmidrule(l){2-3}
             &
             \multicolumn{2}{X}{
-                说明：来自CP0的数据，支持TLBWI指令
+                说明：内存读使能，需要进一步处理
+
+                来源：MEM模块
+
+                到达时间：访存阶段时钟上升沿之前
+            } \\
+            \midrule
+            write\_enable & in      & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：内存写使能，需要进一步处理
+
+                来源：MEM模块
+
+                到达时间：访存阶段时钟上升沿之前
+            } \\
+            \midrule
+            data\_out      & out        & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：访存阶段输出的结果
+
+                产生时间：访存阶段结束之前，在ready位置1的时候
+            } \\
+            \midrule
+            ready   & out        & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：标志位，访存是否结束
+
+                产生时间：访存阶段结束之前
+            } \\
+            \midrule
+            serial\_int      & out       & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：串口中断信号，输出到异常模块
+
+                产生时间：外部中断，任意时间均可产生
+            } \\
+            \midrule
+            exc\_code      & out       & std\_logic\_vector(2 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：异常信号，输出到异常模块
+
+                产生时间：访存阶段第一个下降沿，下一个下降沿就被清空
+
+                000 无异常产生
+            } \\
+            &
+            \multicolumn{2}{X}{
+                001 TLB修改异常
+
+                010 TLB缺失（读）
+
+                011 TLB缺失（写）
+
+                100 地址不对齐（读）
+
+                101 地址不对齐（写）
+            } \\
+            \midrule
+            tlb\_write\_struct      & in       & std\_logic\_vector(66 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：TLB写结构，包含一个TLB表项所需的所有信息
 
                 来源：CP0模块
 
-                到达时间：TLBWI指令执行阶段时钟上升沿之前
+                到达时间：始终从CP0模块连接到MMU，始终处于可读状态
             } \\
             \midrule
-            tlbwi\_enable   & in        & std\_logic \\
+            tlb\_write\_enable      & in       & std\_logic \\
             \cmidrule(l){2-3}
             &
             \multicolumn{2}{X}{
-                说明：TLB写使能
+                说明：TLB写使能，判断是否写入
 
-                来源：IDecode模块
-
-                到达时间：当前指令解码时钟上升沿之后
+                来源：指令解码模块
+                
+                到达时间：指令解码阶段上升沿之后
             } \\
             \midrule
-            mem\_value      & out       & std\_logic\_vector(31 downto 0) \\
+            align\_type      & in       & std\_logic\_vector(1 downto 0) \\
             \cmidrule(l){2-3}
             &
             \multicolumn{2}{X}{
-                说明：读取内存的结果
+                说明：地址对齐方式，配合地址不对齐异常使用
 
-                产生时间：访存阶段时钟下降沿之后
+                来源：指令解码模块
+                
+                到达时间：指令解码阶段上升沿之后
             } \\
+            \midrule
+            to\_physical\_addr      & out       & std\_logic\_vector(23 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：给物理访存模块的地址，包括了访存类型以及地址
 
+                产生时间：访存阶段第一个下降沿之前
+            } \\
+            \midrule
+            to\_physical\_data      & out       & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：给物理访存模块的数据，写内存或串口时需要
+
+                产生时间：访存阶段第一个下降沿之前
+            } \\
+            \midrule
+            to\_physical\_read\_enable      & out       & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：给物理访存模块的读使能，异常状态下直接置0
+
+                产生时间：访存阶段第一个下降沿之前
+            } \\
+            \midrule
+            to\_physical\_write\_enable      & out       & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：给物理访存模块的写使能，异常状态下直接置0
+
+                产生时间：访存阶段第一个下降沿之前
+            } \\
+            \midrule
+            from\_physical\_data      & in       & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：从物理访存模块返回的数据，经过处理直接输出
+
+                产生模块：物理访存模块
+
+                到达时间：访存时间长度不定，在ready位置1之后
+            } \\
+            \midrule
+            from\_physical\_ready     & in       & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：从物理访存模块返回的状态位，说明访存是否完成
+
+                产生模块：物理访存模块
+
+                产生时间：物理访存结束之后
+            } \\
+            \midrule
+            from\_physical\_serial      & in       & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：串口状态，如果串口有数据则为1
+
+                产生模块：物理访存模块
+
+                产生时间：串口为外部中断，因此可能在任意时间产生
+            } \\
             \bottomrule
         \end{tabularx}

@@ -55,16 +55,25 @@ port(
 	alu_ops : out std_logic_vector(8 downto 0);
 	
 	mem_op : out std_logic_vector(2 downto 0);
+	align_type : out std_logic_vector(1 downto 0);
+	tlbwi_enable : out std_logic;
+	
 	wb_op : out std_logic_vector(5 downto 0);
+	
 	cp0_op : out std_logic_vector(1 downto 0);
 	
-	tlbwi_enable : out std_logic
+	exc_code : out std_logic_vector(1 downto 0)
 );
 end IDecode;
 
 architecture Behavioral of IDecode is
-	
+		
+	constant ALIGN_QUAD : std_logic_vector(1 downto 0) := "00";
+	constant ALIGN_WORD : std_logic_vector(1 downto 0) := "01";
+	constant ALIGN_BYTE : std_logic_vector(1 downto 0) := "10";
+
 	signal ins_reg : std_logic_vector(31 downto 0);
+	signal state_reg : status;
 	
 	signal pc_op_reg : std_logic_vector(1 downto 0);
 	signal eret_enable_reg : std_logic;
@@ -74,10 +83,15 @@ architecture Behavioral of IDecode is
 	signal alu_ops_reg : std_logic_vector(8 downto 0);		-- alu_srcA, alu_srcB, alu_op
 	
 	signal mem_op_reg : std_logic_vector(2 downto 0);		-- mem_read, mem_write, mem_value
+	signal tlbwi_enable_reg : std_logic;
+	signal align_type_reg : std_logic_vector(1 downto 0);
+	
 	signal wb_op_reg : std_logic_vector(5 downto 0);		-- reg_dst, reg_value, reg_write
 	signal cp0_op_reg : std_logic_vector(1 downto 0);		-- epc_value, cp0_write
 	
-	signal tlbwi_enable_reg : std_logic;
+	signal ins_undef : std_logic := '0';
+	signal exc_code_reg : std_logic_vector(1 downto 0) := "00";
+	signal exc_counter : std_logic := '0';
 	
 begin
 	
@@ -98,10 +112,11 @@ begin
 	alu_ops <= alu_ops_reg;
 	
 	mem_op <= mem_op_reg;
+	tlbwi_enable <= tlbwi_enable_reg;
+	align_type <= align_type_reg;
+	
 	wb_op <= wb_op_reg;
 	cp0_op <= cp0_op_reg;
-	
-	tlbwi_enable <= tlbwi_enable_reg;
 	
 	-- decode special control sequences
 	process(clk)
@@ -114,6 +129,9 @@ begin
 		Ins23 := instruction(23);		-- mfc0 & mtc0
 		
 		if clk'event and clk = '1' then
+			-- store state
+			state_reg <= state;
+			
 			if state = InsD then
 			
 				ins_reg <= instruction;
@@ -130,6 +148,15 @@ begin
 					tlbwi_enable_reg <= '1';
 				else
 					tlbwi_enable_reg <= '0';
+				end if;
+				
+				-- generate align_type
+				if First = F_LB or First = F_LBU or First = F_SB then
+					align_type_reg <= ALIGN_BYTE;
+				elsif First = F_LHU then
+					align_type_reg <= ALIGN_WORD;
+				else
+					align_type_reg <= ALIGN_QUAD;
 				end if;
 				
 				-- generate comp_op
@@ -160,7 +187,29 @@ begin
 		end if;
 	end process;
 
-
+	-- generate and clear exc_code on negedge
+	exc_code <= exc_code_reg;
+	process(clk)
+	begin
+		if clk'event and clk = '0' then
+			if exc_counter = '1' then
+				exc_counter <= '0';
+				exc_code_reg <= "00";
+			elsif exc_counter = '0' and state_reg = InsD then
+				if ins_undef = '1' then
+					exc_code_reg <= "10";
+					exc_counter <= '1';
+				elsif ins_reg(31 downto 26) = "000000" and ins_reg(5 downto 0) = L_SYSCALL then
+					exc_code_reg <= "01";
+					exc_counter <= '1';
+				else
+					exc_code_reg <= "00";
+					exc_counter <= '0';
+				end if;
+			end if;
+		end if;
+	end process;
+	
 	-- decode other control sequences
 	process(clk)
 		variable First : std_logic_vector(5 downto 0);
@@ -169,9 +218,7 @@ begin
 		First := instruction(31 downto 26);
 		Last := instruction(5 downto 0);
 		
-		if clk'event and clk = '1' then
-			if state = InsD then
-			
+		if clk'event and clk = '1' and state = InsD then
 			-- generate pc_op
 			case First is
 				when F_ZERO =>  case Last is
@@ -267,61 +314,62 @@ begin
 			case First is
 				when F_ZERO => 
 										case Last is
-											when L_ADDU => alu_ops_reg <= "000000000";
-											when L_SLT => alu_ops_reg <= "000001010";
-											when L_SLTU => alu_ops_reg <= "000001011";
-											when L_SUBU => alu_ops_reg <= "000000001";
-											when L_MULT => alu_ops_reg <= "000010000";
-											when L_MFLO => alu_ops_reg <= "000010001";
-											when L_MFHI => alu_ops_reg <= "000010010";
-											when L_MTLO => alu_ops_reg <= "000010011";
-											when L_MTHI => alu_ops_reg <= "000010100";
-											when L_JALR => alu_ops_reg <= "001000000";
-											when L_JR => alu_ops_reg <= "001000000";
-											when L_AND => alu_ops_reg <= "000000011";
-											when L_NOR => alu_ops_reg <= "000000110";
-											when L_OR => alu_ops_reg <= "000000100";
-											when L_XOR => alu_ops_reg <= "000000101";
-											when L_SLL => alu_ops_reg <= "010000111";
-											when L_SLLV => alu_ops_reg <= "000000111";
-											when L_SRA => alu_ops_reg <= "010001000";
-											when L_SRAV => alu_ops_reg <= "000001000";
-											when L_SRL => alu_ops_reg <= "010001001";
-											when L_SRLV => alu_ops_reg <= "000001001";
+											when L_ADDU => alu_ops_reg <= "000000000"; ins_undef <= '0';
+											when L_SLT => alu_ops_reg <= "000001010"; ins_undef <= '0';
+											when L_SLTU => alu_ops_reg <= "000001011"; ins_undef <= '0';
+											when L_SUBU => alu_ops_reg <= "000000001"; ins_undef <= '0';
+											when L_MULT => alu_ops_reg <= "000010000"; ins_undef <= '0';
+											when L_MFLO => alu_ops_reg <= "000010001"; ins_undef <= '0';
+											when L_MFHI => alu_ops_reg <= "000010010"; ins_undef <= '0';
+											when L_MTLO => alu_ops_reg <= "000010011"; ins_undef <= '0';
+											when L_MTHI => alu_ops_reg <= "000010100"; ins_undef <= '0';
+											when L_JALR => alu_ops_reg <= "001000000"; ins_undef <= '0';
+											when L_JR => alu_ops_reg <= "001000000"; ins_undef <= '0';
+											when L_AND => alu_ops_reg <= "000000011"; ins_undef <= '0';
+											when L_NOR => alu_ops_reg <= "000000110"; ins_undef <= '0';
+											when L_OR => alu_ops_reg <= "000000100"; ins_undef <= '0';
+											when L_XOR => alu_ops_reg <= "000000101"; ins_undef <= '0';
+											when L_SLL => alu_ops_reg <= "010000111"; ins_undef <= '0';
+											when L_SLLV => alu_ops_reg <= "000000111"; ins_undef <= '0';
+											when L_SRA => alu_ops_reg <= "010001000"; ins_undef <= '0';
+											when L_SRAV => alu_ops_reg <= "000001000"; ins_undef <= '0';
+											when L_SRL => alu_ops_reg <= "010001001"; ins_undef <= '0';
+											when L_SRLV => alu_ops_reg <= "000001001"; ins_undef <= '0';
 				
-											when L_SYSCALL => alu_ops_reg <= ALU_DISABLE;
+											when L_SYSCALL => alu_ops_reg <= ALU_DISABLE; ins_undef <= '0';
                                             
 											when others => alu_ops_reg <= ALU_DISABLE;			-- not defined, cause exception
+																ins_undef <= '1';
 										end case;
 			
-				when F_ADDIU => alu_ops_reg <= "000100000";
-				when F_SLTI => alu_ops_reg <= "000101010";
-				when F_SLTIU => alu_ops_reg <= "000101011";
-				when F_ANDI => alu_ops_reg <= "000100011";
-				when F_LUI => alu_ops_reg <= "110000111";
-				when F_ORI => alu_ops_reg <= "000100100";
-				when F_XORI => alu_ops_reg <= "000100101";
-				when F_BEQ => alu_ops_reg <= "000000010";
-				when F_BNE => alu_ops_reg <= "000000010";
-				when F_BGEZ => alu_ops_reg <= "001000001";
-				when F_BGTZ => alu_ops_reg <= "001000001";
-				when F_BLEZ => alu_ops_reg <= "001000001";
-				when F_LW => alu_ops_reg <= "000100000";
-				when F_SW => alu_ops_reg <= "000100000";
-				when F_LB => alu_ops_reg <= "000100000";
-				when F_LBU => alu_ops_reg <= "000100000";
-				when F_SB => alu_ops_reg <= "000100000";
-				when F_LHU => alu_ops_reg <= "000100000";
+				when F_ADDIU => alu_ops_reg <= "000100000"; ins_undef <= '0';
+				when F_SLTI => alu_ops_reg <= "000101010"; ins_undef <= '0';
+				when F_SLTIU => alu_ops_reg <= "000101011"; ins_undef <= '0';
+				when F_ANDI => alu_ops_reg <= "000100011"; ins_undef <= '0';
+				when F_LUI => alu_ops_reg <= "110000111"; ins_undef <= '0';
+				when F_ORI => alu_ops_reg <= "000100100"; ins_undef <= '0';
+				when F_XORI => alu_ops_reg <= "000100101"; ins_undef <= '0';
+				when F_BEQ => alu_ops_reg <= "000000010"; ins_undef <= '0';
+				when F_BNE => alu_ops_reg <= "000000010"; ins_undef <= '0';
+				when F_BGEZ => alu_ops_reg <= "001000001"; ins_undef <= '0';
+				when F_BGTZ => alu_ops_reg <= "001000001"; ins_undef <= '0';
+				when F_BLEZ => alu_ops_reg <= "001000001"; ins_undef <= '0';
+				when F_LW => alu_ops_reg <= "000100000"; ins_undef <= '0';
+				when F_SW => alu_ops_reg <= "000100000"; ins_undef <= '0';
+				when F_LB => alu_ops_reg <= "000100000"; ins_undef <= '0';
+				when F_LBU => alu_ops_reg <= "000100000"; ins_undef <= '0';
+				when F_SB => alu_ops_reg <= "000100000"; ins_undef <= '0';
+				when F_LHU => alu_ops_reg <= "000100000"; ins_undef <= '0';
 				
-				when F_J => alu_ops_reg <= ALU_DISABLE;
-				when F_JAL => alu_ops_reg <= ALU_DISABLE;
-				when F_CACHE => alu_ops_reg <= ALU_DISABLE;
-				when F_ERET => alu_ops_reg <= ALU_DISABLE; 	-- eret, mfc0, mtc0, tlbwi
+				when F_J => alu_ops_reg <= ALU_DISABLE; ins_undef <= '0';
+				when F_JAL => alu_ops_reg <= ALU_DISABLE; ins_undef <= '0';
+				when F_CACHE => alu_ops_reg <= ALU_DISABLE; ins_undef <= '0';
+				when F_ERET => alu_ops_reg <= ALU_DISABLE; ins_undef <= '0';	-- eret, mfc0, mtc0, tlbwi
 				
 				when others => alu_ops_reg <= ALU_DISABLE; 		-- not defined, cause exception
+									ins_undef <= '1';
 			end case;
 			
-			end if;
 		end if;
 	end process;
 	

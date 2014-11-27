@@ -36,6 +36,7 @@ entity WB is
 		clk : in std_logic;
 		state : in std_logic_vector(3 downto 0);
 		WB_e : in std_logic;
+		WB_stop : in std_logic;
 		--PC + 4
 		RPC : in std_logic_vector(31 downto 0);
 		mmu_value : in std_logic_vector(31 downto 0);
@@ -82,7 +83,7 @@ begin
 			m_write_value <= (others => '0');
 		elsif rising_edge(clk) then
 			--qusetion state
-			if state ="0100" then
+			if state ="0100" and WB_stop = '0' then
 				case wb_op(4 downto 3) is
 					when "00" =>
 						if rt_addr /= "00000" then
@@ -103,8 +104,12 @@ begin
 						m_write_enable <= '1';
 					when others =>
 						m_write_enable <= '0';
-				end case;		
+				end case;
+			else
+				m_write_enable <= '0';
+			end if;
 
+			if state ="0100" then
 				case wb_op(2 downto 0) is
 					when "000" =>
 						m_write_value <= alu_result;

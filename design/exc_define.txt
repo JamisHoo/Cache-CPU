@@ -1,0 +1,51 @@
+各个模块发出的中断和异常
+
+异常相关时序：
+    指令执行的某一个阶段产生异常，则在该阶段的下降沿对对异常的输出信号进行赋值
+    在每一个阶段的上升沿都会清空异常信号
+    所以要求异常处理的模块在每一个上升沿监测是否有异常，并且将异常号记录下来。
+    一下是异常相关的定义
+    
+MMU：
+    异常：exc_code(2 downto 0)
+        000：无异常
+        001：TLB_MODIFIED
+        010：TLB_L
+        011：TLB_S
+        100：ADE_L
+        101：ADE_S
+    中断：serial_int
+        0：无中断
+        1：触发中断
+
+CP0：
+    中断：时钟中断
+        compare_interrupt
+        0：无异常
+        1：时钟中断异常
+    
+IDecode：
+    异常：exc_code(1 downto 0)
+        00：无异常
+        01：syscall
+        10：RI
+        
+ucore相关的异常号、中断号、串口说明
+    中断号：cause寄存器（15 downto 10）
+          每一位代表一个中断
+          时钟中断：cause(15)
+          串口中断：cause(12)
+          键盘中断：cause(14)
+    异常号：cause寄存器（6 downto 2）
+          组成0到31的数字，表示异常号
+          Interrupt:0
+          TLB Modify:1
+          TLBL:2
+          TLBS:3
+          ADEL:4
+          ADES:5
+          SYSCALL:8
+          RI:10
+    串口地址：
+          数据：COM1   0xbfd003F8
+          状态：COM1+4 0xbfd003FC

@@ -1,0 +1,27 @@
+MMU模块与PhysicalMem模块之间的接口
+
+    to_physical_addr : out std_logic_vector(23 downto 0);       
+        发送给PhysicalMem的地址（24位）
+        Flash:   "00" + addr_length(21 downto 0)
+        RAM：    "01" + "0" + addr_length(20 downto 0)
+        Serial： "10" + "0000000000000000000000"
+    
+    
+	to_physical_data : out std_logic_vector(31 downto 0);
+        发送给PhysicalMem的写数据
+	to_physical_read_enable : out std_logic;
+        发送给PhysicalMem的读使能
+	to_physical_write_enable : out std_logic;
+        发送给PhysicalMem的写使能
+	
+	
+	from_physical_data : in std_logic_vector(31 downto 0);
+        从PhysicalMem收到的数据
+	from_physical_ready : in std_logic;
+        访存阶段是否完成？
+        接收数据、地址后，开始访存，该位置0
+        访存结束后，该位置1
+	from_physical_serial : in std_logic
+        串口异常
+        串口有数据置1，之后一直保存，直到串口数据被读取，该位置0
+        

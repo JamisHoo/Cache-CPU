@@ -40,9 +40,12 @@ entity CP0 is
 		entry_hi_in : in std_logic_vector(19 downto 0);
 		interrupt_start_in : in std_logic;
 		cause_in : in std_logic_vector(4 downto 0);
+		interrupt_cause_in : in std_logic_vector(5 downto 0);
 		epc_in : in std_logic_vector(31 downto 0);
 		eret_enable : in std_logic;
 		cp0_e : in std_logic;
+		cp0_stop : in std_logic;
+		compare_init: in std_logic;
 
 		addr_value : out std_logic_vector(31 downto 0);
 		all_regs : out std_logic_vector(1023 downto 0);
@@ -112,23 +115,36 @@ begin
 			--question state
 			if state = "0010" and eret_enable = '1' then
 				register_values(13)(1) <= '0';
-				register_values(10) <= register_values(10) + 1;
+				if compare_init = '0' and m_compare_interrupt = '0' then
+					register_values(10) <= register_values(10) + 1;
+				elsif compare_init = '1' then
+					register_values(10) <= (others => '0');
+				end if;
 			--question state
-			elsif state = "0010" and normal_cp0_in(37) = '1' then
+			elsif state = "0010" and normal_cp0_in(37) = '1' and cp0_stop = '0' then
 				register_values(conv_integer(normal_cp0_in(36 downto 32))) <= normal_cp0_in(31 downto 0);
 			elsif interrupt_start_in = '1' then
 				register_values(9) <= bad_v_addr_in;
 				register_values(11)(31 downto 12) <= entry_hi_in;
 				register_values(13)(1) <= '1';
 				register_values(15)(6 downto 2) <= cause_in;
+				register_values(15)(15 downto 10) <= interrupt_cause_in;
 				register_values(16) <= epc_in;
+				if compare_init = '0' and m_compare_interrupt = '0' then
+					register_values(10) <= register_values(10) + 1;
+				elsif compare_init = '1' then
+					register_values(10) <= (others => '0');
+				end if;
+			elsif compare_init = '0' and m_compare_interrupt = '0' then
 				register_values(10) <= register_values(10) + 1;
-			else
-				register_values(10) <= register_values(10) + 1;
+			elsif compare_init = '1' then
+				register_values(10) <= (others => '0');
 			end if;
 			--question lack of compare_interrupt recover enable
 			if register_values(12) /= old_compare then
 				old_compare <= register_values(12);
+				m_compare_interrupt <= '0';
+			elsif compare_init = '1' then
 				m_compare_interrupt <= '0';
 			elsif register_values(12) = register_values(10) then
 				m_compare_interrupt <= '1';

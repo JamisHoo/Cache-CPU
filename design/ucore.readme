@@ -1,0 +1,19 @@
+ucore相关的异常号、中断号、串口说明
+    中断号：cause寄存器（15 downto 10）
+          每一位代表一个中断
+          时钟中断：cause(15)
+          串口中断：cause(12)
+          键盘中断：cause(14)
+    异常号：cause寄存器（6 downto 2）
+          组成0到31的数字，表示异常号
+          Interrupt:0
+          TLB Modify:1
+          TLBL:2
+          TLBS:3
+          ADEL:4
+          ADES:5
+          SYSCALL:8
+          RI:10
+    串口地址：
+          数据：COM1   0xbfd003F8
+          状态：COM1+4 0xbfd003FC

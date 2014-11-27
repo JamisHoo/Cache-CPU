@@ -53,26 +53,18 @@ begin
 	-- always
 	PC <= PCReg;
 	
-	-- combinatory logic
-	process(PCSrc, EBase, EPC, pc_sel, state)
-	begin
-		if pc_sel(1) = '0' then				-- eret_enable
-			if pc_sel(0) = '1' then			-- pc_control
-				PCmmu <= EBase;
-			else
-				PCmmu <= PCSrc;
-			end if;
-		else 
-			PCmmu <= EPC;
-		end if;
-	end process;
-	
+	PCmmu <= EBase
+					when pc_sel(1 downto 0) = "01"
+				else PCSrc 
+					when pc_sel(1 downto 0) = "00"
+				else EPC;
+				
 	-- sequential logic
 	process(clk)
 	begin
 		if clk'event and clk = '1' then
 			if state = InsF then
-				if pc_sel(1) = '0' then					-- eret_enable
+				if pc_sel(1) = '0' then				-- eret_enable
 					if pc_sel(0) = '1' then			-- pc_control
 						PCReg <= EBase;
 					else
