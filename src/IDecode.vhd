@@ -55,17 +55,23 @@ port(
 	alu_ops : out std_logic_vector(8 downto 0);
 	
 	mem_op : out std_logic_vector(2 downto 0);
-	wb_op : out std_logic_vector(5 downto 0);
-	cp0_op : out std_logic_vector(1 downto 0);
-	
+	align_type : out std_logic_vector(1 downto 0);
 	tlbwi_enable : out std_logic;
+	
+	wb_op : out std_logic_vector(5 downto 0);
+	
+	cp0_op : out std_logic_vector(1 downto 0);
 	
 	exc_code : out std_logic_vector(1 downto 0)
 );
 end IDecode;
 
 architecture Behavioral of IDecode is
-	
+		
+	constant ALIGN_QUAD : std_logic_vector(1 downto 0) := "00";
+	constant ALIGN_WORD : std_logic_vector(1 downto 0) := "01";
+	constant ALIGN_BYTE : std_logic_vector(1 downto 0) := "10";
+
 	signal ins_reg : std_logic_vector(31 downto 0);
 	signal state_reg : status;
 	
@@ -77,10 +83,11 @@ architecture Behavioral of IDecode is
 	signal alu_ops_reg : std_logic_vector(8 downto 0);		-- alu_srcA, alu_srcB, alu_op
 	
 	signal mem_op_reg : std_logic_vector(2 downto 0);		-- mem_read, mem_write, mem_value
+	signal tlbwi_enable_reg : std_logic;
+	signal align_type_reg : std_logic_vector(1 downto 0);
+	
 	signal wb_op_reg : std_logic_vector(5 downto 0);		-- reg_dst, reg_value, reg_write
 	signal cp0_op_reg : std_logic_vector(1 downto 0);		-- epc_value, cp0_write
-	
-	signal tlbwi_enable_reg : std_logic;
 	
 	signal ins_undef : std_logic := '0';
 	signal exc_code_reg : std_logic_vector(1 downto 0) := "00";
@@ -105,10 +112,11 @@ begin
 	alu_ops <= alu_ops_reg;
 	
 	mem_op <= mem_op_reg;
+	tlbwi_enable <= tlbwi_enable_reg;
+	align_type <= align_type_reg;
+	
 	wb_op <= wb_op_reg;
 	cp0_op <= cp0_op_reg;
-	
-	tlbwi_enable <= tlbwi_enable_reg;
 	
 	-- decode special control sequences
 	process(clk)
@@ -140,6 +148,15 @@ begin
 					tlbwi_enable_reg <= '1';
 				else
 					tlbwi_enable_reg <= '0';
+				end if;
+				
+				-- generate align_type
+				if First = F_LB or First = F_LBU or First = F_SB then
+					align_type_reg <= ALIGN_BYTE;
+				elsif First = F_LHU then
+					align_type_reg <= ALIGN_WORD;
+				else
+					align_type_reg <= ALIGN_QUAD;
 				end if;
 				
 				-- generate comp_op
