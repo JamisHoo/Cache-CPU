@@ -53,7 +53,7 @@ load_elf:
   la $s0, FLASH_START         
   #e_magic
   LOAD_WORD_I($t1, 0)
-  la $t0, ELF_MAGIC                   #magic的作用是？
+  la $t0, ELF_MAGIC                   #Flash起始标记，和贾开的工具配套
   beq $t0, $t1, 1f
   nop
   b bad
