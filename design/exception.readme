@@ -2,39 +2,62 @@ exception模块接口说明
 
 	clk : in std_logic;
 	时钟信号
+
 	state : in std_logic_vector( 3 downto 0 );
 	CPU状态机信号
+
 	exception_e : in std_logic;
 	exception模块使能信号
-	bad_v_addr_in : in std_logic_vector(31 downto 0);
-	bad_v_addr输入值，来自CPU顶层模块，要求exception阶段上升沿之前准备好
-	entry_hi_in : in std_logic_vector(19 downto 0);
-	entry_hi输入值，来自CPU顶层模块，要求exception阶段上升沿之前准备好
-	cause_in : in std_logic_vector(4 downto 0);
-	异常号输入值，来自CPU顶层模块，要求exception阶段上升沿之前准备好
-	interrupt_cause_in : in std_logic_vector(5 downto 0);
-	中断号输入值，来自CPU顶层模块，要求exception阶段上升沿之前准备好
-	epc_in : in std_logic_vector(31 downto 0);
-	EPC输入值，来自CPU顶层模块，要求exception阶段上升沿之前准备好
+
+	mmu_exc_code : in std_logic_vector(2 downto 0);
+	来自MMU的异常信号，表示TLB_MODIFIED,TLB_L,TLB_S,ADE_L,ADE_S异常。要求exception阶段时钟上升沿之前保持。
+
+	serial_int : in std_logic;
+	来自串口的异常信号。要求exception阶段时钟上升沿之前保持。
+
+	compare_interrupt : in std_logic;
+	来自CP0的时钟中断信号。要求exception阶段时钟上升沿之前保持。
+
+	id_exc_code : in std_logic_vector(1 downto 0);
+	来自ID的异常信号，表示SYSCAL,RI异常。要求exception阶段时钟上升沿之前保持。
+
+	pc_in : in std_logic_vector(31 downto 0);
+	本指令的PC,来自CPU模块。要求exception阶段时钟上升沿之前保持。
+
+	v_addr_in : in std_logic_vector(31 downto 0);
+	目前的访存虚拟地址，来自MMU。要求exception阶段时钟上升沿之前保持。
+
+	old_entry_hi : in std_logic_vector(19 downto 0);
+	旧的entry_hi，用于entry_hi不变的情况，来自CP0。要求exception阶段时钟上升沿之前保持。
+
+	old_interrupt_code : in std_logic_vector(5 downto 0);
+	旧的中断号，用于中断号不变的情况，来自CP0。要求exception阶段时钟上升沿之前保持。
 		
+
 	bad_v_addr_out : out std_logic_vector(31 downto 0);
 	bad_v_addr输出值，交给CP0模块进行写入,可以保持到下次改变
+
 	entry_hi_out : out std_logic_vector(19 downto 0);
 	entry_hi输出值，交给CP0模块进行写入,可以保持到下次改变
+
 	interrupt_start_out : out std_logic;
 	CP0模块的异常写入使能，控制CP0模块开始写入异常信息，可以保持到下一时钟上升沿之前
+
 	cause_out : out std_logic_vector(4 downto 0);
 	异常号输出值，交给CP0模块进行写入,可以保持到下次改变
+
 	interrupt_cause_out : out std_logic_vector(5 downto 0);
 	中断号输出值，交给CP0模块进行写入,可以保持到下次改变
+
 	epc_out : out std_logic_vector(31 downto 0);
 	EPC输出值，交给CP0模块进行写入,可以保持到下次改变
+
 	pc_sel0 : out std_logic
 	IF阶段选择PC的pc_sel的0位，若为1表示应选择异常处理向量作为新的PC。可以保持到下一时钟上升沿之前
 
 exception模块内部实现：
-	exception文件本身主要承担数据转发的功能，并不做太多事情。
-	除数据转发外，还需将interrupt_start_out,pc_sel0两个控制信号置1,使其工作。其他情况下将其置0。
+	exception负责产生、发送异常信息，根据目前与异常有关的信息，选择适当的写入CP0的数据。
+	除写入异常信息外，还需将interrupt_start_out,pc_sel0两个控制信号置1,使其工作。其他情况下将其置0。
 
 异常处理设计简述：
 	需要考虑的异常：
@@ -60,7 +83,7 @@ exception模块内部实现：
 	TLB Modify：
 		由MMU的对应信号触发，发生在MEM阶段，在ID、WB阶段开始时检查。
 		异常在下一时钟下降沿消除，因此需在要求的上升沿进行检查。
-		检查到异常时，记录异常号，Bad_v_addr由MMU提供，EPC取当前指令的地址。
+		检查到异常时，记录异常号，Bad_v_addr取MMU提供的虚拟地址，EPC取当前指令的地址。
 	TLBL：
 		由MMU的对应信号触发，发生在IF阶段或MEM阶段，在ID、WB阶段开始时检查。
 		异常在下一时钟下降沿消除，因此需在要求的上升沿进行检查。
@@ -85,10 +108,6 @@ exception模块内部实现：
 		由ID模块的对应信号触发，发生在ID阶段，在ALU阶段开始时检查。
 		异常在下一时钟上升沿消除，因此需在要求的上升沿进行检查。
 		检查到异常时，记录异常号，Bad_v_addr取当前指令地址，EPC取当前指令的地址。
-
-exception模块外部要求：
-	异常检测由CPU顶层模块实现，在指定阶段检测到异常后，应记录发生的异常的种类，将当前阶段暂停，然后跳转到异常处理的state。
-	另外，暂停信号应及时恢复为0.
 
 exception模块状态跳转：
 	请无条件跳转至IF阶段

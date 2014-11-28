@@ -36,17 +36,20 @@ entity Exception is
 		clk : in std_logic;
 		state : in std_logic_vector( 3 downto 0 );
 		exception_e : in std_logic;
-		bad_v_addr_in : in std_logic_vector(31 downto 0);
-		entry_hi_in : in std_logic_vector(19 downto 0);
-		cause_in : in std_logic_vector(4 downto 0);
-		interrupt_cause_in : in std_logic_vector(5 downto 0);
-		epc_in : in std_logic_vector(31 downto 0);
+		mmu_exc_code : in std_logic_vector(2 downto 0);
+		serial_int : in std_logic;
+		compare_interrupt : in std_logic;
+		id_exc_code : in std_logic_vector(1 downto 0);
+		pc_in : in std_logic_vector(31 downto 0);
+		v_addr_in : in std_logic_vector(31 downto 0);
+		old_entry_hi : in std_logic_vector(19 downto 0);
+		old_interrupt_code : in std_logic_vector(5 downto 0);
 		
 		bad_v_addr_out : out std_logic_vector(31 downto 0);
 		entry_hi_out : out std_logic_vector(19 downto 0);
 		interrupt_start_out : out std_logic;
 		cause_out : out std_logic_vector(4 downto 0);
-		interrupt_cause_out : out std_logic_vector(5 downto 0);
+		interrupt_code_out : out std_logic_vector(5 downto 0);
 		epc_out : out std_logic_vector(31 downto 0);
 		pc_sel0 : out std_logic
 		);
@@ -57,7 +60,7 @@ signal m_bad_v_addr : std_logic_vector(31 downto 0);
 signal m_entry_hi : std_logic_vector(19 downto 0);
 signal m_interrupt_start : std_logic;
 signal m_cause : std_logic_vector(4 downto 0);
-signal m_interrupt_cause : std_logic_vector(5 downto 0);
+signal m_interrupt_code : std_logic_vector(5 downto 0);
 signal m_epc : std_logic_vector(31 downto 0);
 signal m_pc_sel0 : std_logic;
 begin
@@ -65,7 +68,7 @@ begin
 	entry_hi_out <= m_entry_hi;
 	interrupt_start_out <= m_interrupt_start;
 	cause_out <= m_cause;
-	interrupt_cause_out <= m_interrupt_cause;
+	interrupt_code_out <= m_interrupt_code;
 	epc_out <= m_epc;
 	pc_sel0 <= m_pc_sel0;
 	
@@ -79,13 +82,60 @@ begin
 			if state = "1100" then
 				m_interrupt_start <= '1';
 				m_pc_sel0 <= '1';
-				m_bad_v_addr <= bad_v_addr_in;
-				m_entry_hi <= entry_hi_in;
-				m_cause <= cause_in;
-				m_interrupt_cause <= interrupt_cause_in;
-				m_epc <= epc_in;
+				m_epc <= pc_in;
+				if mmu_exc_code = "000" then
+					m_bad_v_addr <= pc_in;
+				else
+					m_bad_v_addr <= v_addr_in;
+				end if;
+				if mmu_exc_code = "010" or mmu_exc_code = "011" then
+					m_entry_hi <= v_addr_in ( 31 downto 12);
+				else
+					m_entry_hi <= old_entry_hi;
+				end if;
 			else
+				m_interrupt_start <= '0';
 				m_pc_sel0 <= '0';
+			end if;
+		end if;
+	end process;
+	
+	process(clk)
+	begin
+		if rising_edge(clk) and exception_e = '1' then
+			if mmu_exc_code = "000" then
+				if id_exc_code = "00" then
+					if serial_int = '0' then
+						if compare_interrupt = '1' then
+							m_cause <= "00000";
+							m_interrupt_code <= "100000";
+						end if;
+					elsif serial_int = '1' then
+						m_cause <= "00000";
+						m_interrupt_code <= "000100";
+					end if;
+				elsif id_exc_code = "01" then
+					m_interrupt_code <= old_interrupt_code;
+					m_cause <= "01000";
+				elsif id_exc_code = "10" then
+					m_interrupt_code <= old_interrupt_code;
+					m_cause <= "01010";
+				end if;
+			else
+				m_interrupt_code <= old_interrupt_code;
+				case mmu_exc_code is
+					when "001" =>
+						m_cause <= "001";
+					when "010" =>
+						m_cause <= "010";
+					when "011" =>
+						m_cause <= "011";
+					when "100" =>
+						m_cause <= "100";
+					when "101" =>
+						m_cause <= "101";
+					when others =>
+				end case;
 			end if;
 		end if;
 	end process;
