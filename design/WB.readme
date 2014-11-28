@@ -1,13 +1,10 @@
 WB模块接口说明：
 	clk : in std_logic;
 	时钟信号
-	state : in std_logic_vector(3 downto 0);
+	state : in status;
 	状态机
-
 	WB_e : in std_logic;
 	WB文件的使能信号
-	WB_stop : in std_logic;
-	WB暂停使能，令写信号置0
 	RPC : in std_logic_vector(31 downto 0);
 	即本周期的PC+4，要求ALU阶段上升沿之前准备好。
 	mmu_value : in std_logic_vector(31 downto 0);

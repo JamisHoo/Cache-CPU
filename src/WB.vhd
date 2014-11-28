@@ -21,6 +21,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 use IEEE.STD_LOGIC_ARITH.ALL;
+use work.common.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -34,9 +35,8 @@ use IEEE.STD_LOGIC_ARITH.ALL;
 entity WB is
 	port(
 		clk : in std_logic;
-		state : in std_logic_vector(3 downto 0);
+		state : in status;
 		WB_e : in std_logic;
-		WB_stop : in std_logic;
 		--PC + 4
 		RPC : in std_logic_vector(31 downto 0);
 		mmu_value : in std_logic_vector(31 downto 0);
@@ -50,7 +50,7 @@ entity WB is
 		write_value : out std_logic_vector(31 downto 0);
 		write_enable : out std_logic;
  
-		pc_op : in std_logic_vector(2 downto 0);
+		pc_op : in std_logic_vector(1 downto 0);
 		comp_op : in std_logic_vector(2 downto 0);
 		rs_value : in std_logic_vector(31 downto 0);
 		rt_value : in std_logic_vector(31 downto 0);
@@ -82,8 +82,7 @@ begin
 			m_write_addr <= (others => '0');
 			m_write_value <= (others => '0');
 		elsif rising_edge(clk) then
-			--qusetion state
-			if state ="0100" and WB_stop = '0' then
+			if state =WriteB then
 				case wb_op(4 downto 3) is
 					when "00" =>
 						if rt_addr /= "00000" then
@@ -105,11 +104,9 @@ begin
 					when others =>
 						m_write_enable <= '0';
 				end case;
-			else
-				m_write_enable <= '0';
 			end if;
 
-			if state ="0100" then
+			if state =WriteB then
 				case wb_op(2 downto 0) is
 					when "000" =>
 						m_write_value <= alu_result;
@@ -186,8 +183,7 @@ begin
 			m_compare <= '0';
 		elsif rising_edge(clk) then
 			case state is
-				--qusetion state
-				when "0010" =>
+				when Exe =>
 					case comp_op is
 						when "000" =>
 							if rs_value = rt_value then
@@ -228,22 +224,21 @@ begin
 						when others =>
 							m_compare <= '0';
 					end case;
-				--qusetion state
-				when "0100" =>
+				when WriteB =>
 					case pc_op is
 						--question 2bit or 3bit?
-						when "000" =>
+						when "00" =>
 							m_PcSrc <= RPC;
-						when "001" =>
+						when "01" =>
 							if m_compare = '1' then
 								--question from where?
 								m_PcSrc <= RPC + imme;
 							else
 								m_PcSrc <= RPC;
 							end if;
-						when "010" =>
+						when "10" =>
 							m_PcSrc <= imme;
-						when "011" =>
+						when "11" =>
 							m_PcSrc <= alu_result;
 						when others =>
 							m_PcSrc <= RPC;

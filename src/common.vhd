@@ -11,7 +11,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 
 package common is
-type status is (InsF, InsD, Exe, Mem1, Mem2, WB, Exc);
+type status is (InsF, InsD, Exe, Mem1, Mem2, WriteB, Exc);
 
 constant TLB_ENTRY_WIDTH :	integer := 63;
 constant TLB_NUM_ENTRY : integer := 16;

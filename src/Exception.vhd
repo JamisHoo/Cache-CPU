@@ -21,6 +21,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use ieee.std_logic_unsigned.all;
 use ieee.std_logic_arith.all;
+use work.common.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -34,7 +35,7 @@ use ieee.std_logic_arith.all;
 entity Exception is
 	port(
 		clk : in std_logic;
-		state : in std_logic_vector( 3 downto 0 );
+		state : in status;
 		exception_e : in std_logic;
 		mmu_exc_code : in std_logic_vector(2 downto 0);
 		serial_int : in std_logic;
@@ -78,8 +79,7 @@ begin
 			m_interrupt_start <= '0';
 			m_pc_sel0 <= '0';
 		elsif rising_edge(clk) then
-			--question state number for exception
-			if state = "1100" then
+			if state = Exc then
 				m_interrupt_start <= '1';
 				m_pc_sel0 <= '1';
 				m_epc <= pc_in;
@@ -125,15 +125,15 @@ begin
 				m_interrupt_code <= old_interrupt_code;
 				case mmu_exc_code is
 					when "001" =>
-						m_cause <= "001";
+						m_cause <= "00001";
 					when "010" =>
-						m_cause <= "010";
+						m_cause <= "00010";
 					when "011" =>
-						m_cause <= "011";
+						m_cause <= "00011";
 					when "100" =>
-						m_cause <= "100";
+						m_cause <= "00100";
 					when "101" =>
-						m_cause <= "101";
+						m_cause <= "00101";
 					when others =>
 				end case;
 			end if;

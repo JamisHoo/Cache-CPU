@@ -1,8 +1,10 @@
 CP0模块接口说明：
 	clk: in std_logic;
 	时钟信号
-	state: in std_logic_vector(3 downto 0);
+	state: in status;
 	状态机
+	cp0_e : in std_logic;
+	CP0部分的使能信号。
 	normal_cp0_in : in std_logic_vector(37 downto 0);
 	指令引发的CP0读写操作的输入，格式上，37位为写使能，36-32位为地址，31-0位为数据。
 	读写均在时钟上升沿触发，因此要求数据在时钟上升沿之前准备好。
@@ -21,10 +23,6 @@ CP0模块接口说明：
 	eret_enable : in std_logic;
 	eret的使能信号，将status(1)置0.优先于interrupt_start_in起效。
 	请注意，这一数据应当在ALU阶段上升沿之前准备好。
-	cp0_e : in std_logic;
-	CP0部分的使能信号。
-	cp0_stop : in std_logic;
-	CP0部分的暂停信号，置1时不能写入。
 	compare_init: in std_logic;
 	时钟中断的恢复的使能
 

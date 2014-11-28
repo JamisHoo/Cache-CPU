@@ -1,6 +1,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
+use work.common.all;
 
 entity alu is
 	port(clk:               in  std_logic;
@@ -9,7 +10,7 @@ entity alu is
          imme:              in  std_logic_vector(31 downto 0);
          cp0_value:         in  std_logic_vector(31 downto 0);
          
-         state:             in  std_logic_vector(3 downto 0);
+         state:             in  status;
          
          alu_op:            in  std_logic_vector(4 downto 0);
          alu_srcA:          in  std_logic_vector(1 downto 0);

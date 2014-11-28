@@ -21,6 +21,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 use IEEE.STD_LOGIC_ARITH.ALL;
+use work.common.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -34,17 +35,16 @@ use IEEE.STD_LOGIC_ARITH.ALL;
 entity CP0 is
 	port(
 		clk: in std_logic;
-		state: in std_logic_vector(3 downto 0);
+		state: in status;
+		cp0_e : in std_logic;
 		normal_cp0_in : in std_logic_vector(37 downto 0);
 		bad_v_addr_in : in std_logic_vector(31 downto 0);
 		entry_hi_in : in std_logic_vector(19 downto 0);
 		interrupt_start_in : in std_logic;
 		cause_in : in std_logic_vector(4 downto 0);
-		interrupt_cause_in : in std_logic_vector(5 downto 0);
+		interrupt_code_in : in std_logic_vector(5 downto 0);
 		epc_in : in std_logic_vector(31 downto 0);
 		eret_enable : in std_logic;
-		cp0_e : in std_logic;
-		cp0_stop : in std_logic;
 		compare_init: in std_logic;
 
 		addr_value : out std_logic_vector(31 downto 0);
@@ -109,11 +109,11 @@ begin
 			m_compare_interrupt <= '0';
 		elsif rising_edge(clk) then
 			--question state
-			if state = "0001" then
+			if state = InsD then
 				m_addr_value <= register_values(conv_integer(normal_cp0_in(36 downto 32)));
 			end if;
 			--question state
-			if state = "0010" and eret_enable = '1' then
+			if state = Exe and eret_enable = '1' then
 				register_values(13)(1) <= '0';
 				if compare_init = '0' and m_compare_interrupt = '0' then
 					register_values(10) <= register_values(10) + 1;
@@ -121,14 +121,14 @@ begin
 					register_values(10) <= (others => '0');
 				end if;
 			--question state
-			elsif state = "0010" and normal_cp0_in(37) = '1' and cp0_stop = '0' then
+			elsif state = Exe and normal_cp0_in(37) = '1' then
 				register_values(conv_integer(normal_cp0_in(36 downto 32))) <= normal_cp0_in(31 downto 0);
 			elsif interrupt_start_in = '1' then
 				register_values(9) <= bad_v_addr_in;
 				register_values(11)(31 downto 12) <= entry_hi_in;
 				register_values(13)(1) <= '1';
 				register_values(15)(6 downto 2) <= cause_in;
-				register_values(15)(15 downto 10) <= interrupt_cause_in;
+				register_values(15)(15 downto 10) <= interrupt_code_in;
 				register_values(16) <= epc_in;
 				if compare_init = '0' and m_compare_interrupt = '0' then
 					register_values(10) <= register_values(10) + 1;
