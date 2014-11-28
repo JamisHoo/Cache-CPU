@@ -89,7 +89,6 @@ architecture Behavioral of mmu_module is
 	-- choose between instruction_addr and virtual_addr
 	signal addr : std_logic_vector(31 downto 0);
 	
-	
 	-- state register, prevent the input of state change
 	signal state_reg : status := InsF;
 	
@@ -115,14 +114,23 @@ architecture Behavioral of mmu_module is
 	signal special_com1_status : std_logic := '0';
 	
 	-- physical address after TLB transform
+	-- not the one that give to the physical level
 	signal physical_addr : std_logic_vector(31 downto 0);
 		
 	-- related to serial port
 		-- the value of (COM1 + 4)
-	signal serial_status_reg : std_logic_vector(31 downto 0) := "00000000000000000000000000000010";
+	signal serial_status_reg : std_logic := '1';
 	
 	-- exception code
 	signal no_exception_accur : std_logic := '1';
+	signal exc_counter : std_logic := '0';
+	
+	-- to physical level registers
+	signal to_physical_addr_reg : std_logic_vector(23 downto 0);
+	signal to_physical_data_reg : std_logic_vector(31 downto 0);
+	signal to_physical_read_enable_reg : std_logic := '0';
+	signal to_physical_write_enable_reg : std_logic := '0';
+	signal to_physical_counter : std_logic := '0';
 	
 begin
 
@@ -143,6 +151,11 @@ begin
 	process(clk)
 	begin
 		if clk'event and clk = '1' then
+			if not(state = state_reg) then
+				to_physical_counter <= '0';
+			else
+				to_physical_counter <= '1';
+			end if;
 			state_reg <= state;
 		end if;
 	end process;
@@ -162,38 +175,57 @@ begin
 	-- handle exception
 	process(clk)
 	begin
-		-- clear every exception by posedge
-		if clk'event and clk = '1' then
-			exc_code <= NO_MEM_EXC;
-		--end if;
-		
-		-- generate exception on falling edge
-		elsif clk'event and clk = '0' then
-			-- address alignment exception
-			if( (align_type = ALIGN_TYPE_WORD and addr(0) = '1') or (align_type = ALIGN_TYPE_QUAD and addr(1 downto 0) /= "00") ) then
-				if( (state = MEM1 and read_enable = '1' ) or state = InsF )then
-					exc_code <= ADE_L;
-				elsif( (state = MEM1 and write_enable = '1' and read_enable = '0') or state = MEM2 ) then
-					exc_code <= ADE_S;
-				end if;
+		-- generate and clean exception at negedge
+		if clk'event and clk = '0' then
+			if exc_counter = '1' then
+				exc_counter <= '0';
+				exc_code <= NO_MEM_EXC;
 			
-			-- tlb missing
-			elsif tlb_missing = '1' then
-				if( (state = MEM1 and read_enable = '1') or state = InsF )then
-					exc_code <= TLB_L;
-				elsif( (state = MEM1 and write_enable = '1' and read_enable = '0') or state = MEM2) then
-					exc_code <= TLB_S;
-				end if;
+			else
+				-- address alignment exception
+				if( (align_type = ALIGN_TYPE_WORD and addr(0) = '1') or (align_type = ALIGN_TYPE_QUAD and addr(1 downto 0) /= "00") ) then
+					if( (state_reg = MEM1 and read_enable = '1' ) or state_reg = InsF )then
+						exc_code <= ADE_L;
+						exc_counter <= '1';
+					elsif( (state_reg = MEM1 and write_enable = '1' and read_enable = '0') or state_reg = MEM2 ) then
+						exc_code <= ADE_S;
+						exc_counter <= '1';
+					end if;
 			
-			-- tlb modified
-			elsif ( tlb_writable = '0') then
-				if( (state = MEM1 and write_enable = '1' and read_enable = '0') or state = MEM2) then
-					exc_code <= TLB_MODIFIED;
+				-- tlb missing
+				elsif tlb_missing = '1' then
+					if( (state_reg = MEM1 and read_enable = '1') or state_reg = InsF )then
+						exc_code <= TLB_L;
+						exc_counter <= '1';
+					elsif( (state_reg = MEM1 and write_enable = '1' and read_enable = '0') or state_reg = MEM2) then
+						exc_code <= TLB_S;
+						exc_counter <= '1';
+					end if;
+			
+				-- tlb modified
+				elsif ( tlb_writable = '0') then
+					if( (state_reg = MEM1 and write_enable = '1' and read_enable = '0') or state_reg = MEM2) then
+						exc_code <= TLB_MODIFIED;
+						exc_counter <= '1';
+					end if;
 				end if;
 			end if;
 		end if;
 	end process;
 	
+	
+	
+	-- clear enable and data and addr on posedge
+	-- send information to physical level on negedge
+	process(clk)
+	begin
+		if clk'event and clk = '0' and from_physical_ready = '1' and to_physical_counter = '0' and rst = '0' then
+			to_physical_addr <= to_physical_addr_reg;
+			to_physical_data <= to_physical_data_reg;
+			to_physical_read_enable <= to_physical_read_enable_reg;
+			to_physical_write_enable <= to_physical_write_enable_reg;
+		end if;
+	end process;
 	
 -- combination logic	
 	-- control signal
@@ -215,23 +247,23 @@ begin
 								 else '0';
 								 
 	-- to physical_level
-	to_physical_addr <= "000" & physical_addr(22 downto 2)		-- RAM
-								when physical_addr(31 downto 23) = "000000000"
-							 else "01" & physical_addr(23 downto 2)	-- Flash
-								when physical_addr(31 downto 24) = x"1E"
-							 else "1000" & x"00000"							-- serial
-								when physical_addr(31 downto 0) = PHYSICAL_SERIAL_DATA
-							 else x"FFFFFF";
-							 
-	to_physical_data <= data_in;
+	to_physical_addr_reg <= "00" & physical_addr(23 downto 2)	-- Flash
+										when physical_addr(31 downto 24) = x"1E"
+									else	"010" & physical_addr(22 downto 2)		-- RAM
+										when physical_addr(31 downto 23) = "000000000"
+									else "1000" & x"00000"							-- serial
+										when physical_addr(31 downto 0) = PHYSICAL_SERIAL_DATA
+									else x"FFFFFF";
+					
+	to_physical_data_reg <= data_in;
 	
-	to_physical_read_enable <= '1'
-										when( no_exception_accur = '1' and from_physical_ready = '1' and (state_reg = InsF or (state_reg = MEM1 and read_enable = '1')) )
-									else '0';
+	to_physical_read_enable_reg <= '1'
+											when( special_com1_status = '0' and to_physical_counter = '0' and no_exception_accur = '1' and from_physical_ready = '1' and (state_reg = InsF or (state_reg = MEM1 and read_enable = '1')) )
+										else '0';
 									
-	to_physical_write_enable <= '1'
-										when( no_exception_accur = '1' and from_physical_ready = '1' and ((state_reg = MEM1 and write_enable = '1' and read_enable = '0') or (state_reg = MEM2)) )
-									else '0';
+	to_physical_write_enable_reg <= '1'
+											when( special_com1_status = '0' and to_physical_counter = '0' and no_exception_accur = '1' and from_physical_ready = '1' and ((state_reg = MEM1 and write_enable = '1' and read_enable = '0') or (state_reg = MEM2)) )
+										else '0';
 	
 	-- to instruction fetch
 	instruction <= from_physical_data
@@ -239,7 +271,7 @@ begin
 						else INVALID_CONTENT;
 	
 	-- to top mem level
-	data_out <= serial_status_reg 
+	data_out <= x"0000000" & "00" & serial_status_reg & "0"
 					when (special_com1_status = '1')
 					else from_physical_data;
 	
@@ -247,7 +279,7 @@ begin
 	serial_int <= from_physical_serial;
 	
 	-- register of serial status, return this directly if you load serial status
-	serial_status_reg(1) <= '1' 
+	serial_status_reg <= '1' 
 								when (from_physical_serial = '1')
 								else '0';
 	

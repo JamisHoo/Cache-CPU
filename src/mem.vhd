@@ -36,7 +36,6 @@ port(
 	-- state : in status;
 	
 	rst : in std_logic;
-		
 	result : in std_logic_vector(31 downto 0);		-- address from alu
 	
 	rt_value : in std_logic_vector(31 downto 0);
@@ -58,8 +57,16 @@ architecture Behavioral of mem is
 
 begin
 	
-	write_enable <= mem_op(1);
-	read_enable <= mem_op(2);
+	write_enable <= mem_op(1)
+							when rst = '0'
+						 else '0'
+							when rst = '1';
+							
+	read_enable <= mem_op(2)
+							when rst = '0'
+						 else '0'
+							when rst = '1';
+						 
 	addr_mmu <= result;
 	
 	write_value <= rt_value

@@ -36,7 +36,7 @@ port(
 	clk : in std_logic;
 	state : in status;
 	rst : in std_logic;
-
+	
 	PCSrc : in std_logic_vector(31 downto 0);
 	EBase : in std_logic_vector(31 downto 0);
 	EPC : in std_logic_vector(31 downto 0);
@@ -48,22 +48,24 @@ port(
 end IFetch;
 
 architecture Behavioral of IFetch is
-	signal PCReg : std_logic_vector(31 downto 0);
+	signal PCReg : std_logic_vector(31 downto 0) := x"00000000";
 	
 begin
 	-- always
 	PC <= PCReg;
 	
-	PCmmu <= EBase
-					when pc_sel(1 downto 0) = "01"
+	PCmmu <= x"00000000"
+					when rst = '1'
+				else EBase
+					when pc_sel(1 downto 0) = "01" and rst = '0'
 				else PCSrc 
-					when pc_sel(1 downto 0) = "00"
+					when pc_sel(1 downto 0) = "00" and rst = '0'
 				else EPC;
 				
 	-- sequential logic
 	process(clk)
 	begin
-		if clk'event and clk = '1' then
+		if clk'event and clk = '1' and rst = '0' then
 			if state = InsF then
 				if pc_sel(1) = '0' then				-- eret_enable
 					if pc_sel(0) = '1' then			-- pc_control

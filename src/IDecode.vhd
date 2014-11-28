@@ -74,22 +74,22 @@ architecture Behavioral of IDecode is
 	constant ALIGN_WORD : std_logic_vector(1 downto 0) := "01";
 	constant ALIGN_BYTE : std_logic_vector(1 downto 0) := "10";
 
-	signal ins_reg : std_logic_vector(31 downto 0);
+	signal ins_reg : std_logic_vector(31 downto 0) := x"00000000";
 	signal state_reg : status;
 	
-	signal pc_op_reg : std_logic_vector(1 downto 0);
-	signal eret_enable_reg : std_logic;
-	signal comp_op_reg : std_logic_vector(2 downto 0);
+	signal pc_op_reg : std_logic_vector(1 downto 0) := "00";
+	signal eret_enable_reg : std_logic := '0';
+	signal comp_op_reg : std_logic_vector(2 downto 0) := "000";
 	
-	signal imme_reg : std_logic_vector(31 downto 0);
-	signal alu_ops_reg : std_logic_vector(8 downto 0);		-- alu_srcA, alu_srcB, alu_op
+	signal imme_reg : std_logic_vector(31 downto 0) := x"00000000";
+	signal alu_ops_reg : std_logic_vector(8 downto 0) := "000000000";		-- alu_srcA, alu_srcB, alu_op
 	
-	signal mem_op_reg : std_logic_vector(2 downto 0);		-- mem_read, mem_write, mem_value
-	signal tlbwi_enable_reg : std_logic;
-	signal align_type_reg : std_logic_vector(1 downto 0);
+	signal mem_op_reg : std_logic_vector(2 downto 0) := "000";		-- mem_read, mem_write, mem_value
+	signal tlbwi_enable_reg : std_logic := '0';
+	signal align_type_reg : std_logic_vector(1 downto 0) := ALIGN_QUAD;
 	
-	signal wb_op_reg : std_logic_vector(5 downto 0);		-- reg_dst, reg_value, reg_write
-	signal cp0_op_reg : std_logic_vector(1 downto 0);		-- epc_value, cp0_write
+	signal wb_op_reg : std_logic_vector(5 downto 0) := "000000";		-- reg_dst, reg_value, reg_write
+	signal cp0_op_reg : std_logic_vector(1 downto 0) := "00";		-- epc_value, cp0_write
 	
 	signal ins_undef : std_logic := '0';
 	signal exc_code_reg : std_logic_vector(1 downto 0) := "00";
@@ -130,7 +130,7 @@ begin
 		Last := instruction(5 downto 0);
 		Ins23 := instruction(23);		-- mfc0 & mtc0
 		
-		if clk'event and clk = '1' then
+		if clk'event and clk = '1' and rst = '0' then
 			-- store state
 			state_reg <= state;
 			
@@ -193,7 +193,7 @@ begin
 	exc_code <= exc_code_reg;
 	process(clk)
 	begin
-		if clk'event and clk = '0' then
+		if clk'event and clk = '0' and rst = '0' then
 			if exc_counter = '1' then
 				exc_counter <= '0';
 				exc_code_reg <= "00";
@@ -220,7 +220,7 @@ begin
 		First := instruction(31 downto 26);
 		Last := instruction(5 downto 0);
 		
-		if clk'event and clk = '1' and state = InsD then
+		if clk'event and clk = '1' and state = InsD and rst = '0' then
 			-- generate pc_op
 			case First is
 				when F_ZERO =>  case Last is
