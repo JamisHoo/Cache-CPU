@@ -96,13 +96,6 @@ architecture Behavioral of IDecode is
 	signal exc_counter : std_logic := '0';
 	
 begin
-	
-	-- input to output
-	-- make sure these will be ready before InsD clk
-	rs_addr <= instruction(25 downto 21);
-	rt_addr <= instruction(20 downto 16);
-	rd_addr <= instruction(15 downto 11);
-	
 	-- register to output
 	instr_out <= ins_reg;
 	
@@ -135,9 +128,15 @@ begin
 			state_reg <= state;
 			
 			if state = InsD then
-			
+				
 				ins_reg <= instruction;
 				
+				-- these addr are for wb
+				-- the addr for common register are read by CPU module
+				rs_addr <= instruction(25 downto 21);
+				rt_addr <= instruction(20 downto 16);
+				rd_addr <= instruction(15 downto 11);
+
 				-- generate eret_enable
 				if First = F_ERET and Last = L_ERET then
 					eret_enable_reg <= '1';
