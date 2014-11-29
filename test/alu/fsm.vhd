@@ -1,5 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use work.common.all;
 
 entity fsm is
     Port ( clock: in  STD_LOGIC;
@@ -17,7 +18,7 @@ component ALU
          rt_value:          in  std_logic_vector(31 downto 0);
          imme:              in  std_logic_vector(31 downto 0);
          cp0_value:         in  std_logic_vector(31 downto 0);
-         state:             in  std_logic_vector(3 downto 0);
+         state:             in  status;
          alu_op:            in  std_logic_vector(4 downto 0);
          alu_srcA:          in  std_logic_vector(1 downto 0);
          alu_srcB:          in  std_logic_vector(1 downto 0);
@@ -30,7 +31,7 @@ end component;
 signal A: std_logic_vector(31 downto 0);
 signal B: std_logic_vector(31 downto 0);
 signal imme, cp0_value: std_logic_vector(31 downto 0);
-signal state: std_logic_vector(3 downto 0);
+signal cpu_state: status;
 signal alu_op: std_logic_vector(4 downto 0);
 signal Y: std_logic_vector(31 downto 0);
 signal hi_lo_enable: std_logic;
@@ -43,7 +44,7 @@ signal latch_op: std_logic_vector(4 downto 0);
 
 begin
 	u1: ALU port map(clk => clock,rs_value => A, rt_value => B, alu_op => alu_op, 
-                     imme => imme, cp0_value => cp0_value, state => state,
+                     imme => imme, cp0_value => cp0_value, state => cpu_state,
                      alu_srcA => alu_srcA, alu_srcB => alu_srcB, 
                      hi_lo_enable => hi_lo_enable,
                      alu_result => Y);
@@ -83,10 +84,12 @@ begin
                 B <= latch_b;
                 alu_op <= latch_op;
                 hi_lo_enable <= '1';
+                cpu_state <= Exe;
             end if;
             if (state = 4) then
                 output <= Y;
                 hi_lo_enable <= '0';
+                cpu_state <= Mem1;
             else 
                 output <= "00000000000000000000000000000000";
             end if;
