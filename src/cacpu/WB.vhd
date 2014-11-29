@@ -66,7 +66,7 @@ signal m_write_addr : std_logic_vector(4 downto 0);
 signal m_write_value : std_logic_vector(31 downto 0);
 signal m_write_enable : std_logic;
 signal m_PcSrc : std_logic_vector(31 downto 0);
-signal zeros : std_logic_vector(31 downto 0) := (others => '0');
+constant zeros : std_logic_vector(31 downto 0) := (others => '0');
 signal m_compare : std_logic;
 begin
 

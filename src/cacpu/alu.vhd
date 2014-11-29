@@ -29,7 +29,7 @@ begin
 	process(clk)
         variable srcA, srcB: std_logic_vector(31 downto 0);
 	begin
-        if (state = Exe) then
+        if rising_edge(clk) and (state = Exe) then
             case alu_srcA is
                 -- rs_value
                 when "00" =>

@@ -60,7 +60,11 @@ entity cacpu is
 	   flash_control_vpen : out  STD_LOGIC;
 	   flash_control_rp : out  STD_LOGIC;
 	   flash_control_oe : out  STD_LOGIC;
-	   flash_control_we : out  STD_LOGIC
+	   flash_control_we : out  STD_LOGIC;
+
+		-- ports connected with serial port
+      serialport_txd : out STD_LOGIC;
+      serialport_rxd : in STD_LOGIC
 		);
 end cacpu;
 
@@ -95,6 +99,7 @@ component Exception is
 		compare_interrupt : in std_logic;
 		id_exc_code : in std_logic_vector(1 downto 0);
 		pc_in : in std_logic_vector(31 downto 0);
+		pcmmu_in : in std_logic_vector(31 downto 0);
 		v_addr_in : in std_logic_vector(31 downto 0);
 		old_entry_hi : in std_logic_vector(19 downto 0);
 		old_interrupt_code : in std_logic_vector(5 downto 0);
@@ -105,6 +110,7 @@ component Exception is
 		cause_out : out std_logic_vector(4 downto 0);
 		interrupt_code_out : out std_logic_vector(5 downto 0);
 		epc_out : out std_logic_vector(31 downto 0);
+		compare_recover : out std_logic;
 		pc_sel0 : out std_logic
 		);
 end component;
@@ -246,7 +252,7 @@ component mmu_module is
 	);
 end component;
 component phy_mem is
-    port ( clk : in  STD_LOGIC;
+    port (
            high_freq_clk : in  STD_LOGIC;  
            addr : in  STD_LOGIC_VECTOR (23 downto 0);
            data_in : in  STD_LOGIC_VECTOR (31 downto 0);
@@ -278,7 +284,11 @@ component phy_mem is
            flash_control_vpen : out  STD_LOGIC;
            flash_control_rp : out  STD_LOGIC;
            flash_control_oe : out  STD_LOGIC;
-           flash_control_we : out  STD_LOGIC
+           flash_control_we : out  STD_LOGIC;
+
+			  -- ports connected with serial port
+			  serialport_txd : out STD_LOGIC;
+			  serialport_rxd : in STD_LOGIC
           );
 end component;
 component WB is
@@ -328,7 +338,7 @@ port(
 );
 end component;
 
-signal clks 						: std_logic_vector(5 downto 0);
+signal clks 						: std_logic_vector(2 downto 0);
 signal cpu_clk						: std_logic;
 signal state,next_state,old_state	: status;
 signal state_select					: std_logic_vector(1 downto 0);
@@ -350,7 +360,7 @@ signal tlbwi_enable 				: std_logic;
 signal wb_op 						: std_logic_vector(4 downto 0);
 signal cp0_op 						: std_logic;
 signal id_exc_code 					: std_logic_vector(1 downto 0);
-signal rs_value,rt_value,cp0_value	: std_logic_vector(31 downto 0);
+signal rs_value,rt_value	: std_logic_vector(31 downto 0);
 signal alu_result					: std_logic_vector(31 downto 0);
 --error!!! lack of hi_lo_enable
 signal alu_hi_lo_enable				: std_logic;
@@ -397,22 +407,35 @@ signal has_mem1 : std_logic := '0';
 signal has_mem2 : std_logic := '0';
 
 begin
+	process(clk,e)
+	begin
+		if e = '0' then
+			clks <= (others => '0');
+		elsif rising_edge(clk) then
+			clks <= clks - 1;
+		end if;
+	end process;
+	cpu_clk <= clks(2);
+
 	RPC <= this_PC+4;
 	normal_cp0_in <= cp0_op & rd_addr & rt_value;
-	cpu_clk <= clks(2);
 	-- index(66 downto 63) EntryHi(62 downto 44) EntryLo0(43 downto 24) DV(23 downto 22) EntryLo1(21 downto 2) DV(1 downto 0)
 	--(0)(3 downto 0),(11)(31 downto 13),(2)(25 downto 6)(2 downto 1),(3)(25 downto 6)(2 downto 1)
 	tlb_write_value <= cp0_values(3 downto 0) & cp0_values(383 downto 365) &
 						cp0_values(89 downto 70) & cp0_values(66 downto 65) &
 						cp0_values(121 downto 102) & cp0_values(98 downto 97);
+	EPC <= cp0_values(543 downto 512);
+	EBase <= cp0_values(607 downto 576);
+	--error!!!!!!!!
+	alu_hi_lo_enable <= '1';
 
-	with state select
+	with old_state select
 		--status:EXL(13)(1)=13*32+1=417
-		clock_inter_to_excep <= compare_int and not cp0_values(417) when InsF,
+		clock_inter_to_excep <= compare_int and not cp0_values(417) when WriteB,
 								'0' when others;
-	with state select
+	with old_state select
 		--status:EXL(13)(1)=13*32+1=417
-		serial_inter_to_excep <= serial_int and not cp0_values(417) when InsF,
+		serial_inter_to_excep <= serial_int and not cp0_values(417) when WriteB,
 								'0' when others;
 	excep <= clock_inter_to_excep or serial_inter_to_excep or mmu_exc_code(0)
 				or mmu_exc_code(1) or mmu_exc_code(2) or id_exc_code(0)
@@ -422,8 +445,7 @@ begin
 		state <= old_state when "00",
 					next_state when "01",
 					Exc when "10",
-					--Error!!!!!!!!!!! what should be selected when "11"?
-					old_state when "11",
+					Exc when "11",
 					next_state when others;
 
 	process(cpu_clk,e)
@@ -480,14 +502,6 @@ begin
 			end if;
 	end process;
 
-	process(clk,e)
-	begin
-		if e = '0' then
-			clks <= (others => '0');
-		elsif rising_edge(clk) then
-			clks <= clks-1;
-		end if;
-	end process;
 	process(cpu_clk,e)
 	begin
 		if e = '0' then
@@ -512,7 +526,7 @@ begin
 				align_type => align_type,tlbwi_enable => tlbwi_enable,
 				wb_op => wb_op,cp0_op => cp0_op,exc_code => id_exc_code);
 	u_ALU : alu port map(clk => cpu_clk,rs_value => rs_value,
-				rt_value => rt_value,imme => immediate,cp0_value => cp0_value,
+				rt_value => rt_value,imme => immediate,cp0_value => cp0_normal_value,
 				state => state,alu_op => alu_ops(4 downto 0),
 				alu_srcA => alu_ops(8 downto 7),alu_srcB => alu_ops(6 downto 5),
 				hi_lo_enable => alu_hi_lo_enable,alu_result => alu_result);
@@ -521,7 +535,7 @@ begin
 				addr_mmu => addr_from_mem,write_value => write_value_from_mem,
 				write_enable => mem_write_enable,read_enable => mem_read_enable);
 	u_WB : WB port map(clk => cpu_clk,state => state,WB_e => e,RPC => RPC,
-				mmu_value => data_from_mmu,cp0_value => cp0_value,
+				mmu_value => data_from_mmu,cp0_value => cp0_normal_value,
 				alu_result => alu_result,wb_op => wb_op,
 				rd_addr => rd_addr,rt_addr => rt_addr,
 				write_addr => write_addr_from_wb,
@@ -545,6 +559,7 @@ begin
 				serial_int => serial_inter_to_excep,
 				compare_interrupt => clock_inter_to_excep,
 				id_exc_code => id_exc_code,pc_in => this_pc,
+				pcmmu_in => pc_to_mmu,
 				v_addr_in => to_exception_bad_v_addr,
 				--(11)(31 downto 12), 11*32+31=383, 11*32+12=364
 				old_entry_hi => cp0_values(383 downto 364),
@@ -554,6 +569,7 @@ begin
 				entry_hi_out => from_exception_entry_hi,
 				interrupt_start_out => interrupt_start,
 				cause_out => from_exception_cause,
+				compare_recover => compare_recover,
 				interrupt_code_out => from_exception_intcode,
 				epc_out => from_exception_epc,pc_sel0 => pc_sel(0));
 	u_MMU : mmu_module port map(clk => cpu_clk, state => state, rst => e,
@@ -575,7 +591,7 @@ begin
 				
 				from_physical_ready <= not(phy_busy);
 				
-	u_physical : phy_mem port map(clk => cpu_clk,high_freq_clk => clk,
+	u_physical : phy_mem port map(high_freq_clk => clk,
 				addr => to_physical_addr,data_in => to_physical_data,
 				data_out => from_physical_data,
 				write_enable => to_physical_write_enable,
@@ -598,7 +614,9 @@ begin
 				flash_control_vpen => flash_control_vpen, 
 				flash_control_rp => flash_control_rp, 
 				flash_control_oe => flash_control_oe, 
-				flash_control_we => flash_control_we
+				flash_control_we => flash_control_we,
+				serialport_txd => serialport_txd,
+				serialport_rxd => serialport_rxd
 				);
 	u_register : general_register port map(clk=>cpu_clk, state=>state, rst=>e,
 				rs_addr=>instr_from_mmu(25 downto 21), rt_addr=>instr_from_mmu(20 downto 16), 

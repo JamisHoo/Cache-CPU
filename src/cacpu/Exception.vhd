@@ -42,6 +42,7 @@ entity Exception is
 		compare_interrupt : in std_logic;
 		id_exc_code : in std_logic_vector(1 downto 0);
 		pc_in : in std_logic_vector(31 downto 0);
+		pcmmu_in : in std_logic_vector(31 downto 0);
 		v_addr_in : in std_logic_vector(31 downto 0);
 		old_entry_hi : in std_logic_vector(19 downto 0);
 		old_interrupt_code : in std_logic_vector(5 downto 0);
@@ -52,6 +53,7 @@ entity Exception is
 		cause_out : out std_logic_vector(4 downto 0);
 		interrupt_code_out : out std_logic_vector(5 downto 0);
 		epc_out : out std_logic_vector(31 downto 0);
+		compare_recover : out std_logic;
 		pc_sel0 : out std_logic
 		);
 end Exception;
@@ -64,6 +66,7 @@ signal m_cause : std_logic_vector(4 downto 0);
 signal m_interrupt_code : std_logic_vector(5 downto 0);
 signal m_epc : std_logic_vector(31 downto 0);
 signal m_pc_sel0 : std_logic;
+signal m_compare_recover : std_logic;
 begin
 	bad_v_addr_out <= m_bad_v_addr;
 	entry_hi_out <= m_entry_hi;
@@ -72,17 +75,19 @@ begin
 	interrupt_code_out <= m_interrupt_code;
 	epc_out <= m_epc;
 	pc_sel0 <= m_pc_sel0;
+	compare_recover <= m_compare_recover;
 	
 	process(clk)
 	begin
 		if exception_e = '0' then
 			m_interrupt_start <= '0';
 			m_pc_sel0 <= '0';
+			m_bad_v_addr <= (others => '0');
+			m_entry_hi <= (others => '0');
 		elsif rising_edge(clk) then
 			if state = Exc then
 				m_interrupt_start <= '1';
 				m_pc_sel0 <= '1';
-				m_epc <= pc_in;
 				if mmu_exc_code = "000" then
 					m_bad_v_addr <= pc_in;
 				else
@@ -102,27 +107,42 @@ begin
 	
 	process(clk)
 	begin
-		if rising_edge(clk) and exception_e = '1' then
+		if exception_e = '0' then
+			m_compare_recover <= '0';
+			m_cause <= "11111";
+			m_epc <= (others => '0');
+			m_interrupt_code <= (others => '0');
+		elsif rising_edge(clk) then
 			if mmu_exc_code = "000" then
 				if id_exc_code = "00" then
 					if serial_int = '0' then
 						if compare_interrupt = '1' then
 							m_cause <= "00000";
 							m_interrupt_code <= "100000";
+							m_epc <= pcmmu_in;
+							m_compare_recover <= '1';
 						end if;
 					elsif serial_int = '1' then
 						m_cause <= "00000";
 						m_interrupt_code <= "000100";
+						m_epc <= pcmmu_in;
+						m_compare_recover <= '0';
 					end if;
 				elsif id_exc_code = "01" then
 					m_interrupt_code <= old_interrupt_code;
 					m_cause <= "01000";
+					m_epc <= pc_in;
+					m_compare_recover <= '0';
 				elsif id_exc_code = "10" then
 					m_interrupt_code <= old_interrupt_code;
 					m_cause <= "01010";
+					m_epc <= pc_in;
+					m_compare_recover <= '0';
 				end if;
 			else
+				m_epc <= pc_in;
 				m_interrupt_code <= old_interrupt_code;
+				m_compare_recover <= '0';
 				case mmu_exc_code is
 					when "001" =>
 						m_cause <= "00001";

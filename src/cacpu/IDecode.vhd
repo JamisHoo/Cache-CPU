@@ -74,14 +74,14 @@ architecture Behavioral of IDecode is
 	constant ALIGN_WORD : std_logic_vector(1 downto 0) := "01";
 	constant ALIGN_BYTE : std_logic_vector(1 downto 0) := "10";
 
-	signal ins_reg : std_logic_vector(31 downto 0) := x"00000000";
+	signal ins_reg : std_logic_vector(31 downto 0) := (others => '0');
 	signal state_reg : status;
 	
 	signal pc_op_reg : std_logic_vector(1 downto 0) := "00";
 	signal eret_enable_reg : std_logic := '0';
 	signal comp_op_reg : std_logic_vector(2 downto 0) := "000";
 	
-	signal imme_reg : std_logic_vector(31 downto 0) := x"00000000";
+	signal imme_reg : std_logic_vector(31 downto 0) := (others => '0');
 	signal alu_ops_reg : std_logic_vector(8 downto 0) := "000000000";		-- alu_srcA, alu_srcB, alu_op
 	
 	signal mem_op_reg : std_logic_vector(2 downto 0) := "000";		-- mem_read, mem_write, mem_value
