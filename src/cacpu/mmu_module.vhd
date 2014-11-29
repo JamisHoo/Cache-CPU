@@ -219,7 +219,12 @@ begin
 	-- send information to physical level on negedge
 	process(clk)
 	begin
-		if clk'event and clk = '0' and from_physical_ready = '1' and to_physical_counter = '0' and rst = '0' then
+		if rst = '0' then
+			to_physical_read_enable <= '0';
+			to_physical_write_enable <= '0';
+			to_physical_addr <= x"000000";
+			to_physical_data <= x"00000000";
+		elsif clk'event and clk = '0' and from_physical_ready = '1' and to_physical_counter = '0' then
 			to_physical_addr <= to_physical_addr_reg;
 			to_physical_data <= to_physical_data_reg;
 			to_physical_read_enable <= to_physical_read_enable_reg;

@@ -59,14 +59,14 @@ architecture Behavioral of mem is
 begin
 	
 	write_enable <= mem_op(1)
-							when rst = '0'
+							when rst = '1'
 						 else '0'
-							when rst = '1';
+							when rst = '0';
 							
 	read_enable <= mem_op(2)
-							when rst = '0'
+							when rst = '1'
 						 else '0'
-							when rst = '1';
+							when rst = '0';
 						 
 	addr_mmu <= result;
 	

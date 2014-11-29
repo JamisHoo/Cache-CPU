@@ -55,17 +55,20 @@ begin
 	PC <= PCReg;
 	
 	PCmmu <= x"00000000"
-					when rst = '1'
+					when rst = '0'
 				else EBase
-					when pc_sel(1 downto 0) = "01" and rst = '0'
+					when pc_sel(1 downto 0) = "01" and rst = '1'
 				else PCSrc 
-					when pc_sel(1 downto 0) = "00" and rst = '0'
+					when pc_sel(1 downto 0) = "00" and rst = '1'
 				else EPC;
 				
 	-- sequential logic
 	process(clk)
 	begin
-		if clk'event and clk = '1' and rst = '0' then
+		if rst = '0' then
+			PCReg <= x"00000000";
+			
+		elsif clk'event and clk = '1' then
 			if state = InsF then
 				if pc_sel(1) = '0' then				-- eret_enable
 					if pc_sel(0) = '1' then			-- pc_control

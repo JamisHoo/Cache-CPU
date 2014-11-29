@@ -59,6 +59,8 @@ port(
 	mem_op : out std_logic_vector(2 downto 0);
 	align_type : out std_logic_vector(1 downto 0);
 	tlbwi_enable : out std_logic;
+		
+	hi_lo_enable : out std_logic;
 	
 	wb_op : out std_logic_vector(4 downto 0);
 	
@@ -88,6 +90,8 @@ architecture Behavioral of IDecode is
 	signal tlbwi_enable_reg : std_logic := '0';
 	signal align_type_reg : std_logic_vector(1 downto 0) := ALIGN_QUAD;
 	
+	signal hi_lo_enable_reg : std_logic := '0';
+	
 	signal wb_op_reg : std_logic_vector(4 downto 0) := "00000";		-- reg_dst, reg_value
 	signal cp0_op_reg : std_logic := '0';		-- cp0_write
 	
@@ -110,6 +114,8 @@ begin
 	tlbwi_enable <= tlbwi_enable_reg;
 	align_type <= align_type_reg;
 	
+	hi_lo_enable <= hi_lo_enable_reg;
+	
 	wb_op <= wb_op_reg;
 	cp0_op <= cp0_op_reg;
 	
@@ -122,8 +128,15 @@ begin
 		First := instruction(31 downto 26);
 		Last := instruction(5 downto 0);
 		Ins23 := instruction(23);		-- mfc0 & mtc0
-		
-		if clk'event and clk = '1' and rst = '0' then
+			
+		if rst = '0' then
+			cp0_op_reg <= '0';
+			eret_enable_reg <= '0';
+			tlbwi_enable_reg <= '0';
+			align_type_reg <= ALIGN_QUAD;
+			comp_op_reg <= "000";
+			
+		elsif clk'event and clk = '1' then
 			-- store state
 			state_reg <= state;
 			
@@ -181,7 +194,13 @@ begin
 				else
 					cp0_op_reg <= '0';
 				end if;
-			
+				
+				-- generate hi_lo_enable
+				if First = F_ZERO and (Last = L_MULT or Last = L_MTLO or Last = L_MTHI) then
+					hi_lo_enable_reg <= '1';
+				else
+					hi_lo_enable_reg <= '0';
+				end if;
 			end if;
 		end if;
 	end process;
@@ -190,7 +209,11 @@ begin
 	exc_code <= exc_code_reg;
 	process(clk)
 	begin
-		if clk'event and clk = '0' and rst = '0' then
+		if rst = '0' then
+			exc_code_reg <= "00";
+			exc_counter <= '0';
+			
+		elsif clk'event and clk = '0' then
 			if exc_counter = '1' then
 				exc_counter <= '0';
 				exc_code_reg <= "00";
@@ -217,7 +240,13 @@ begin
 		First := instruction(31 downto 26);
 		Last := instruction(5 downto 0);
 		
-		if clk'event and clk = '1' and state = InsD and rst = '0' then
+		if rst = '0' then
+			pc_op_reg <= "00";
+			imme_reg <= x"00000000";
+			mem_op_reg <= "000";
+			wb_op_reg <= "00000";
+			
+		elsif clk'event and clk = '1' and state = InsD then
 			-- generate pc_op
 			case First is
 				when F_ZERO =>  case Last is
