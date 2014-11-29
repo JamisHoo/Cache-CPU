@@ -34,7 +34,11 @@ entity phy_mem is
            flash_control_vpen : out  STD_LOGIC;
            flash_control_rp : out  STD_LOGIC;
            flash_control_oe : out  STD_LOGIC;
-           flash_control_we : out  STD_LOGIC
+           flash_control_we : out  STD_LOGIC;
+           
+           -- ports connected with serial port
+           serialport_txd : out STD_LOGIC;
+           serialport_rxd : in STD_LOGIC
           );
 end phy_mem;
 
@@ -59,7 +63,27 @@ signal flash_read_data: std_logic_vector(15 downto 0);
 signal flash_write_data: std_logic_vector(15 downto 0); -- not supported
 signal flash_ope_addr: std_logic_vector(21 downto 0);
 
+component async_receiver
+    port(clk: in std_logic; RxD: in std_logic; RxD_data_ready: out std_logic; RxD_data: out std_logic_vector(7 downto 0));
+end component;
+
+signal serialport_receive_signal: std_logic := '0';
+signal serialport_receive_data: std_logic_vector(7 downto 0);
+signal serialport_data_latch: std_logic_vector(7 downto 0);
+
+component async_transmitter
+    port(clk: in std_logic; TxD_start: in std_logic; TxD_data: in std_logic_vector(7 downto 0); TxD: out std_logic; TxD_busy: out std_logic);
+end component;
+
+signal serialport_transmit_signal : std_logic := '0';
+signal serialport_transmit_data : std_logic_vector(7 downto 0);
+signal serialport_transmit_busy : std_logic := '0';
+
 begin
+    u3: async_receiver port map(clk => high_freq_clk, RxD => serialport_rxd, RxD_data_ready => serialport_receive_signal, RxD_data => serialport_receive_data);  
+    
+    u4: async_transmitter port map(clk => high_freq_clk, Txd => serialport_txd, TxD_start => serialport_transmit_signal,TxD_data => serialport_transmit_data, Txd_busy => serialport_transmit_busy);
+    
     u2: flash port map(clock => high_freq_clk, addr => flash_ope_addr, data_in => flash_write_data, data_out => flash_read_data, 
                       flash_addr => flash_addr, flash_data => flash_data,
                       read_enable => flash_read_signal, write_enable => '0', erase_enable => '0',
@@ -77,15 +101,25 @@ begin
         variable state : integer := 0;
     begin
         if (high_freq_clk'event and high_freq_clk = '1') then
+            -- check signal from serial port
+            if (serialport_receive_signal = '1') then
+                -- if have data incoming, latch it
+                serialport_data_latch <= serialport_receive_data;
+                serialport_data_ready <= '1';
+            end if;
             -- read flash from 0 to 13
             -- write ram from 0 to 101 to  ...
             -- read ram from 0 to 201 to ...
+            -- read serial port form 0 to 0, need only one cycle
+            -- read serial port from 0 to 301 to 0, need waiting at 301 for a long time
             case (state) is
                 when 0 =>
+                    -- read flash
                     if (read_enable = '1' and addr(23 downto 22) = "00") then
                         flash_ope_addr <= addr(21 downto 0);
                         flash_read_signal <= '1';
                         state := 1;
+                    -- write ram
                     elsif (write_enable = '1' and addr(23 downto 22) = "01") then
                         ram_ope_addr <= addr(19 downto 0);
                         ram_write_data <= data_in;
@@ -93,12 +127,23 @@ begin
                         ram_ope_ce1 <= not addr(20);
                         ram_ope_ce2 <= addr(20);
                         state := 101;
+                    -- read ram
                     elsif (read_enable = '1' and addr(23 downto 22) = "01") then
                         ram_ope_addr <= addr(19 downto 0);
                         ram_ope_we <= '1';
                         ram_ope_ce1 <= not addr(20);
                         ram_ope_ce2 <= addr(20);
                         state := 201;
+                    -- read serial port
+                    elsif (read_enable = '1' and addr(23 downto 22) = "10") then
+                        data_out <= X"000000" & serialport_data_latch;
+                        serialport_data_ready <= '0';
+                        state := 0;
+                    -- write serial port
+                    elsif (write_enable = '1' and addr(23 downto 22) = "10") then
+                        serialport_transmit_signal <= '1';
+                        serialport_transmit_data <= data_in(7 downto 0);
+                        state := 301;
                     else 
                         state := 0;
                         flash_read_signal <= '0';
@@ -128,6 +173,11 @@ begin
                 when 208 =>
                     data_out <= ram_read_data;
                     state := 0;
+                when 301 =>
+                    serialport_transmit_signal <= '0';
+                    if (serialport_transmit_busy = '0') then
+                        state := 0;
+                    end if;
                 when others =>
                     state := 0;
             end case;

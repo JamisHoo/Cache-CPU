@@ -188,6 +188,10 @@ NET "busy_flag" LOC = A25;
 
 
 
-# PlanAhead Generated physical constraints 
 
 NET "high_freq_clk" LOC = U26;
+
+# PlanAhead Generated physical constraints 
+
+NET "serialport_rxd" LOC = R26;
+NET "serialport_txd" LOC = P24;
