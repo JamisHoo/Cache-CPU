@@ -16,8 +16,6 @@ entity alu is
          alu_srcA:          in  std_logic_vector(1 downto 0);
          alu_srcB:          in  std_logic_vector(1 downto 0);
          
-         hi_lo_enable:      in  std_logic;
-         
          alu_result:        out std_logic_vector(31 downto 0)
          
 	);
@@ -29,7 +27,7 @@ begin
 	process(clk)
         variable srcA, srcB: std_logic_vector(31 downto 0);
 	begin
-        if rising_edge(clk) and (state = Exe) then
+        if (clk'event and clk = '1' and state = Exe) then
             case alu_srcA is
                 -- rs_value
                 when "00" =>
@@ -60,22 +58,6 @@ begin
                 when others =>
                     NULL;
             end case;
-            
-            if (hi_lo_enable = '1') then 
-                case (alu_op) is
-                    -- hi & lo = A * B
-                    when "10000" =>
-                        hi_lo <= Std_logic_vector(signed(srcA) * signed(srcB));
-                    -- lo = A
-                    when "10011" =>
-                        hi_lo(31 downto 0) <= srcA;
-                    -- hi = A
-                    when "10100" =>
-                        hi_lo(63 downto 32) <= srcA;
-                    when others =>
-                        NULL;
-                end case;
-            end if;
             
             case alu_op is
                 -- addition A + B
@@ -122,7 +104,16 @@ begin
                     else
                         alu_result <= (others => '0');
                     end if;
-
+                    
+                -- hi & lo = A * B
+                when "10000" =>
+                    hi_lo <= Std_logic_vector(signed(srcA) * signed(srcB));
+                -- lo = A
+                when "10011" =>
+                    hi_lo(31 downto 0) <= srcA;
+                -- hi = A
+                when "10100" =>
+                    hi_lo(63 downto 32) <= srcA;
                 -- read lo register
                 when "10001" =>
                     alu_result <= hi_lo(31 downto 0);
