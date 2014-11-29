@@ -392,6 +392,10 @@ signal clock_inter_to_excep			: std_logic;
 signal serial_inter_to_excep		: std_logic;
 signal excep 						: std_logic;
 
+-- control the state change
+signal has_mem1 : std_logic := '0';
+signal has_mem2 : std_logic := '0';
+
 begin
 	RPC <= this_PC+4;
 	normal_cp0_in <= cp0_op & rd_addr & rt_value;
@@ -435,12 +439,18 @@ begin
 				when InsD =>
 					next_state <= Exe;
 				when Exe =>
-					next_state <= Mem1;
+					if has_mem1 = '1' then
+						next_state <= Mem1;
+               else
+						next_state <= WriteB;
+					end if;
 				when Mem1 =>
-					-- Error!!!! I don't know.
-					next_state <= Mem2;
+					if has_mem2 = '1' then
+						next_state <= Mem2;
+					else
+						next_state <= WriteB;
+					end if;
 				when Mem2 =>
-					-- Error!!!! I dont' know.
 					next_state <= WriteB;
 				when WriteB =>
 					next_state <= InsF;
@@ -449,6 +459,25 @@ begin
 				when others =>
 			end case;
 		end if;
+	end process;
+
+    	-- control state change
+	process(cpu_clk , e)
+		variable First : std_logic_vector(5 downto 0);
+	begin
+			First := instr_from_mmu(31 downto 26);
+        
+			if cpu_clk'event and cpu_clk = '1' and state = InsD and e = '1' then
+				case First is 
+					when F_LW | F_LB | F_LBU | F_LHU | F_SW | F_SB => has_mem1 <= '1';
+					when others => has_mem1 <= '0';
+				end case;
+            
+            case First is 
+					when F_SB => has_mem2 <= '1';
+					when others => has_mem2 <= '0';
+            end case;            
+			end if;
 	end process;
 
 	process(clk,e)
