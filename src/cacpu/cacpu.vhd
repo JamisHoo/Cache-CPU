@@ -415,7 +415,7 @@ begin
 	cpu_clk <= clks(2);
 
 	RPC <= this_PC+4;
-	normal_cp0_in <= cp0_op & rd_addr & rt_value;
+	normal_cp0_in <= cp0_op & instr_from_mmu(15 downto 11) & rt_value;
 	-- index(66 downto 63) EntryHi(62 downto 44) EntryLo0(43 downto 24) DV(23 downto 22) EntryLo1(21 downto 2) DV(1 downto 0)
 	--(0)(3 downto 0),(11)(31 downto 13),(2)(25 downto 6)(2 downto 1),(3)(25 downto 6)(2 downto 1)
 	tlb_write_value <= cp0_values(3 downto 0) & cp0_values(383 downto 365) &
