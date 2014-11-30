@@ -272,7 +272,7 @@ begin
 	
 	-- to instruction fetch
 	instruction <= from_physical_data
-						when (state_reg = InsF)
+						when (state_reg = InsF or state_reg = InsD)
 						else INVALID_CONTENT;
 	
 	-- to top mem level

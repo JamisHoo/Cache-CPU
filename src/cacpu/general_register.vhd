@@ -46,8 +46,8 @@ port(
 	 write_enable : in std_logic;
 	 
 	 rs_value : out std_logic_vector(31 downto 0);
-	 rt_value : out std_logic_vector(31 downto 0)
-	 
+	 rt_value : out std_logic_vector(31 downto 0);
+	 reg0 : out std_logic_vector(31 downto 0)
 );
 end general_register;
 
@@ -58,7 +58,9 @@ architecture Behavioral of general_register is
 	signal state_reg : status;
     
 begin
-
+    
+    reg0 <= reg(0);
+    
 	process(clk)
 	begin
 		if clk'event and clk = '1' then

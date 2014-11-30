@@ -332,8 +332,9 @@ port(
 	 write_enable : in std_logic;
 	 
 	 rs_value : out std_logic_vector(31 downto 0);
-	 rt_value : out std_logic_vector(31 downto 0)
+	 rt_value : out std_logic_vector(31 downto 0);
 	 
+     reg0 : out std_logic_vector(31 downto 0)
 );
 end component;
 
@@ -402,6 +403,8 @@ signal excep 						: std_logic;
 -- control the state change
 signal has_mem1 : std_logic := '0';
 signal has_mem2 : std_logic := '0';
+
+signal reg0 : std_logic_vector(31 downto 0);
 
 begin
 	process(clk,e)
@@ -616,6 +619,8 @@ begin
 	u_register : general_register port map(clk=>cpu_clk, state=>state, rst=>e,
 				rs_addr=>instr_from_mmu(25 downto 21), rt_addr=>instr_from_mmu(20 downto 16), 
 				write_enable=>write_enable_from_wb, write_addr=>write_addr_from_wb,
-				write_value=>write_value_from_wb, rs_value=>rs_value, rt_value=>rt_value);
+				write_value=>write_value_from_wb, rs_value=>rs_value, rt_value=>rt_value,
+                reg0=>reg0
+                );
 end bhv;
 
