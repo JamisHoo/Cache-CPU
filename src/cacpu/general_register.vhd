@@ -68,19 +68,20 @@ begin
 		end if;
 	end process;
     
-	process(clk)
+	process(clk, rst)
 	begin
-		if clk'event and clk = '1' and rst = '1' then
+		if rst = '0' then
+			for i in 0 to 31 loop
+				reg(i) <= (others => '0');
+			end loop;
+			
+		elsif clk'event and clk = '1' and rst = '1' then
 			if state = InsD then
 				rs_value <= reg(conv_integer(rs_addr));
 				rt_value <= reg(conv_integer(rt_addr));
 			end if;
-		end if;
-	end process;
-	
-	process(clk)
-	begin
-		if clk'event and clk = '0' and state_reg = WriteB then
+		
+		elsif clk'event and clk = '0' and state_reg = WriteB then
 			if write_enable = '1' then
 				reg(conv_integer(write_addr)) <= write_value;
 			end if;
