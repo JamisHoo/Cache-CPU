@@ -110,8 +110,6 @@ begin
 	tlbwi_enable <= tlbwi_enable_reg;
 	align_type <= align_type_reg;
 	
-	hi_lo_enable <= hi_lo_enable_reg;
-	
 	wb_op <= wb_op_reg;
 	cp0_op <= cp0_op_reg;
 	

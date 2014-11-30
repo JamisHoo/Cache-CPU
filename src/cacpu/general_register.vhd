@@ -55,12 +55,20 @@ architecture Behavioral of general_register is
 
 	type register_block is array (31 downto 0) of std_logic_vector(31 downto 0);
 	signal reg : register_block;
-	
+	signal state_reg : status;
+    
 begin
-	
+
 	process(clk)
 	begin
-		if clk'event and clk = '1' and rst = '0' then
+		if clk'event and clk = '1' then
+			state_reg <= state;
+		end if;
+	end process;
+    
+	process(clk)
+	begin
+		if clk'event and clk = '1' and rst = '1' then
 			if state = InsD then
 				rs_value <= reg(conv_integer(rs_addr));
 				rt_value <= reg(conv_integer(rt_addr));
@@ -70,7 +78,7 @@ begin
 	
 	process(clk)
 	begin
-		if clk'event and clk = '0' then
+		if clk'event and clk = '0' and state_reg = WriteB then
 			if write_enable = '1' then
 				reg(conv_integer(write_addr)) <= write_value;
 			end if;
