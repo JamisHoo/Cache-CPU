@@ -175,7 +175,6 @@ component alu is
          alu_op:            in  std_logic_vector(4 downto 0);
          alu_srcA:          in  std_logic_vector(1 downto 0);
          alu_srcB:          in  std_logic_vector(1 downto 0);
-         hi_lo_enable:      in  std_logic;
          alu_result:        out std_logic_vector(31 downto 0)
          
 	);
@@ -362,8 +361,6 @@ signal cp0_op 						: std_logic;
 signal id_exc_code 					: std_logic_vector(1 downto 0);
 signal rs_value,rt_value	: std_logic_vector(31 downto 0);
 signal alu_result					: std_logic_vector(31 downto 0);
---error!!! lack of hi_lo_enable
-signal alu_hi_lo_enable				: std_logic;
 signal addr_from_mem				: std_logic_vector(31 downto 0);
 signal write_value_from_mem			: std_logic_vector(31 downto 0);
 signal mem_write_enable				: std_logic;
@@ -426,8 +423,6 @@ begin
 						cp0_values(121 downto 102) & cp0_values(98 downto 97);
 	EPC <= cp0_values(543 downto 512);
 	EBase <= cp0_values(607 downto 576);
-	--error!!!!!!!!
-	alu_hi_lo_enable <= '1';
 
 	with old_state select
 		--status:EXL(13)(1)=13*32+1=417
@@ -529,7 +524,7 @@ begin
 				rt_value => rt_value,imme => immediate,cp0_value => cp0_normal_value,
 				state => state,alu_op => alu_ops(4 downto 0),
 				alu_srcA => alu_ops(8 downto 7),alu_srcB => alu_ops(6 downto 5),
-				hi_lo_enable => alu_hi_lo_enable,alu_result => alu_result);
+				alu_result => alu_result);
 	u_MEM : mem port map(rst => e,result => alu_result,rt_value => rt_value,
 				mmu_value => data_from_mmu,mem_op => mem_op,
 				addr_mmu => addr_from_mem,write_value => write_value_from_mem,

@@ -59,8 +59,6 @@ port(
 	mem_op : out std_logic_vector(2 downto 0);
 	align_type : out std_logic_vector(1 downto 0);
 	tlbwi_enable : out std_logic;
-		
-	hi_lo_enable : out std_logic;
 	
 	wb_op : out std_logic_vector(4 downto 0);
 	
@@ -89,8 +87,6 @@ architecture Behavioral of IDecode is
 	signal mem_op_reg : std_logic_vector(2 downto 0) := "000";		-- mem_read, mem_write, mem_value
 	signal tlbwi_enable_reg : std_logic := '0';
 	signal align_type_reg : std_logic_vector(1 downto 0) := ALIGN_QUAD;
-	
-	signal hi_lo_enable_reg : std_logic := '0';
 	
 	signal wb_op_reg : std_logic_vector(4 downto 0) := "00000";		-- reg_dst, reg_value
 	signal cp0_op_reg : std_logic := '0';		-- cp0_write
@@ -195,12 +191,6 @@ begin
 					cp0_op_reg <= '0';
 				end if;
 				
-				-- generate hi_lo_enable
-				if First = F_ZERO and (Last = L_MULT or Last = L_MTLO or Last = L_MTHI) then
-					hi_lo_enable_reg <= '1';
-				else
-					hi_lo_enable_reg <= '0';
-				end if;
 			end if;
 		end if;
 	end process;
