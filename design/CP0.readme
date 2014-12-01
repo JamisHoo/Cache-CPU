@@ -18,6 +18,8 @@ CP0模块接口说明：
 	异常写入的使能，控制异常数据的写入，并将status(1)制1。
 	cause_in : in std_logic_vector(4 downto 0);
 	异常发生时写入cause的6-2位的数据，要求数据在时钟上升沿之前准备好。使能为interrupt_start_in。	
+	interrupt_code_in : in std_logic_vector(5 downto 0);
+	异常发生时写入cause的15-10位的数据，要求数据在时钟上升沿之前准备好。使能为interrupt_start_in。	
 	epc_in : in std_logic_vector(31 downto 0);
 	异常发生时写入epc的数据，要求数据在时钟上升沿之前准备好。使能为interrupt_start_in。	
 	eret_enable : in std_logic;

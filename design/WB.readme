@@ -45,10 +45,9 @@ WB模块接口说明：
 	pc_op : in std_logic_vector(2 downto 0);
 	非ERET指令时，选择新PC的控制信号
 		00时，选PC+4，即RPC；
-		01时，根据比较是否成立进行选择，成立则跳转到PC+4+immediate，即RPC；否则跳转到RPC
-		！！！！！！！PC+4+immediate是否已交给ALU计算。
-		10时，跳转到immediate，对应某些jump语句；
-		11时，跳转到ALU的计算结果，对应某些jump语句；
+		01时，根据比较是否成立进行选择，成立则跳转到PC+4+immediate，即RPC+immediate；否则跳转到RPC
+		10时，跳转到immediate << 2，对应J,JAL语句；
+		11时，跳转到ALU的计算结果，对应JALR,JR语句；
 	要求WB阶段上升沿之前准备好
 	comp_op : in std_logic_vector(2 downto 0);
 	比较跳转时的比较控制信号，一般对应B系列指令。跳转条件如下：

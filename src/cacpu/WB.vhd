@@ -239,7 +239,7 @@ begin
 								m_PcSrc <= RPC;
 							end if;
 						when "10" =>
-							m_PcSrc <= imme;
+							m_PcSrc <= imme(29 downto 0) & "00";
 						when "11" =>
 							m_PcSrc <= alu_result;
 						when others =>
