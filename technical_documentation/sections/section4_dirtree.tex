@@ -7,14 +7,30 @@
                 .3 modules\_interface\DTcomment{各模块接口}.
             .2 product\_requirement\_document\DTcomment{需求文档}.
             .2 src\DTcomment{源代码}.
-                .3 CP0.vhd\DTcomment{CP0模块}.
-                .3 IDecode\_const.vhd\DTcomment{指令解析模块}.
-                .3 IFetch.vhd\DTcomment{取指令模块}.
-                .3 WB.vhd\DTcomment{写回模块}.
-                .3 alu.vhd\DTcomment{ALU模块}.
-                .3 async.v\DTcomment{开源串口异步收发模块}.
-                .3 common.vhd\DTcomment{这是啥？？？}.
-                .3 cpld.vhd\DTcomment{CPLD串口通信}.
+                .3 cacpu\DTcomment{Cache CPU}.
+                    .4 CP0.vhd\DTcomment{CP0模块}.
+                    .4 Exception.vhd\DTcomment{异常处理模块}.
+                    .4 IDecode.vhd\DTcomment{指令解析模块}.
+                    .4 IDecode\_const.vhd\DTcomment{指令解析常量}.
+                    .4 IFetch.vhd\DTcomment{取指令模块}.
+                    .4 WB.vhd\DTcomment{写回模块}.
+                    .4 alu.vhd\DTcomment{ALU模块}.
+                    .4 async.v\DTcomment{开源串口异步收发模块}.
+                    .4 cacpu.ucf\DTcomment{管脚绑定}.
+                    .4 cacpu.vhd\DTcomment{顶层控制模块}.
+                    .4 common.vhd\DTcomment{通用常量}.
+                    .4 flash.vhd\DTcomment{Flash操作模块}.
+                    .4 general\_register.vhd\DTcomment{通用寄存器模块}.
+                    .4 mem.vhd\DTcomment{访存模块}.
+                    .4 mmu\_module.vhd\DTcomment{MMU模块}.
+                    .4 phy\_mem.vhd\DTcomment{物理访存模块}.
+                    .4 ram.vhd\DTcomment{RAM读写模块}.
             .2 technical\_documentation\DTcomment{技术文档}.
             .2 utils\DTcomment{调试工具}.
+                .3 com\_debug\_tool\DTcomment{串口调试工具}.
+                    .4 async.v\DTcomment{开源串口异步收发模块}.
+                    .4 com\_debug.vhd\DTcomment{调试信息发送}.
+                    .4 recv.cc\DTcomment{PC端调试信息接收}.
+                    .4 top\_test.ucf\DTcomment{管脚绑定}.
+                    .4 top\_test.vhd\DTcomment{使用示例}.
     }
