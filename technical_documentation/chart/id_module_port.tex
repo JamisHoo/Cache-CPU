@@ -19,7 +19,7 @@
                 初始化信号，在CPU启动时使用。
             } \\
             \midrule
-            state           & in        & std\_logic\_vector(3 downto 0) \\
+            state           & in        & status（自定义状态集合） \\
             \cmidrule(l){2-3}
             &
             \multicolumn{2}{X}{
@@ -201,7 +201,7 @@
                 有效时间：下一条指令InsD上升沿之后。
             } \\
             \midrule
-            wb\_op          & out       & std\_logic\_vector(5 downto 0) \\
+            wb\_op          & out       & std\_logic\_vector(4 downto 0) \\
             \cmidrule(l){2-3}
             &
             \multicolumn{2}{X}{
@@ -217,8 +217,7 @@
                 如果为00则写回16到20位rt寄存器，%
                 如果为01则写回11到15位rd寄存器，%
                 如果为10则写回31号寄存器。
-
-                RegWrite(0)：寄存器是否可写。
+                如果为11则不写寄存器。
             } \\
             &
             \multicolumn{2}{X}{

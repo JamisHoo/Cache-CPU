@@ -9,14 +9,6 @@
             &
             \multicolumn{2}{X}{CPU时钟信号。} \\
             \midrule
-            enable          & in       & std\_logic \\
-            \cmidrule(l){2-3}
-            & 
-            \multicolumn{2}{X}{
-            ALU模块是否使能，为1时工作，为0时不工作，%
-            需要在clk时钟上升沿之前准备好，%
-            并保持到clk时钟上升沿之后一极短时间。} \\
-            \midrule
             rs\_value        & in       & std\_logic\_vector(31 downto 0) \\
             \cmidrule(l){2-3}
             &
@@ -47,7 +39,7 @@
             需要在clk时钟上升沿之前准备好，%
             并保持到clk时钟上升沿之后一极短时间。} \\
             \midrule
-            state           & in       & std\_logic\_vector(3 downto 0) \\
+            state           & in       & status（自定义状态集合） \\
             \cmidrule(l){2-3}
             &
             \multicolumn{2}{X}{
@@ -84,7 +76,7 @@
 
             00101 result = A \textasciicircum \ B
 
-            00110 result = ~(A | B)
+            00110 result = $\sim$(A | B)
 
             00111 result = B << A
             } \\
@@ -141,7 +133,7 @@
             \multicolumn{2}{X}{
             ALU的输出，在下一个时钟上升沿之前准备好，%
             并保持直到下一次能使ALU输出改变%
-            （state为ALU工作状态、enable为1、alu\_op非写hi、lo寄存器）%
+            （state为ALU工作状态、alu\_op非写hi、lo寄存器）%
             的时钟上升沿。
             } \\
             \bottomrule
