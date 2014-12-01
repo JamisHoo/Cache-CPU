@@ -56,7 +56,7 @@
             &
             \multicolumn{2}{X}{
 	            异常写入的使能，控制异常数据的写入，%
-                并将status(1)制1.
+                并将status(1)置1.
             } \\
             \midrule
 	        cause\_in       & in        & std\_logic\_vector(4 downto 0) \\
@@ -87,11 +87,11 @@
 	            请注意，这一数据应当在ALU阶段上升沿之前准备好。
             } \\
             \midrule
-	        cp0\_e          & in        & std\_logic \\
+	        compare\_init   & in        & std\_logic \\
 	        \cmidrule(l){2-3}
             &
             \multicolumn{2}{X}{
-                CP0部分的使能信号。
+                时钟中断恢复的使能。
             } \\
             \midrule
 	        addr\_value     & out       & std\_logic\_vector(31 downto 0) \\

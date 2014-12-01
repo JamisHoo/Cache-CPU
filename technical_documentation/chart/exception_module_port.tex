@@ -1,0 +1,146 @@
+        \begin{tabularx}{\textwidth}{lll}
+            \toprule
+            端口名          & 端口方向  & 端口类型 \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{端口描述} \\
+            \midrule
+            clk             & in        & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                CPU时钟信号
+            } \\
+            \midrule
+            state           & in        & status \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                自定义状态集合
+            } \\
+            \midrule
+            exception\_e    & in        & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                exception模块使能信号
+            } \\
+            \midrule
+            mmu\_exc\_code  & in        & std\_logic\_vector(2 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                来自MMU的异常信号，%
+                表示TLB\_MODIFIED、TLB\_L、TLB\_S、ADE\_L、ADE\_S异常。%
+                要求exception阶段时钟上升沿之前保持。
+            } \\
+            \midrule
+            serial\_int     & in        & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                来自串口的异常信号。要求exception阶段时钟上升沿之前保持。
+            } \\
+            \midrule
+            compare\_interrupt & in     & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                来自CP0的时钟中断信号。要求exception阶段时钟上升沿之前保持。
+            } \\
+            \midrule
+            id\_exc\_code   & in        & std\_logic\_vetor(1 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                来自ID的异常信号，表示SYSCAL,RI异常。要求exception阶段时钟上升沿之前保持。
+            } \\
+            \midrule
+            pc\_in          & in        & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                本指令的PC,来自CPU模块。要求exception阶段时钟上升沿之前保持。
+            } \\
+            \midrule
+            v\_addr\_in     & in        & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                目前的访存虚拟地址，来自MMU。%
+                要求exception阶段时钟上升沿之前保持。
+            } \\
+            \midrule
+	        old\_entry\_hi  & in        & std\_logic\_vector(19 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                旧的entry\_hi，用于entry\_hi不变的情况，来自CP0。%
+                要求exception阶段时钟上升沿之前保持。
+            } \\
+            \midrule
+            old\_interrupt\_code & in   & std\_logic\_vector(5 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                旧的中断号，用于中断号不变的情况，来自CP0。%
+                要求exception阶段时钟上升沿之前保持。
+            } \\
+            \midrule
+            bad\_v\_addr\_out & out     & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                bad\_v\_addr输出值，交给CP0模块进行写入，可以保持到下次改变。
+            } \\
+            \midrule
+            entry\_hi\_out  & out       & std\_logic\_vector(19 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                entry\_hi输出值，交给CP0模块进行写入,可以保持到下次改变。
+            } \\
+            \midrule
+	        interrupt\_start\_out & out & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                CP0模块的异常写入使能，%
+                控制CP0模块开始写入异常信息，%
+                可以保持到下一时钟上升沿之前。
+            } \\
+            \midrule
+	        cause\_out      & out       & std\_logic\_vector(4 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                异常号输出值，交给CP0模块进行写入，可以保持到下次改变。
+            } \\
+            \midrule
+	        interrupt\_cause\_out & out & std\_logic\_vector(5 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                中断号输出值，交给CP0模块进行写入，可以保持到下次改变。
+            } \\
+            \midrule
+	        epc\_out        & out       & std\_logic\_vector(31 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                EPC输出值，交给CP0模块进行写入,可以保持到下次改变
+            } \\
+            \midrule
+	        pc\_sel0        & out       & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                IF阶段选择PC的pc\_sel的0位，%
+                若为1表示应选择异常处理向量作为新的PC。%
+                可以保持到下一时钟上升沿之前。
+            } \\
+
+            \bottomrule
+        \end{tabularx}
+
+
