@@ -32,7 +32,9 @@ inline uint8_t receive(const int com) {
 }
 
 inline void send(const uint8_t x, const int com) {
-    printf("%02x\n", x);
+    char buff[1];
+    buff[0] = x;
+    write(com, buff, 1);
 }
 
 int main(int argc,char** argv)
@@ -80,12 +82,11 @@ int main(int argc,char** argv)
     
     // oepn serial port
     int com;
-    /*
     if((com = open(MODEM , O_RDWR | O_NONBLOCK)) == -1){
         std::cout << "Error while opening serial port. " << std::endl;
         return 6;
     }
-    */
+    
 
     switch (ope_type) {
         // read
@@ -118,9 +119,7 @@ int main(int argc,char** argv)
             assert(0);
     }
 
-
-
-    // close(com);
+    close(com);
     
     return 0;
 }
