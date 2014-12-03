@@ -92,7 +92,7 @@ begin
 							m_write_enable <= '0';
 						end if;
 					when "01" =>
-						if rt_addr /= "000000" then
+						if rd_addr /= "000000" then
 							m_write_addr <= rd_addr;
 							m_write_enable <= '1';
 						else
