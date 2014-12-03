@@ -17,6 +17,8 @@
  *****************************************************************************/
 #include <unistd.h>
 #include <fcntl.h>
+#include <termios.h>
+#include <cstring>
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
@@ -86,8 +88,20 @@ int main(int argc,char** argv)
         std::cout << "Error while opening serial port. " << std::endl;
         return 6;
     }
-    
 
+    // serial port settings
+    struct termios port_settings;
+    memset(&port_settings, 0, sizeof(port_settings));
+    port_settings.c_iflag = 0;
+    port_settings.c_oflag = 0;
+    port_settings.c_cflag = CS8 | CREAD | CLOCAL;
+    port_settings.c_lflag = 0;
+    port_settings.c_cc[VMIN] = 1;
+    port_settings.c_cc[VTIME] = 5;
+    cfsetospeed(&port_settings, B38400);
+    cfsetispeed(&port_settings, B38400);
+    tcsetattr(com, TCSANOW, &port_settings);
+ 
     switch (ope_type) {
         // read
         case 0: {
