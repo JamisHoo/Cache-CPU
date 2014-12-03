@@ -258,6 +258,8 @@ begin
 										when physical_addr(31 downto 23) = "000000000"
 									else "1000" & x"00000"							-- serial
 										when physical_addr(31 downto 0) = PHYSICAL_SERIAL_DATA
+									else "11" & x"000" & physical_addr(11 downto 2)
+										when physical_addr(31 downto 12) = x"10000"
 									else x"FFFFFF";
 					
 	to_physical_data_reg <= data_in;
