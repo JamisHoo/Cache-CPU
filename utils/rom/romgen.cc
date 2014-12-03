@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
     while (fin.read(buff, 4)) {
         swap(buff[0], buff[3]);
         swap(buff[1], buff[2]);
-        sprintf(buffer, "    when %4d => rom_data <= X\"%08X\"; \n", addr, *(int*)(buff));
+        sprintf(buffer, "    when %6d => rom_data <= X\"%08X\"; \n", addr, *(int*)(buff));
         // fout << "    when " << addr << " => rom_data <= X\"" << hex << *(unsigned*)(buff) << dec << "\"; \n";
         fout << string(buffer);
         addr += 4;
