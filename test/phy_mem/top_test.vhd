@@ -47,7 +47,7 @@ end top_test;
 
 architecture Behavioral of top_test is
 component phy_mem is
-    Port ( clk : in  STD_LOGIC;
+    Port ( 
            high_freq_clk : in  STD_LOGIC;  
            addr : in  STD_LOGIC_VECTOR (23 downto 0);
            data_in : in  STD_LOGIC_VECTOR (31 downto 0);
@@ -102,7 +102,7 @@ signal div_clk: std_logic := '0';
 signal high_clk: std_logic := '0';
 
 begin
-    u1: phy_mem port map(clk => clk, high_freq_clk => high_clk, busy => mem_busy,
+    u1: phy_mem port map(high_freq_clk => high_clk, busy => mem_busy,
                      addr => addr, data_in => data_in, data_out => data_out, write_enable => write_enable, read_enable => read_enable, serialport_data_ready => serialport_data_ready,
                      baseram_addr => baseram_addr, baseram_data => baseram_data, baseram_ce => baseram_ce, baseram_oe => baseram_oe, baseram_we => baseram_we, 
                      extrram_addr => extrram_addr, extrram_data => extrram_data, extrram_ce => extrram_ce, extrram_oe => extrram_oe, extrram_we => extrram_we, 
@@ -121,7 +121,7 @@ begin
         variable clk_counter: integer := 0;
     begin 
         if (high_freq_clk'event and high_freq_clk = '1') then
-            if (clk_counter >= 0) then
+            if (clk_counter >= 1) then
                 clk_counter := 0;
                 div_clk <= not div_clk;
             else
@@ -136,6 +136,7 @@ begin
         variable serialport_sum : std_logic_vector(15 downto 0) := X"0000";
     begin
         if (div_clk'event and div_clk = '1') then
+            led <= std_logic_vector(to_unsigned(num, 16));
             case (state) is
                 when 0 =>
                     -- check serial port
@@ -143,7 +144,6 @@ begin
                         led <= X"0ff0";
                         state := 101;
                     else 
-                        --led <= X"f00f";
                         
                         -- read flash
                         if (mem_busy = '0' and wrong_buf = '0') then
@@ -158,9 +158,6 @@ begin
                 when 2 =>
                     -- chek data from flash
                     if (mem_busy = '0') then
-                        --led <= std_logic_vector(to_unsigned(2 * num + 1, 8)) & std_logic_vector(to_unsigned(2 * num, 8));
-                        --led <= std_logic_vector(to_unsigned(num, 16));
-                        --led <= data_out(15 downto 0);
                         if (data_out /= X"0000" & std_logic_vector(to_unsigned(2 * num + 1, 8)) & std_logic_vector(to_unsigned(2 * num, 8))) then
                             wrong_buf <= '1';
                             wrong2 <= '1';
@@ -197,8 +194,6 @@ begin
                 when 7 =>
                     -- check data from ram
                     if (mem_busy = '0') then
-                        --led <= data_out(15 downto 0);
-                        --led <= std_logic_vector(to_unsigned(num, 16));
                         if (data_out /= (X"A0A0A0A0" xor (X"0000" & std_logic_vector(to_unsigned(2 * num + 1, 8)) & std_logic_vector(to_unsigned(2 * num, 8))))) then
                             wrong_buf <= '1';
                             wrong4 <= '1';
@@ -220,9 +215,8 @@ begin
                     state := 102;
                 when 102 =>
                     read_enable <= '0';
-                    serialport_sum := std_logic_vector(unsigned(serialport_sum) + unsigned(data_out(15 downto 0)));
-                    --led <= serialport_sum;
-                    led <= data_out(15 downto 0);
+                    --serialport_sum := std_logic_vector(unsigned(serialport_sum) + unsigned(data_out(15 downto 0)));
+                    serialport_sum := std_logic_vector(unsigned(data_out(15 downto 0)));
                     state := 103;
                 -- write serial port
                 when 103 =>
@@ -233,6 +227,28 @@ begin
                         state := 104;
                     end if;
                 when 104 =>
+                    write_enable <= '0';
+                    state := 105;
+                -- read rom
+                when 105 =>
+                    if (mem_busy = '0') then
+                        read_enable <= '1';
+                        addr <= "11" & "000000" & serialport_sum(15 downto 0);
+                        state := 106;
+                    end if;
+                when 106 =>
+                    read_enable <= '0';
+                    serialport_sum := data_out(23 downto 8);
+                    state := 107;
+                -- write to serial port
+                when 107 =>
+                    if (mem_busy = '0') then
+                        write_enable <= '1';
+                        addr <= X"800000";
+                        data_in <= X"0000" & serialport_sum(15 downto 0);
+                        state := 108;
+                    end if;
+                when 108 =>
                     write_enable <= '0';
                     state := 0;
                 when others => 

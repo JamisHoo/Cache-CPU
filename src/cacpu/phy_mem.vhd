@@ -1,5 +1,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.numeric_std.all;
+use work.rom.ALL;
 
 entity phy_mem is
     Port (
@@ -79,6 +81,8 @@ signal serialport_transmit_signal : std_logic := '0';
 signal serialport_transmit_data : std_logic_vector(7 downto 0);
 signal serialport_transmit_busy : std_logic := '0';
 
+
+
 begin
     u3: async_receiver port map(clk => high_freq_clk, RxD => serialport_rxd, RxD_data_ready => serialport_receive_signal, RxD_data => serialport_receive_data);  
     
@@ -112,6 +116,7 @@ begin
             -- read ram from 0 to 201 to ...
             -- read serial port form 0 to 0, need only one cycle
             -- read serial port from 0 to 301 to 0, need waiting at 301 for a long time
+            -- read from rom
             case (state) is
                 when 0 =>
                     -- read flash
@@ -144,6 +149,9 @@ begin
                         serialport_transmit_signal <= '1';
                         serialport_transmit_data <= data_in(7 downto 0);
                         state := 301;
+                    -- read rom
+                    elsif (read_enable = '1' and addr(23 downto 22) = "11") then
+                        data_out <= boot_rom(to_integer(unsigned(addr(21 downto 0))));
                     else 
                         state := 0;
                         flash_read_signal <= '0';
