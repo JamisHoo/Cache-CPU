@@ -81,7 +81,6 @@ begin
 				rt_value <= reg(conv_integer(rt_addr));
 			end if;
 		
-		elsif clk'event and clk = '0' and state_reg = WriteB then
 			if write_enable = '1' then
 				reg(conv_integer(write_addr)) <= write_value;
 			end if;
