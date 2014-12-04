@@ -362,7 +362,7 @@ begin
 				when F_SLTI => alu_ops_reg <= "000101010"; ins_undef <= '0';
 				when F_SLTIU => alu_ops_reg <= "000101011"; ins_undef <= '0';
 				when F_ANDI => alu_ops_reg <= "000100011"; ins_undef <= '0';
-				when F_LUI => alu_ops_reg <= "110000111"; ins_undef <= '0';
+				when F_LUI => alu_ops_reg <= "110100111"; ins_undef <= '0';
 				when F_ORI => alu_ops_reg <= "000100100"; ins_undef <= '0';
 				when F_XORI => alu_ops_reg <= "000100101"; ins_undef <= '0';
 				when F_BEQ => alu_ops_reg <= "000000010"; ins_undef <= '0';
