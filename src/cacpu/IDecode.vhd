@@ -294,7 +294,7 @@ begin
 			-- generate wb_op
 			case First is
 				when F_ZERO =>  case Last is
-											when L_JALR => wb_op_reg <= "10010";
+											when L_JALR => wb_op_reg <= "01010";
 											when L_JR => wb_op_reg <= WB_DISABLE;
 											when L_MULT => wb_op_reg <= WB_DISABLE;
 											when L_MTLO => wb_op_reg <= WB_DISABLE;
