@@ -39,8 +39,8 @@ entity cacpu is
 		clk : in std_logic;
 		e : in std_logic;
 		in_data : in std_logic_vector(31 downto 0);
-		select_data : in std_logic_vector(31 downto 0);
-		out_data : out std_logic_vector(15 downto 0)
+		select_data : in std_logic_vector(7 downto 0);
+		out_data : out std_logic_vector(7 downto 0)
 		);
 end cacpu;
 
@@ -307,7 +307,11 @@ begin
 	end process;
 	cpu_clk <= clk;
 
-	out_data <= out_datas(conv_integer(select_data(5 downto 0)));
+	with select_data(0) select
+		out_data <= out_datas(conv_integer(select_data(6 downto 1)))(15 downto 8) when '0',
+						out_datas(conv_integer(select_data(6 downto 1)))(7 downto 0) when '1',
+						(others => '0') when others;
+		
 	with state select
 		out_datas(0)(15 downto 13) <= 	"000" when InsF,
 								"001" when InsD,
@@ -409,11 +413,15 @@ begin
 	out_datas(62) <= (others => '0');
 	out_datas(63) <= (others => '0');
 
+
+-- what should be changed after adding memory module
 	instr_from_mmu <= in_data;
 	data_from_mmu <= in_data;
 	mmu_ready <= '1';
 	serial_int <= '0';
 	mmu_exc_code <= "000";
+
+	
 	RPC <= this_PC+4;
 	normal_cp0_in <= cp0_op & instr_from_mmu(15 downto 11) & rt_value;
 	-- index(66 downto 63) EntryHi(62 downto 44) EntryLo0(43 downto 24) DV(23 downto 22) EntryLo1(21 downto 2) DV(1 downto 0)

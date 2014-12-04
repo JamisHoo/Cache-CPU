@@ -1,0 +1,7 @@
+You can get a simiple example after moving *.vhd and *.ucf to the cacpu project and replacing files with the same name.
+When you compile the recv program, some mistakes may happen. Maybe you should delete the line "typedef unsigned char uint_8", and maybe you should compile with the c++11 standard.
+If you want to get more information throught serial port, you should change the show function in recv.cc. It's of help to read this cacpu.vhd and find what you can use in show funcion, I means, the array "data".
+
+You can compare this cacpu.vhd with the file in cacpu project, then you will find what you should do to use this frame.
+out_data(48) and (54 to 63) is still 0 and you can use them to send the data about memory.
+instruction and data from mmu is sent to caCPU through switch now. you should change them when you add memory modules. Please find "what should be changed after adding memory module"

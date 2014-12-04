@@ -1,8 +1,12 @@
 
 # PlanAhead Generated physical constraints 
 
-NET "clk" LOC = T3;
+NET "manual_clk" LOC = T3;
 NET "e" LOC = T1;
+NET "clk" LOC = U26;
+NET "serialport_rxd" LOC = P26;
+NET "serialport_txd" LOC = P24;
+
 NET "in_data[0]" LOC = Y5;
 NET "in_data[1]" LOC = W1;
 NET "in_data[2]" LOC = W2;
@@ -35,21 +39,3 @@ NET "in_data[28]" LOC = M4;
 NET "in_data[29]" LOC = M3;
 NET "in_data[30]" LOC = L4;
 NET "in_data[31]" LOC = L3;
-
-NET "out_data[15]" LOC = F26;
-NET "out_data[14]" LOC = G26;
-NET "out_data[13]" LOC = G25;
-NET "out_data[12]" LOC = H26;
-NET "out_data[11]" LOC = J26;
-NET "out_data[10]" LOC = J25;
-NET "out_data[9]" LOC = G23;
-NET "out_data[8]" LOC = J24;
-
-NET "out_data[7]" LOC = L24;
-NET "out_data[6]" LOC = K24;
-NET "out_data[5]" LOC = M23;
-NET "out_data[4]" LOC = K26;
-NET "out_data[3]" LOC = L26;
-NET "out_data[2]" LOC = L25;
-NET "out_data[1]" LOC = M26;
-NET "out_data[0]" LOC = N26;
