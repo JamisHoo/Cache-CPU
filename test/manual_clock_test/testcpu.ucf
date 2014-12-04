@@ -1,0 +1,55 @@
+
+# PlanAhead Generated physical constraints 
+
+NET "clk" LOC = T3;
+NET "e" LOC = T1;
+NET "in_data[0]" LOC = Y5;
+NET "in_data[1]" LOC = W1;
+NET "in_data[2]" LOC = W2;
+NET "in_data[3]" LOC = V1;
+NET "in_data[4]" LOC = U1;
+NET "in_data[5]" LOC = U2;
+NET "in_data[6]" LOC = R1;
+NET "in_data[7]" LOC = R2;
+NET "in_data[8]" LOC = P1;
+NET "in_data[9]" LOC = N1;
+NET "in_data[10]" LOC = N2;
+NET "in_data[11]" LOC = M1;
+NET "in_data[12]" LOC = L1;
+NET "in_data[13]" LOC = L2;
+NET "in_data[14]" LOC = W5;
+NET "in_data[15]" LOC = W3;
+NET "in_data[16]" LOC = V4;
+NET "in_data[17]" LOC = V3;
+NET "in_data[18]" LOC = U4;
+NET "in_data[19]" LOC = U3;
+NET "in_data[20]" LOC = T4;
+NET "in_data[21]" LOC = R4;
+NET "in_data[22]" LOC = R3;
+NET "in_data[23]" LOC = P5;
+NET "in_data[24]" LOC = P3;
+NET "in_data[25]" LOC = N4;
+NET "in_data[26]" LOC = N3;
+NET "in_data[27]" LOC = N5;
+NET "in_data[28]" LOC = M4;
+NET "in_data[29]" LOC = M3;
+NET "in_data[30]" LOC = L4;
+NET "in_data[31]" LOC = L3;
+
+NET "out_data[15]" LOC = F26;
+NET "out_data[14]" LOC = G26;
+NET "out_data[13]" LOC = G25;
+NET "out_data[12]" LOC = H26;
+NET "out_data[11]" LOC = J26;
+NET "out_data[10]" LOC = J25;
+NET "out_data[9]" LOC = G23;
+NET "out_data[8]" LOC = J24;
+
+NET "out_data[7]" LOC = L24;
+NET "out_data[6]" LOC = K24;
+NET "out_data[5]" LOC = M23;
+NET "out_data[4]" LOC = K26;
+NET "out_data[3]" LOC = L26;
+NET "out_data[2]" LOC = L25;
+NET "out_data[1]" LOC = M26;
+NET "out_data[0]" LOC = N26;
