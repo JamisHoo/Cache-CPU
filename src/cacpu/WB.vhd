@@ -233,13 +233,12 @@ begin
 							m_PcSrc <= RPC;
 						when "01" =>
 							if m_compare = '1' then
-								--question from where?
-								m_PcSrc <= RPC + imme;
+								m_PcSrc(31 downto 2) <= RPC(31 downto 2) + imme(29 downto 0);
 							else
 								m_PcSrc <= RPC;
 							end if;
 						when "10" =>
-							m_PcSrc <= imme(29 downto 0) & "00";
+							m_PcSrc <= RPC(31 downto 28) & imme(25 downto 0) & "00";
 						when "11" =>
 							m_PcSrc <= alu_result;
 						when others =>
