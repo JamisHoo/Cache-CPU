@@ -28,27 +28,30 @@ begin
     
     process (high_freq_clk) 
         variable state : integer := 0;
+        variable after_falling_edge : std_logic := '1';
     begin
         if (rising_edge(high_freq_clk)) then
-            if (clk = '0' and slc_num = slc_max) then
+            if (clk = '1' and slc_num = slc_max and after_falling_edge = '1') then
                 slc_num <= X"00";
-                -- goto wait 
-                state := 2;
+                state := 0;
+                after_falling_edge := '0';
+            elsif (clk = '0') then
+                after_falling_edge := '1';
             end if;
             
             case (state) is
                 when 0 =>
+                    state := state + 1;
+                when 1 =>
                     if (serialport_transmit_busy = '0' and unsigned(slc_num) < unsigned(slc_max)) then
                         serialport_transmit_signal <= '1';
-                        state := 1;
+                        state := state + 1;
                     end if;
-                when 1 =>
+                when 2 =>
                     serialport_transmit_signal <= '0';
                     slc_num <= std_logic_vector(unsigned(slc_num) + 1);
                     state := 0;
-                -- wait for a certain num of cycles
-                when 2 to 20000000 =>
-                    state := state + 1;
+
                 when others =>
                     state := 0;
             end case;

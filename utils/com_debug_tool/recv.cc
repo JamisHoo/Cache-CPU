@@ -57,6 +57,7 @@ int main(int argc,char** argv)
     std::cout << "Prepared to receive... " << std::endl;
 
     int count = 0; 
+    setbuf(stdout, NULL);
     while (1) {
         printf("%02x", receive(com) & 0xff);
         if (++count == 12) {

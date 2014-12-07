@@ -25,8 +25,24 @@ signal slc: std_logic_vector(7 downto 0);
 signal regs: std_logic_vector(63 downto 0) := X"fedcba9876543210";
 signal transmit_data : std_logic_vector(7 downto 0);
 
+signal div_clk : std_logic;
+
 begin
-    u1: com_debug port map(clk => low_freq_clk, high_freq_clk => high_freq_clk, 
+    process (high_freq_clk) 
+    variable count: integer := 0;
+    begin
+        if (rising_edge(high_freq_clk)) then
+            --(x + 1) * 2 -divided frequency
+            if (count = 1562500) then
+                count := 0;
+                div_clk <= not div_clk;
+            end if;
+            count := count + 1;
+        end if;
+    end process;
+    
+    -- clk => div_clk OR clk => not low freq_clk
+    u1: com_debug port map(clk => div_clk, high_freq_clk => high_freq_clk, 
                            slc => slc, data => transmit_data,
                            serialport_txd => serialport_txd, serialport_rxd => serialport_rxd);
     with (slc(7 downto 0)) select
