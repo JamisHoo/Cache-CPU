@@ -104,7 +104,7 @@ begin
 			for i in 0 to 31 loop
 				register_values(i) <= (others => '0');
 			end loop;
-			register_values(12) <= (others => '0');
+			register_values(12) <= (others => '1');
 			for i in 13 to 31 loop
 				register_values(i) <= (others => '0');
 			end loop;
