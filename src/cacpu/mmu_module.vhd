@@ -278,7 +278,7 @@ begin
 						else INVALID_CONTENT;
 	
 	-- to top mem level
-	data_out <= x"0000000" & "00" & serial_status_reg & "0"
+	data_out <= x"0000000" & "00" & serial_status_reg & "1"
 					when (special_com1_status = '1')
 					else from_physical_data;
 	
