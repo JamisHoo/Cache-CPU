@@ -134,30 +134,30 @@ begin
 							when "00" =>
 								m_write_value(7 downto 0) <= mmu_value(7 downto 0);
 								if (mmu_value(7) = '1') then
-									m_write_value(31 downto 16) <= (others => '1');
+									m_write_value(31 downto 8) <= (others => '1');
 								elsif (mmu_value(7) = '0') then
-									m_write_value(31 downto 16) <= (others => '0');
+									m_write_value(31 downto 8) <= (others => '0');
 								end if;
 							when "01" =>
 								m_write_value(7 downto 0) <= mmu_value(15 downto 8);
 								if (mmu_value(15) = '1') then
-									m_write_value(31 downto 16) <= (others => '1');
+									m_write_value(31 downto 8) <= (others => '1');
 								elsif (mmu_value(15) = '0') then
-									m_write_value(31 downto 16) <= (others => '0');
+									m_write_value(31 downto 8) <= (others => '0');
 								end if;
 							when "10" =>
 								m_write_value(7 downto 0) <= mmu_value(23 downto 16);
 								if (mmu_value(23) = '1') then
-									m_write_value(31 downto 16) <= (others => '1');
+									m_write_value(31 downto 8) <= (others => '1');
 								elsif (mmu_value(23) = '0') then
-									m_write_value(31 downto 16) <= (others => '0');
+									m_write_value(31 downto 8) <= (others => '0');
 								end if;
 							when "11" =>
 								m_write_value(7 downto 0) <= mmu_value(31 downto 24);
 								if (mmu_value(31) = '1') then
-									m_write_value(31 downto 16) <= (others => '1');
+									m_write_value(31 downto 8) <= (others => '1');
 								elsif (mmu_value(31) = '0') then
-									m_write_value(31 downto 16) <= (others => '0');
+									m_write_value(31 downto 8) <= (others => '0');
 								end if;
 							when others =>
 						end case;
