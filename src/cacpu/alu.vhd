@@ -54,7 +54,7 @@ begin
                     srcB := imme;
                 -- cp0 value
                 when "10" => 
-                    srcB := cp0_value;
+                    srcB := x"00000000";;
                 when others =>
                     NULL;
             end case;
