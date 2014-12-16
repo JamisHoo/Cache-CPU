@@ -2,12 +2,12 @@
 
 NET "high_freq_clk" LOC = U26;
 NET "low_freq_clk" LOC = T3;
-NET "serialport_rxd" LOC = P26;
+NET "serialport_rxd" LOC = R26;
 NET "serialport_txd" LOC = P24;
+#NET "serialport_rxd" LOC = P26;
+#NET "serialport_txd" LOC = N23;
 
 
-
-# PlanAhead Generated physical constraints 
 
 NET "led[7]" LOC = L24;
 NET "led[6]" LOC = K24;
@@ -51,3 +51,14 @@ NET "dailing_switch[2]" LOC = W2;
 NET "dailing_switch[1]" LOC = W1;
 NET "dailing_switch[0]" LOC = Y5;
 
+
+# PlanAhead Generated physical constraints 
+
+NET "led[15]" LOC = F26;
+NET "led[14]" LOC = G26;
+NET "led[13]" LOC = G25;
+NET "led[12]" LOC = H26;
+NET "led[11]" LOC = J26;
+NET "led[10]" LOC = J25;
+NET "led[9]" LOC = G23;
+NET "led[8]" LOC = J24;
