@@ -2,6 +2,12 @@
     \subsection{取指令模块}
         \subsubsection{端口说明}
             \input{../chart/if_module_port.tex} 
+
+            \begin{figure}[!hbp]
+                \centering
+                \caption{取指令模块端口示意图}
+                \includegraphics[width=0.5\textwidth]{chart/ifetch.jpg}
+            \end{figure}
         \subsubsection{内部实现}
             需要的数据有PcSrc、EBase、EPC。
 
@@ -23,6 +29,12 @@
     \subsection{指令解析模块}
         \subsubsection{端口说明}
             \input{../chart/id_module_port.tex}
+            \begin{figure}[!hbp]
+                \centering
+                \caption{指令解析模块端口示意图}
+                \includegraphics[width=0.9\textwidth]{chart/idecode.jpg}
+            \end{figure}
+
         \subsubsection{内部实现}
             需要的数据有instruction，%
             产生于当前指令InsF上升沿之后，能够在当前指令InsD上升沿之前到达。
@@ -58,6 +70,12 @@
     \subsection{ALU模块}
         \subsubsection{端口说明}
             \input{../chart/alu_module_port.tex}
+            \begin{figure}[!hbp]
+                \centering
+                \caption{ALU模块端口示意图}
+                \includegraphics[width=0.7\textwidth]{chart/alu.jpg}
+            \end{figure}
+
         \subsubsection{内部实现}
             每次时钟上升沿到来时，检查state，%
             若不是ALU工作状态则不进行任何操作。%
@@ -74,6 +92,12 @@
     \subsection{访存模块}
         \subsubsection{端口说明}
             \input{../chart/mem_module_port.tex}
+            \begin{figure}[!hbp]
+                \centering
+                \caption{访存模块端口示意图}
+                \includegraphics[width=0.6\textwidth]{chart/mem.jpg}
+            \end{figure}
+
         \subsubsection{内部实现}
             \begin{enumerate}
             \item
@@ -116,6 +140,11 @@
     \subsection{写回模块}
         \subsubsection{端口说明}
             \input{../chart/wb_module_port.tex}
+            \begin{figure}[!hbp]
+                \centering
+                \caption{写回模块端口示意图}
+                \includegraphics[width=0.9\textwidth]{chart/wb.jpg}
+            \end{figure}
         \subsubsection{内部实现}
             WB文件包含两个模块，即WB模块与PC模块。%
             WB模块在WB阶段上升沿运行。%
@@ -143,6 +172,11 @@
     \subsection{MMU模块}
         \subsubsection{端口说明}
             \input{../chart/mmu_module_port.tex}
+            \begin{figure}[!hbp]
+                \centering
+                \caption{MMU模块端口示意图}
+                \includegraphics[width=0.9\textwidth]{chart/mmu.jpg}
+            \end{figure}
         \subsubsection{内部实现}
             MMU模块作为真实访问物理内存阶段的预处理阶段，%
             完成对内存的读写控制，%
@@ -266,6 +300,11 @@
     \subsection{CP0模块}
         \subsubsection{端口说明}
             \input{../chart/cp0_module_port.tex}
+            \begin{figure}[!hbp]
+                \centering
+                \caption{CP0模块端口示意图}
+                \includegraphics[width=0.9\textwidth]{chart/cp0.jpg}
+            \end{figure}
         \subsubsection{内部实现}
             时钟触发。%
             检测到cp0\_e为0时，对内部值进行初始化。%
@@ -295,6 +334,11 @@
     \subsection{异常处理模块}
         \subsubsection{端口说明}
             \input{../chart/exception_module_port.tex}
+            \begin{figure}[!hbp]
+                \centering
+                \caption{异常处理模块端口示意图}
+                \includegraphics[width=0.9\textwidth]{chart/exception.jpg}
+            \end{figure}
         \subsubsection{内部实现}
 
 	        exception负责产生、发送异常信息，%
