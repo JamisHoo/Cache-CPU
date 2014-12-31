@@ -3,7 +3,7 @@
  *  Distributed under the MIT license 
  *  (See accompanying file LICENSE or copy at http://opensource.org/licenses/MIT)
  *  
- *  Project: COM DEBUG
+ *  Project: Cache Terminal
  *  Filename: chedan.cc 
  *  Version: 1.0
  *  Author: Jinming Hu
