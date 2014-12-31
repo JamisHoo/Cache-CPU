@@ -90,7 +90,6 @@ int main(int argc,char** argv) {
         // keep reading and sending
         while (1) {
             char buff = getchar();
-            std::cout << "get" << int(buff) << std::endl;
             if (buff == -1 || buff == 4) {
                 std::cout << "restore" << std::endl;
                 restore_terminal_settings();
