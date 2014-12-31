@@ -38,7 +38,8 @@ entity cacpu is
 	port(
 		clk : in std_logic;
 		e : in std_logic;
-	   -- ports connected with ram
+     
+      	   -- ports connected with ram
 	   baseram_addr: out std_logic_vector(19 downto 0);
 	   baseram_data: inout std_logic_vector(31 downto 0);
 	   baseram_ce: out std_logic;
@@ -62,9 +63,10 @@ entity cacpu is
 	   flash_control_oe : out  STD_LOGIC;
 	   flash_control_we : out  STD_LOGIC;
 
-		-- ports connected with serial port
+		-- no serial port during test
       serialport_txd : out STD_LOGIC;
       serialport_rxd : in STD_LOGIC
+
 		);
 end cacpu;
 
@@ -154,6 +156,7 @@ component IFetch is
 		clk : in std_logic;
 		state : in status;
 		rst : in std_logic;
+		mmu_ready : in std_logic;
 		
 		PCSrc : in std_logic_vector(31 downto 0);
 		EBase : in std_logic_vector(31 downto 0);
@@ -200,96 +203,7 @@ component mem is
 		read_enable : out std_logic
 	);
 end component;
-component mmu_module is
-	port(
-		clk : in std_logic;
-		state : in status;
-		rst : in std_logic;
-		
-		-- during instruction fetch time slice
-		if_addr : in std_logic_vector(31 downto 0);
-		instruction : out std_logic_vector(31 downto 0);
-		
-		-- during memory time slice
-		virtual_addr : in std_logic_vector(31 downto 0);
-		data_in : std_logic_vector(31 downto 0);
-		read_enable : in std_logic;
-		write_enable : in std_logic;
-		
-		data_out : out std_logic_vector(31 downto 0);
-		ready : out std_logic;			-- memory access is ready ready
-		
-		-- about exception
-		serial_int : out std_logic;		-- interrupt, send to the exception module
-		-- "000": no exception	"001":TLB modified	"010":TLBL	"011":TLBS	"100":ADEL	"101":ADES
-		exc_code : out std_logic_vector(2 downto 0);		-- exception code
-		
-		-- about tlbwi
-		-- index(66 downto 63) EntryHi(62 downto 44) EntryLo0(43 downto 24) DV(23 downto 22) EntryLo1(21 downto 2) DV(1 downto 0)
-		tlb_write_struct : in std_logic_vector(TLB_WRITE_STRUCT_WIDTH-1 downto 0);
-		tlb_write_enable : in std_logic;
-		
-		-- which kind of alignment? from IDecode
-		-- "00" 4byte		"01" 2byte		"10" 1byte
-		align_type : in std_logic_vector(1 downto 0);
-		
-		-- send to physical level
-		-- the address passed down to physical level of memory
-		-- RAM:"00" + "0" + address(20 downto 0)    
-		-- Flash:"01" + address(21 downto 0)
-		-- Serial:"10" + "0000000000000000000000";
-		to_physical_addr : out std_logic_vector(23 downto 0);
-		to_physical_data : out std_logic_vector(31 downto 0);
-		
-		to_physical_read_enable : out std_logic;
-		to_physical_write_enable : out std_logic;
-		
-		-- from physical level
-		from_physical_data : in std_logic_vector(31 downto 0);
-		from_physical_ready : in std_logic;
-		from_physical_serial : in std_logic
-	);
-end component;
-component phy_mem is
-    port (
-           high_freq_clk : in  STD_LOGIC;  
-           addr : in  STD_LOGIC_VECTOR (23 downto 0);
-           data_in : in  STD_LOGIC_VECTOR (31 downto 0);
-           data_out : out  STD_LOGIC_VECTOR (31 downto 0) := X"FFFFFFFF";
-           write_enable : in  STD_LOGIC;
-           read_enable : in  STD_LOGIC;
-           busy: out STD_LOGIC;
-           serialport_data_ready : out  STD_LOGIC;
 
-           -- ports connected with ram
-           baseram_addr: out std_logic_vector(19 downto 0);
-           baseram_data: inout std_logic_vector(31 downto 0);
-           baseram_ce: out std_logic;
-           baseram_oe: out std_logic;
-           baseram_we: out std_logic;
-           extrram_addr: out std_logic_vector(19 downto 0);
-           extrram_data: inout std_logic_vector(31 downto 0);
-           extrram_ce: out std_logic;
-           extrram_oe: out std_logic;
-           extrram_we: out std_logic;
-           
-           -- ports connected with flash
-           flash_addr : out  STD_LOGIC_VECTOR (22 downto 0);
-           flash_data : inout  STD_LOGIC_VECTOR (15 downto 0);
-           flash_control_ce0 : out  STD_LOGIC;
-           flash_control_ce1 : out  STD_LOGIC;
-           flash_control_ce2 : out  STD_LOGIC;
-           flash_control_byte : out  STD_LOGIC;
-           flash_control_vpen : out  STD_LOGIC;
-           flash_control_rp : out  STD_LOGIC;
-           flash_control_oe : out  STD_LOGIC;
-           flash_control_we : out  STD_LOGIC;
-
-			  -- ports connected with serial port
-			  serialport_txd : out STD_LOGIC;
-			  serialport_rxd : in STD_LOGIC
-          );
-end component;
 component WB is
 	port(
 		clk : in std_logic;
@@ -333,12 +247,105 @@ port(
 	 
 	 rs_value : out std_logic_vector(31 downto 0);
 	 rt_value : out std_logic_vector(31 downto 0);
+	 regs : out std_logic_vector(1023 downto 0);
 	 
      reg0 : out std_logic_vector(31 downto 0)
 );
 end component;
 
-signal clks 						: std_logic_vector(2 downto 0);
+component mmu_module is
+port(
+	clk : in std_logic;
+	state : in status;
+	rst : in std_logic;
+	
+	-- during instruction fetch time slice
+	if_addr : in std_logic_vector(31 downto 0);
+	instruction : out std_logic_vector(31 downto 0);
+	
+	-- during memory time slice
+	virtual_addr : in std_logic_vector(31 downto 0);
+	data_in : std_logic_vector(31 downto 0);
+	read_enable : in std_logic;
+	write_enable : in std_logic;
+	
+	data_out : out std_logic_vector(31 downto 0);
+	ready : out std_logic;			-- memory access is ready ready
+	
+	-- about exception
+	serial_int : out std_logic;		-- interrupt, send to the exception module
+	-- "000": no exception	"001":TLB modified	"010":TLBL	"011":TLBS	"100":ADEL	"101":ADES
+	exc_code : out std_logic_vector(2 downto 0);		-- exception code
+	
+	-- about tlbwi
+	-- index(66 downto 63) EntryHi(62 downto 44) EntryLo0(43 downto 24) DV(23 downto 22) EntryLo1(21 downto 2) DV(1 downto 0)
+	tlb_write_struct : in std_logic_vector(TLB_WRITE_STRUCT_WIDTH-1 downto 0);
+	tlb_write_enable : in std_logic;
+	
+	-- which kind of alignment? from IDecode
+	-- "00" 4byte		"01" 2byte		"10" 1byte
+	align_type : in std_logic_vector(1 downto 0);
+	
+	-- send to physical level
+	-- the address passed down to physical level of memory
+	-- RAM:"00" + "0" + address(20 downto 0)    
+	-- Flash:"01" + address(21 downto 0)
+	-- Serial:"10" + "0000000000000000000000";
+	to_physical_addr : out std_logic_vector(23 downto 0);
+	to_physical_data : out std_logic_vector(31 downto 0);
+	
+	to_physical_read_enable : out std_logic;
+	to_physical_write_enable : out std_logic;
+	
+	-- from physical level
+	from_physical_data : in std_logic_vector(31 downto 0);
+	from_physical_ready : in std_logic;
+	from_physical_serial : in std_logic
+);
+end component;
+
+component phy_mem is
+    Port (
+           high_freq_clk : in  STD_LOGIC;  
+           addr : in  STD_LOGIC_VECTOR (23 downto 0);
+           data_in : in  STD_LOGIC_VECTOR (31 downto 0);
+           data_out : out  STD_LOGIC_VECTOR (31 downto 0) := X"FFFFFFFF";
+           write_enable : in  STD_LOGIC;
+           read_enable : in  STD_LOGIC;
+           busy: out STD_LOGIC := '0';
+           serialport_data_ready : out  STD_LOGIC;
+
+           -- ports connected with ram
+           baseram_addr: out std_logic_vector(19 downto 0);
+           baseram_data: inout std_logic_vector(31 downto 0);
+           baseram_ce: out std_logic;
+           baseram_oe: out std_logic;
+           baseram_we: out std_logic;
+           extrram_addr: out std_logic_vector(19 downto 0);
+           extrram_data: inout std_logic_vector(31 downto 0);
+           extrram_ce: out std_logic;
+           extrram_oe: out std_logic;
+           extrram_we: out std_logic;
+           
+           -- ports connected with flash
+           flash_addr : out  STD_LOGIC_VECTOR (22 downto 0);
+           flash_data : inout  STD_LOGIC_VECTOR (15 downto 0);
+           flash_control_ce0 : out  STD_LOGIC;
+           flash_control_ce1 : out  STD_LOGIC;
+           flash_control_ce2 : out  STD_LOGIC;
+           flash_control_byte : out  STD_LOGIC;
+           flash_control_vpen : out  STD_LOGIC;
+           flash_control_rp : out  STD_LOGIC;
+           flash_control_oe : out  STD_LOGIC;
+           flash_control_we : out  STD_LOGIC;
+           
+           -- ports connected with serial port
+           serialport_txd : out STD_LOGIC;
+           serialport_rxd : in STD_LOGIC
+          );
+end component;
+
+signal clks 						: std_logic_vector(3 downto 0);
 signal cpu_clk						: std_logic;
 signal state,next_state,old_state	: status;
 signal state_select					: std_logic_vector(1 downto 0);
@@ -380,6 +387,7 @@ signal from_exception_epc 			: std_logic_vector(31 downto 0);
 signal compare_recover				: std_logic;
 signal cp0_normal_value				: std_logic_vector(31 downto 0);
 signal cp0_values					: std_logic_vector(1023 downto 0);
+signal general_values			: std_logic_vector(1023 downto 0);
 signal compare_int 					: std_logic;
 signal mmu_exc_code					: std_logic_vector(2 downto 0);
 signal serial_int					: std_logic;
@@ -406,7 +414,12 @@ signal has_mem2 : std_logic := '0';
 
 signal reg0 : std_logic_vector(31 downto 0);
 
+-- change for test, actual serial port is used by com_debug
+--signal serialport_txd_out_reg : std_logic;
+--signal serialport_rxd_in_reg : std_logic;
+
 begin
+
 	process(clk,e)
 	begin
 		if e = '0' then
@@ -417,23 +430,30 @@ begin
 	end process;
 	cpu_clk <= clks(2);
 
+
+
+
+-- what should be changed after adding memory module
+   -- serial is always 0
+   --serialport_rxd_in_reg <= '0';
+	
 	RPC <= this_PC+4;
 	normal_cp0_in <= cp0_op & instr_from_mmu(15 downto 11) & rt_value;
 	-- index(66 downto 63) EntryHi(62 downto 44) EntryLo0(43 downto 24) DV(23 downto 22) EntryLo1(21 downto 2) DV(1 downto 0)
-	--(0)(3 downto 0),(11)(31 downto 13),(2)(25 downto 6)(2 downto 1),(3)(25 downto 6)(2 downto 1)
-	tlb_write_value <= cp0_values(3 downto 0) & cp0_values(383 downto 365) &
-						cp0_values(89 downto 70) & cp0_values(66 downto 65) &
-						cp0_values(121 downto 102) & cp0_values(98 downto 97);
-	EPC <= cp0_values(543 downto 512);
-	EBase <= cp0_values(607 downto 576);
+	--(0)(3 downto 0),(10)(31 downto 13),(2)(25 downto 6)(2 downto 1),(3)(25 downto 6)(2 downto 1)
+	tlb_write_value <= cp0_values(3 downto 0) & cp0_values(351 downto 333) 
+						& cp0_values(89 downto 70) & cp0_values(66 downto 65)
+						& cp0_values(121 downto 102) & cp0_values(98 downto 97);
+	EPC <= cp0_values(479 downto 448);
+	EBase <= cp0_values(511 downto 480);
 
 	with old_state select
-		--status:EXL(13)(1)=13*32+1=417
-		clock_inter_to_excep <= compare_int and not cp0_values(417) when WriteB,
+		--status:EXL(12)(1)=12*32+1=385
+		clock_inter_to_excep <= compare_int and not cp0_values(385) and cp0_values(384) when WriteB,
 								'0' when others;
 	with old_state select
-		--status:EXL(13)(1)=13*32+1=417
-		serial_inter_to_excep <= serial_int and not cp0_values(417) when WriteB,
+		--status:EXL(12)(1)=12*32+1=385
+		serial_inter_to_excep <= serial_int and not cp0_values(385) and cp0_values(384) when WriteB,
 								'0' when others;
 	excep <= clock_inter_to_excep or serial_inter_to_excep or mmu_exc_code(0)
 				or mmu_exc_code(1) or mmu_exc_code(2) or id_exc_code(0)
@@ -442,7 +462,7 @@ begin
 	with state_select select
 		state <= old_state when "00",
 					next_state when "01",
-					Exc when "10",
+					old_state when "10",
 					Exc when "11",
 					next_state when others;
 
@@ -514,6 +534,7 @@ begin
 	end process;
 
 	u_IF : IFetch port map(clk => cpu_clk,state => state,rst => e,
+				mmu_ready => mmu_ready,
 				PCSrc => PCSrc,EBase => EBase,EPC=>EPC,
 				pc_sel => pc_sel,PC => this_PC,PCmmu => PC_to_mmu);
 	u_ID : IDecode port map(clk => cpu_clk,state => state,rst => e,
@@ -559,10 +580,10 @@ begin
 				id_exc_code => id_exc_code,pc_in => this_pc,
 				pcmmu_in => pc_to_mmu,
 				v_addr_in => to_exception_bad_v_addr,
-				--(11)(31 downto 12), 11*32+31=383, 11*32+12=364
-				old_entry_hi => cp0_values(383 downto 364),
-				--(15)(15 downto 10), 15*32+15=495, 15*32+10=490
-				old_interrupt_code => cp0_values(495 downto 490),
+				--(10)(31 downto 12), 10*32+31=351, 10*32+12=332
+				old_entry_hi => cp0_values(351 downto 332),
+				--(13)(15 downto 10), 13*32+15=431, 13*32+10=426
+				old_interrupt_code => cp0_values(431 downto 426),
 				bad_v_addr_out => from_exception_bad_v_addr,
 				entry_hi_out => from_exception_entry_hi,
 				interrupt_start_out => interrupt_start,
@@ -570,7 +591,16 @@ begin
 				compare_recover => compare_recover,
 				interrupt_code_out => from_exception_intcode,
 				epc_out => from_exception_epc,pc_sel0 => pc_sel(0));
-	u_MMU : mmu_module port map(clk => cpu_clk, state => state, rst => e,
+
+	u_register : general_register port map(clk=>cpu_clk, state=>state, rst=>e,
+				rs_addr=>instr_from_mmu(25 downto 21), rt_addr=>instr_from_mmu(20 downto 16), 
+				write_enable=>write_enable_from_wb, write_addr=>write_addr_from_wb,
+				write_value=>write_value_from_wb, rs_value=>rs_value, rt_value=>rt_value,
+				regs => general_values,
+                reg0=>reg0
+                );
+                
+   u_MMU : mmu_module port map(clk => cpu_clk, state => state, rst => e,
 				if_addr => PC_to_mmu,instruction => instr_from_mmu,
 				virtual_addr => addr_from_mem,data_in => write_value_from_mem,
 				read_enable => mem_read_enable,
@@ -586,10 +616,10 @@ begin
 				from_physical_data => from_physical_data,
 				from_physical_ready => from_physical_ready,
 				from_physical_serial => from_physical_serial);
-				
-				from_physical_ready <= not(phy_busy);
-				
-	u_physical : phy_mem port map(high_freq_clk => clk,
+	
+   from_physical_ready <= not(phy_busy);
+   
+   u_physical : phy_mem port map(high_freq_clk => clks(0),
 				addr => to_physical_addr,data_in => to_physical_data,
 				data_out => from_physical_data,
 				write_enable => to_physical_write_enable,
@@ -613,14 +643,12 @@ begin
 				flash_control_rp => flash_control_rp, 
 				flash_control_oe => flash_control_oe, 
 				flash_control_we => flash_control_we,
+            
+            -- change for test
 				serialport_txd => serialport_txd,
 				serialport_rxd => serialport_rxd
 				);
-	u_register : general_register port map(clk=>cpu_clk, state=>state, rst=>e,
-				rs_addr=>instr_from_mmu(25 downto 21), rt_addr=>instr_from_mmu(20 downto 16), 
-				write_enable=>write_enable_from_wb, write_addr=>write_addr_from_wb,
-				write_value=>write_value_from_wb, rs_value=>rs_value, rt_value=>rt_value,
-                reg0=>reg0
-                );
+            
+
 end bhv;
 

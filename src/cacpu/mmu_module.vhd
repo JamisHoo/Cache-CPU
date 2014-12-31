@@ -138,7 +138,7 @@ begin
 	-- choose addr on posedge
 	process(clk)
 	begin
-		if clk'event and clk = '1' and (state = MEM1 or state = MEM2 or state = InsF) then
+		if clk'event and clk = '1' and (state = MEM1 or state = MEM2 or state = InsF) and from_physical_ready = '1'  then
 			if state = InsF then
 				addr <= if_addr;
 			else
@@ -327,8 +327,8 @@ begin
 		
 	-- which EntryLo is selected and generate tlb_temp
 	tlb_check : for i in tlb_num_entry-1 downto 0 generate
-		tlb_which_low(i*2) <= tlb_which_equal(i) and tlb_mem(i)(0) and (not addr(12));		
-		tlb_which_low(i*2+1) <= tlb_which_equal(i) and tlb_mem(i)(22) and addr(12);
+		tlb_which_low(i*2) <= tlb_which_equal(i) and tlb_mem(i)(0) and ( addr(12));		
+		tlb_which_low(i*2+1) <= tlb_which_equal(i) and tlb_mem(i)(22) and ( not addr(12));
 	
 		tlb_temp : for j in 20 downto 0 generate
 			tlb_low_temp_value(j)(i*2) <= tlb_which_low(i*2) and tlb_mem(i)(j+1);

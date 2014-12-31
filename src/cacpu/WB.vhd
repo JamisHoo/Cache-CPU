@@ -181,7 +181,8 @@ begin
 	process(clk)
 	begin
 		if WB_e = '0' then
-			m_PcSrc <= (others => '0');
+         -- change for test, pointed to the first address of ROM
+			m_PcSrc <= x"90000000";
 			m_compare <= '0';
 		elsif rising_edge(clk) then
 			case state is

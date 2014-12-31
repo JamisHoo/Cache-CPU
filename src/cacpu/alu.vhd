@@ -52,9 +52,9 @@ begin
                 -- immediate 
                 when "01" =>
                     srcB := imme;
-                -- cp0 value
+                -- always zero
                 when "10" => 
-                    srcB := x"00000000";;
+                    srcB := x"00000000";
                 when others =>
                     NULL;
             end case;

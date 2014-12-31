@@ -59,7 +59,9 @@ type register_bank is array (31 downto 0) of std_logic_vector(31 downto 0);
 signal register_values : register_bank;
 signal m_addr_value: std_logic_vector(31 downto 0);
 signal m_compare_interrupt : std_logic;
+signal m_rd_address : std_logic_vector(4 downto 0);
 signal old_compare : std_logic_vector(31 downto 0);
+constant num_one : std_logic_vector(31 downto 0) := x"00000001";
 
 begin
 	
@@ -104,53 +106,52 @@ begin
 			for i in 0 to 31 loop
 				register_values(i) <= (others => '0');
 			end loop;
-			register_values(12) <= (others => '1');
-			for i in 13 to 31 loop
+			--Compare init
+			register_values(11) <=x"11111111";
+			register_values(12) <=x"00000000";
+			for i in 13 to 17 loop
+				register_values(i) <= (others => '0');
+			end loop;
+			--EBase init
+         register_values(15) <= x"80000180";
+         for i in 19 to 31 loop
 				register_values(i) <= (others => '0');
 			end loop;
 			m_addr_value <= (others => '0');
 			old_compare <= (others => '0');
 			m_compare_interrupt <= '0';
+			m_rd_address <= (others => '0');
 		elsif rising_edge(clk) then
-			--question state
 			if state = InsD then
 				m_addr_value <= register_values(conv_integer(normal_cp0_in(36 downto 32)));
+				m_rd_address <= normal_cp0_in(36 downto 32);
 			end if;
-			--question state
 			if state = Exe and eret_enable = '1' then
-				register_values(13)(1) <= '0';
-				if compare_init = '0' and m_compare_interrupt = '0' then
-					register_values(10) <= register_values(10) + 1;
-				elsif compare_init = '1' then
-					register_values(10) <= (others => '0');
-				end if;
-			--question state
+				register_values(12)(1) <= '0';
 			elsif state = Exe and normal_cp0_in(37) = '1' then
-				register_values(conv_integer(normal_cp0_in(36 downto 32))) <= normal_cp0_in(31 downto 0);
-			elsif interrupt_start_in = '1' then
-				register_values(9) <= bad_v_addr_in;
-				register_values(11)(31 downto 12) <= entry_hi_in;
-				register_values(13)(1) <= '1';
-				register_values(15)(6 downto 2) <= cause_in;
-				register_values(15)(15 downto 10) <= interrupt_code_in;
-				register_values(16) <= epc_in;
-				if compare_init = '0' and m_compare_interrupt = '0' then
-					register_values(10) <= register_values(10) + 1;
-				elsif compare_init = '1' then
-					register_values(10) <= (others => '0');
+				register_values(conv_integer(m_rd_address)) <= normal_cp0_in(31 downto 0);
+			elsif state = InsF and interrupt_start_in = '1' then
+				register_values(8) <= bad_v_addr_in;
+				register_values(10)(31 downto 12) <= entry_hi_in;
+				register_values(12)(1) <= '1';
+				register_values(13)(6 downto 2) <= cause_in;
+				register_values(13)(15 downto 10) <= interrupt_code_in;
+				register_values(14) <= epc_in;
+				if compare_init = '1' then
+					register_values(9) <= (others => '0');
 				end if;
-			elsif compare_init = '0' and m_compare_interrupt = '0' then
-				register_values(10) <= register_values(10) + 1;
-			elsif compare_init = '1' then
-				register_values(10) <= (others => '0');
+			elsif register_values(11) /= old_compare then
+				register_values(9) <= (others => '0');
+			elsif state = WriteB and m_compare_interrupt = '0' then
+				register_values(9) <= register_values(9) + num_one;
 			end if;
 			--question lack of compare_interrupt recover enable
-			if register_values(12) /= old_compare then
-				old_compare <= register_values(12);
+			if register_values(11) /= old_compare then
+				old_compare <= register_values(11);
 				m_compare_interrupt <= '0';
 			elsif compare_init = '1' then
 				m_compare_interrupt <= '0';
-			elsif register_values(12) = register_values(10) then
+			elsif register_values(11) <= register_values(9) then
 				m_compare_interrupt <= '1';
 			end if;
 		end if;

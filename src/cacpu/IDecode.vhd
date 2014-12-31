@@ -134,7 +134,9 @@ begin
 			-- store state
 			state_reg <= state;
 			
-			if state = InsD then
+			if state = InsF then 
+				eret_enable_reg <= '0';
+			elsif state = InsD then
 				
 				ins_reg <= instruction;
 				
@@ -147,8 +149,8 @@ begin
 				-- generate eret_enable
 				if First = F_ERET and Last = L_ERET then
 					eret_enable_reg <= '1';
-				else
-					eret_enable_reg <= '0';
+--				else
+--					eret_enable_reg <= '0';
 				end if;
 				
 				-- generate tlbwi_enable

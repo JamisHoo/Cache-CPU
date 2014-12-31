@@ -113,49 +113,49 @@ begin
 			m_epc <= (others => '0');
 			m_interrupt_code <= (others => '0');
 		elsif rising_edge(clk) then
-			if mmu_exc_code = "000" then
-				if id_exc_code = "00" then
-					if serial_int = '0' then
-						if compare_interrupt = '1' then
+			if state = Exc then
+				if mmu_exc_code = "000" then
+					if id_exc_code = "00" then
+						if serial_int = '0' then
+							if compare_interrupt = '1' then
+								m_cause <= "00000";
+								m_interrupt_code <= "100000";
+								m_epc <= pcmmu_in;
+								m_compare_recover <= '1';
+							end if;
+						elsif serial_int = '1' then
 							m_cause <= "00000";
-							m_interrupt_code <= "100000";
+							m_interrupt_code <= "000001";
 							m_epc <= pcmmu_in;
-							m_compare_recover <= '1';
 						end if;
-					elsif serial_int = '1' then
-						m_cause <= "00000";
-						m_interrupt_code <= "000100";
-						m_epc <= pcmmu_in;
-						m_compare_recover <= '0';
+					elsif id_exc_code = "01" then
+						m_interrupt_code <= old_interrupt_code;
+						m_cause <= "01000";
+						m_epc <= pc_in;
+					elsif id_exc_code = "10" then
+						m_interrupt_code <= old_interrupt_code;
+						m_cause <= "01010";
+						m_epc <= pc_in;
 					end if;
-				elsif id_exc_code = "01" then
-					m_interrupt_code <= old_interrupt_code;
-					m_cause <= "01000";
+				else
 					m_epc <= pc_in;
-					m_compare_recover <= '0';
-				elsif id_exc_code = "10" then
 					m_interrupt_code <= old_interrupt_code;
-					m_cause <= "01010";
-					m_epc <= pc_in;
-					m_compare_recover <= '0';
+					case mmu_exc_code is
+						when "001" =>
+							m_cause <= "00001";
+						when "010" =>
+							m_cause <= "00010";
+						when "011" =>
+							m_cause <= "00011";
+						when "100" =>
+							m_cause <= "00100";
+						when "101" =>
+							m_cause <= "00101";
+						when others =>
+					end case;
 				end if;
 			else
-				m_epc <= pc_in;
-				m_interrupt_code <= old_interrupt_code;
 				m_compare_recover <= '0';
-				case mmu_exc_code is
-					when "001" =>
-						m_cause <= "00001";
-					when "010" =>
-						m_cause <= "00010";
-					when "011" =>
-						m_cause <= "00011";
-					when "100" =>
-						m_cause <= "00100";
-					when "101" =>
-						m_cause <= "00101";
-					when others =>
-				end case;
 			end if;
 		end if;
 	end process;

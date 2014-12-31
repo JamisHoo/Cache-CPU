@@ -1,5 +1,10 @@
-NET "clk" LOC = U26;
+
+# PlanAhead Generated physical constraints 
+
 NET "e" LOC = T1;
+NET "clk" LOC = U26;
+NET "serialport_rxd" LOC = R26;
+NET "serialport_txd" LOC = P24;
 
 NET "baseram_addr[19]" LOC = W24;
 NET "baseram_addr[18]" LOC = W22;
