@@ -77,8 +77,8 @@ int main(int argc,char** argv) {
     port_settings.c_lflag = 0;
     port_settings.c_cc[VMIN] = 1;
     port_settings.c_cc[VTIME] = 5;
-    cfsetospeed(&port_settings, B38400);
-    cfsetispeed(&port_settings, B38400);
+    cfsetospeed(&port_settings, B19200);
+    cfsetispeed(&port_settings, B19200);
     tcsetattr(com, TCSANOW, &port_settings);
 
     std::cout << "Prepared to send and receive... " << std::endl;
@@ -90,7 +90,9 @@ int main(int argc,char** argv) {
         // keep reading and sending
         while (1) {
             char buff = getchar();
-            if (buff == -1) {
+            std::cout << "get" << int(buff) << std::endl;
+            if (buff == -1 || buff == 4) {
+                std::cout << "restore" << std::endl;
                 restore_terminal_settings();
                 break;
             }
