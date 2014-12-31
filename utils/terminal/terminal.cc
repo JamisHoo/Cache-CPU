@@ -15,10 +15,10 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <termios.h>
+#include <signal.h>
 #include <cstring>
 #include <cstdint>
 #include <iostream>
-#include <cstdlib>
 #include <thread>
 #include <cstdint>
 
@@ -41,9 +41,16 @@ inline void send(const uint8_t x, const int com) {
 
 static struct termios oldt;
 
-void restore_terminal_settings(void) {
+void restore_terminal_settings() {
     tcsetattr(0, TCSANOW, &oldt);  /* Apply saved settings */
 }
+
+void restore(int) {
+    // printf("restore\n");
+    restore_terminal_settings();
+    exit(0);
+}
+
 
 void disable_waiting_for_enter(void) {
     struct termios newt;
@@ -86,16 +93,11 @@ int main(int argc,char** argv) {
 
     auto send_command = [&com]() {
         disable_waiting_for_enter();
+        signal(SIGINT, restore);
 
         // keep reading and sending
         while (1) {
             char buff = getchar();
-            if (buff == -1 || buff == 4) {
-                std::cout << "restore" << std::endl;
-                restore_terminal_settings();
-                break;
-            }
-
             send(buff, com);
         }
     };
