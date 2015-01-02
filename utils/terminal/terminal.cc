@@ -23,7 +23,7 @@
 #include <cstdint>
 
 // serial port dev
-const char* MODEM = "/dev/tty.usbserial-ftDWB74H";
+const char* MODEM = "/dev/ttyUSB0";
 
 // block until receive a byte from serial port
 uint8_t receive(const int com) {
@@ -84,8 +84,8 @@ int main(int /* argv */,char** /* argv */) {
     port_settings.c_lflag = 0;
     port_settings.c_cc[VMIN] = 1;
     port_settings.c_cc[VTIME] = 5;
-    cfsetospeed(&port_settings, B38400);
-    cfsetispeed(&port_settings, B38400);
+    cfsetospeed(&port_settings, B19200);
+    cfsetispeed(&port_settings, B19200);
     tcsetattr(com, TCSANOW, &port_settings);
 
     std::cout << "Prepared to send and receive... " << std::endl;
