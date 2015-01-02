@@ -21,7 +21,7 @@ module async_transmitter(
 // Assert TxD_start for (at least) one clock cycle to start transmission of TxD_data
 // TxD_data is latched so that it doesn't have to stay valid while it is being sent
 
-parameter ClkFrequency = 50000000;	// frequency
+parameter ClkFrequency = 25000000;	// frequency
 parameter Baud = 38400; // baudrate
 
 /*generate
@@ -84,7 +84,7 @@ module async_receiver(
 	output reg RxD_endofpacket = 0  // asserted for one clock cycle when a packet has been detected (i.e. RxD_idle is going high)
 );
 
-parameter ClkFrequency = 50000000;  // frequency
+parameter ClkFrequency = 25000000;  // frequency
 parameter Baud = 38400; // baudrate
 
 parameter Oversampling = 16; //8;  // needs to be a power of 2
@@ -169,10 +169,7 @@ always @(posedge clk) RxD_endofpacket <= OversamplingTick & ~GapCnt[l2o+1] & &Ga
 endmodule
 
 
-////////////////////////////////////////////////////////
-// dummy module used to be able to raise an assertion in Verilog
-module ASSERTION_ERROR();
-endmodule
+
 
 
 ////////////////////////////////////////////////////////
