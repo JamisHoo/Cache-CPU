@@ -1,0 +1,5 @@
+# Net "clk" LOC = "P2";
+Net "pass_txd" LOC = "P6";
+Net "pass_rxd" LOC = "P7";
+Net "txd" LOC = "P54";
+Net "rxd" LOC = "P58";
