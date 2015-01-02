@@ -23,7 +23,7 @@
 #include <cstdint>
 
 // serial port dev
-const char* MODEM = "/dev/ttyUSB0";
+const char* MODEM = "/dev/tty.usbserial-ftDWB74H";
 
 // block until receive a byte from serial port
 uint8_t receive(const int com) {
@@ -63,7 +63,7 @@ void disable_waiting_for_enter(void) {
     atexit(restore_terminal_settings); /* Make sure settings will be restored when program ends  */
 }
 
-int main(int argc,char** argv) {   
+int main(int /* argv */,char** /* argv */) {   
     if (getuid()) {
         std::cout << "Need root privilage. " << std::endl;
         return 1;
@@ -84,8 +84,8 @@ int main(int argc,char** argv) {
     port_settings.c_lflag = 0;
     port_settings.c_cc[VMIN] = 1;
     port_settings.c_cc[VTIME] = 5;
-    cfsetospeed(&port_settings, B19200);
-    cfsetispeed(&port_settings, B19200);
+    cfsetospeed(&port_settings, B38400);
+    cfsetispeed(&port_settings, B38400);
     tcsetattr(com, TCSANOW, &port_settings);
 
     std::cout << "Prepared to send and receive... " << std::endl;
