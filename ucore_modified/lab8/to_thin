@@ -1,0 +1,3 @@
+\cp -v kern/driver/clock{_thin_,.}c
+\cp -v kern/driver/console{_thin_,.}c
+touch kern/driver/{clock,console}.c

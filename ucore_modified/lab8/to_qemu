@@ -1,0 +1,3 @@
+\cp -v kern/driver/clock{_qemu_,.}c
+\cp -v kern/driver/console{_qemu_,.}c
+touch kern/driver/{clock,console}.c

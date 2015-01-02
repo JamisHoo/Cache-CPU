@@ -1,0 +1,17 @@
+cpu_idle()
+    schedule()
+        proc_run()
+            switch_to()
+                forkret()
+                    forkrets()
+                        __trapret()
+                            kernel_thread_entry()
+                                init_main()
+                                    kernel_thread()
+                                        do_fork()
+
+
+while (do_wait(0, NULL) == 0) {                                             
+    schedule();                                                             
+}
+
