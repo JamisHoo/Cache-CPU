@@ -1,6 +1,11 @@
 \section{文件结构}
     \dirtree{%
         .1 /.
+            .2 bin\DTcomment{二进制文件}.
+                .3 cacpu.bit\DTcomment{无调试CPU，烧入FPGA}.
+                .3 cpld.jed\DTcomment{烧入CPLD}.
+                .3 kernel\DTcomment{操作系统内核}.
+                .3 sfs.img\DTcomment{文件系统}.
             .2 design\DTcomment{设计资料}.
                 .3 datapath.xls\DTcomment{数据通路指令信号说明}.
             .2 product\_requirement\_document\DTcomment{需求文档}.
@@ -23,12 +28,15 @@
                     .4 mmu\_module.vhd\DTcomment{MMU模块}.
                     .4 phy\_mem.vhd\DTcomment{物理访存模块}.
                     .4 ram.vhd\DTcomment{RAM读写模块}.
+                    .4 rom.vhd\DTcomment{ROM读写模块}.
             .2 technical\_documentation\DTcomment{技术文档}.
+            .2 test\DTcomment{测试代码}.
+            .2 ucore\_modified\DTcomment{修改后的ucore}.
+                .3 lab8\DTcomment{lab8源代码}.
             .2 utils\DTcomment{调试工具}.
-                .3 com\_debug\_tool\DTcomment{串口调试工具}.
-                    .4 async.v\DTcomment{开源串口异步收发模块}.
-                    .4 com\_debug.vhd\DTcomment{调试信息发送}.
-                    .4 recv.cc\DTcomment{PC端调试信息接收}.
-                    .4 top\_test.ucf\DTcomment{管脚绑定}.
-                    .4 top\_test.vhd\DTcomment{使用示例}.
+                .3 cadb\DTcomment{GDB调试工具}.
+                    .4 pc\_client.rar\DTcomment{调试工具电脑接收端}.
+                .3 com2flash\DTcomment{flash与ram的读写工具}.
+                .3 rom\DTcomment{rom生成工具}.
+                .3 terminal\DTcomment{电脑接收端}.
     }

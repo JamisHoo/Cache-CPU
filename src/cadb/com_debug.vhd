@@ -35,7 +35,7 @@ end component;
 
 signal serialport_transmit_signal : std_logic := '0';
 signal serialport_transmit_busy : std_logic := '0';
-constant slc_max : std_logic_vector(15 downto 0) := X"000C";
+constant slc_max : std_logic_vector(15 downto 0) := X"0200";
 signal slc_num : std_logic_vector(15 downto 0) := slc_max;
 
 signal coming_data_buff : std_logic_vector(7 downto 0);

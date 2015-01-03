@@ -208,9 +208,7 @@ begin
 			imme_reg <= x"00000000";
 			mem_op_reg <= "000";
 			wb_op_reg <= "00000";
-            -- changed Jan2
-			alu_ops_reg <= ALU_DISABLE;
-            
+			
 		elsif clk'event and clk = '1' and state = InsD then
 			-- generate pc_op
 			case First is

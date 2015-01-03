@@ -55,7 +55,6 @@ begin
 			m_write_enable <= '0';
 			m_write_addr <= (others => '0');
 			m_write_value <= (others => '0');
-            
 		elsif rising_edge(clk) then
 			if state =WriteB then
 				case wb_op(4 downto 3) is
