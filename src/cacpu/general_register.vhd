@@ -69,9 +69,12 @@ begin
 
     reg0 <= reg(0);
     
-	process(clk)
+	process(clk, rst)
 	begin
-		if clk'event and clk = '1' then
+        -- changed Jan2
+        if rst = '0' then
+            state_reg <= state;
+		elsif clk'event and clk = '1' then
 			state_reg <= state;
 		end if;
 	end process;

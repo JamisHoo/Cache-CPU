@@ -111,9 +111,12 @@ begin
 
 -- serial logic
 	-- choose addr on posedge
-	process(clk)
+	process(clk, rst)
 	begin
-		if clk'event and clk = '1' and (state = MEM1 or state = MEM2 or state = InsF) and from_physical_ready = '1'  then
+        -- changed on Jan2
+        if rst = '0' then
+            addr <= x"90000000";
+		elsif clk'event and clk = '1' and (state = MEM1 or state = MEM2 or state = InsF) and from_physical_ready = '1'  then
 			if state = InsF then
 				addr <= if_addr;
 			else
@@ -123,9 +126,14 @@ begin
 	end process;
 	
 	-- store state in this time slice
-	process(clk)
+	process(clk, rst)
 	begin
-		if clk'event and clk = '1' then
+        -- changed on Jan2
+        if rst = '0' then
+            to_physical_counter <= '0';
+            state_reg <= WriteB;
+            
+        elsif clk'event and clk = '1' then
 			if not(state = state_reg) then
 				to_physical_counter <= '0';
 			else
@@ -148,10 +156,15 @@ begin
 	end process;
 	
 	-- handle exception
-	process(clk)
+	process(clk, rst)
 	begin
+        -- changed on Jan2
+        if rst= '0' then
+            exc_counter <= '0';
+            exc_code <= NO_MEM_EXC;
+            
 		-- generate and clean exception at negedge
-		if clk'event and clk = '0' then
+		elsif clk'event and clk = '0' then
 			if exc_counter = '1' then
 				exc_counter <= '0';
 				exc_code <= NO_MEM_EXC;
@@ -199,6 +212,7 @@ begin
 			to_physical_write_enable <= '0';
 			to_physical_addr <= x"000000";
 			to_physical_data <= x"00000000";
+            
 		elsif clk'event and clk = '0' then
 			to_physical_addr <= to_physical_addr_reg;
 			to_physical_data <= to_physical_data_reg;
