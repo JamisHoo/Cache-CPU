@@ -22,8 +22,6 @@
 #include <thread>
 #include <cstdint>
 
-// serial port dev
-const char* MODEM = "/dev/tty.usbserial-ftDWB74H";
 
 // block until receive a byte from serial port
 uint8_t receive(const int com) {
@@ -63,14 +61,18 @@ void disable_waiting_for_enter(void) {
     atexit(restore_terminal_settings); /* Make sure settings will be restored when program ends  */
 }
 
-int main(int /* argv */,char** /* argv */) {   
+int main(int argc,char** argv) {   
+    if (argc != 2) {
+        std::cout << "Usage: " << argv[0] << " <serial port>. " << std::endl;
+        return 1;
+    }
     if (getuid()) {
         std::cout << "Need root privilage. " << std::endl;
         return 1;
     }
 
     int com;
-    if((com = open(MODEM , O_RDWR | O_NONBLOCK)) == -1){
+    if((com = open(argv[1] , O_RDWR | O_NONBLOCK)) == -1){
         std::cout << "Error while opening serial port. " << std::endl;
         return 2;
     }
@@ -84,8 +86,8 @@ int main(int /* argv */,char** /* argv */) {
     port_settings.c_lflag = 0;
     port_settings.c_cc[VMIN] = 1;
     port_settings.c_cc[VTIME] = 5;
-    cfsetospeed(&port_settings, B38400);
-    cfsetispeed(&port_settings, B38400);
+    cfsetospeed(&port_settings, B19200);
+    cfsetispeed(&port_settings, B19200);
     tcsetattr(com, TCSANOW, &port_settings);
 
     std::cout << "Prepared to send and receive... " << std::endl;
