@@ -1,5 +1,8 @@
 \section{附录}
     \subsection{指令系统}
+    指令系统参考了MIPS Instructions Reference。%
+    其中Encoding部分标记为-的表示可以为任意01组合，%
+    但实际编程实现中应当做0处理。
 
     \begin{table}[!hbp]
     \begin{tabularx}{\textwidth}{|c|X|}
@@ -198,6 +201,9 @@
     \end{tabularx}
     \end{table}
 
+\clearpage  %the maximize number of picutres/tables without this command is 18
+            %for more information, search for 'LaTeX Error: Too many unprocessed floats'
+
     \begin{table}[!hbp]
     \begin{tabularx}{\textwidth}{|c|X|}
         \hline
@@ -226,7 +232,6 @@
         \hline
     \end{tabularx}
     \end{table}
-
 
     \begin{table}[!hbp]
     \begin{tabularx}{\textwidth}{|c|X|}
@@ -259,13 +264,442 @@
     \begin{table}[!hbp]
     \begin{tabularx}{\textwidth}{|c|X|}
         \hline
-        Syntax: & ori \$t, \$s, imm \\
+        Syntax: & xor \$d, \$s, \$t \\
         \hline
-        Description: & Bitwise ors a register and an immediate value and stores the result in a register. \\
+        Description: & Exclusive ors two registers and stores the result in a register. \\
         \hline
-        Operation: & \$t = \$s | imm; \\
+        Operation: & \$d = \$s $\oplus$ \$t; \\
         \hline
-        Encoding: & 0011 01ss ssst tttt iiii iiii iiii iiii \\
+        Encoding: & 0000 00ss ssst tttt dddd d--- --10 0110 \\
         \hline
     \end{tabularx}
     \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & xori \$t, \$s, imm \\
+        \hline
+        Description: & Bitwise exclusive ors a register and an immediate
+                         value and stores the result in a register. \\
+        \hline
+        Operation: & \$t = \$s $\oplus$ imm; \\
+        \hline
+        Encoding: & 0011 10ss ssst tttt iiii iiii iiii iiii \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & sll \$d, \$t, h \\
+        \hline
+        Description: & Shifts a register value left by the shift amount listed in 
+                        the instruction and places the result in a third register.
+                         Zeroes are shifted in. \\
+        \hline
+        Operation: & \$d = \$t << h \\
+        \hline
+        Encoding: & 0000 00ss ssst tttt dddd dhhh hh00 0000 \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & sllv \$d, \$t, \$s \\
+        \hline
+        Description: & Shifts a register value left by the value 
+                        in a second register and places the result 
+                        in a third register. Zeroes are shifted in. \\
+        \hline
+        Operation: & \$d = \$t << \$s; \\
+        \hline
+        Encoding: & 0000 00ss ssst tttt dddd d--- --00 0100 \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & sra \$d, \$t, h \\
+        \hline
+        Description: & Shifts a register value right by the shift 
+                        amount (shamt) and places the value in the 
+                        destination register. The sign bit is shifted in. \\
+        \hline
+        Operation: & \$d = \$t >> h; \\
+        \hline
+        Encoding: & 0000 00-- ---t tttt dddd dhhh hh00 0011 \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & srav \$d, \$t, \$s \\
+        \hline
+        Description: & Shifts a register value right by the value in 
+                        a second register and places the value in the 
+                        destination register. The sign bit is shifted in. \\
+        \hline
+        Operation: & \$d = \$t >> \$s; \\
+        \hline
+        Encoding: & 0000 00ss ssst tttt dddd d000 0000 0111 \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & srl \$d, \$t, h \\
+        \hline
+        Description: & Shifts a register value right by the shift
+                         amount (shamt) and places the value in the 
+                         destination register. Zeroes are shifted in. \\
+        \hline
+        Operation: & \$d = \$t >> h; \\
+        \hline
+        Encoding: & 0000 00-- ---t tttt dddd dhhh hh00 0010 \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & srlv \$d, \$t, \$s \\
+        \hline
+        Description: & Shifts a register value right by the amount
+                         specified in \$s and places the value in the 
+                         destination register. Zeroes are shifted in. \\
+        \hline
+        Operation: & \$d = \$t >> \$s; \\
+        \hline
+        Encoding: & 0000 00ss ssst tttt dddd d000 0000 0110 \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & beq \$s, \$t, offset \\
+        \hline
+        Description: & Branches if the two registers are equal. \\
+        \hline
+        Operation: & if \$s == \$t advance\_pc (offset << 2); else advance\_pc (4); \\
+        \hline
+        Encoding: & 0001 00ss ssst tttt iiii iiii iiii iiii \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+\clearpage  %the maximize number of picutres/tables without this command is 18
+            %for more information, search for 'LaTeX Error: Too many unprocessed floats'
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & bgez \$s, offset \\
+        \hline
+        Description: & Branches if the register is greater than or equal to zero. \\
+        \hline
+        Operation: & if \$s >= 0 advance\_pc (offset << 2)); else advance\_pc (4); \\
+        \hline
+        Encoding: & 0000 01ss sss0 0001 iiii iiii iiii iiii \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & bgtz \$s, offset \\
+        \hline
+        Description: & Branches if the register is greater than zero. \\
+        \hline
+        Operation: & if \$s > 0 advance\_pc (offset << 2)); else advance\_pc (4); \\
+        \hline
+        Encoding: & 0001 11ss sss0 0000 iiii iiii iiii iiii \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & blez \$s, offset \\
+        \hline
+        Description: & Branches if the register is less than or equal to zero. \\
+        \hline
+        Operation: & if \$s <= 0 advance\_pc (offset << 2)); else advance\_pc (4); \\
+        \hline
+        Encoding: & 0001 10ss sss0 0000 iiii iiii iiii iiii \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & bltz \$s, offset \\
+        \hline
+        Description: & Branches if the register is less than zero. \\
+        \hline
+        Operation: & if \$s < 0 advance\_pc (offset << 2)); else advance\_pc (4); \\
+        \hline
+        Encoding: & 0000 01ss sss0 0000 iiii iiii iiii iiii \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & bne \$s, \$t, offset \\
+        \hline
+        Description: & Branches if the two registers are not equal. \\
+        \hline
+        Operation: & if \$s != \$t advance\_pc (offset << 2)); else advance\_pc (4); \\
+        \hline
+        Encoding: & 0001 01ss ssst tttt iiii iiii iiii iiii \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & j target \\
+        \hline
+        Description: & Jumps to the calculated address. \\
+        \hline
+        Operation: & PC = (PC \& 0xf0000000) | (target << 2) \\
+        \hline
+        Encoding: & 0000 10ii iiii iiii iiii iiii iiii iiii \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & jal target \\
+        \hline
+        Description: & Jumps to the calculated address and stores the return address in \$RA \\
+        \hline
+        Operation: & \$RA = RPC; PC = (PC \& 0xf0000000) | (target << 2); \\
+        \hline
+        Encoding: & 0000 11ii iiii iiii iiii iiii iiii iiii \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & jalr \$s, \$d \\
+        \hline
+        Description: & Jumps to the address of the first register,
+                     and stores the return address in the second register \\
+        \hline
+        Operation: & \$d = RPC; PC = \$s \\
+        \hline
+        Encoding: & 0000 11ii iiii iiii iiii iiii iiii iiii \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & jr \$s \\
+        \hline
+        Description: & Jump to the address contained in register \$s. \\
+        \hline
+        Operation: & PC = \$s; \\
+        \hline
+        Encoding: & 0000 00ss sss0 0000 0000 0000 0000 1000 \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & lw \$t, offset(\$s) \\
+        \hline
+        Description: & A word is loaded into a register from the specified address. \\
+        \hline
+        Operation: & \$t = MEM[\$s + offset]; \\
+        \hline
+        Encoding: & 1000 11ss ssst tttt iiii iiii iiii iiii \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & sw \$t, offset(\$s) \\
+        \hline
+        Description: & The contents of \$t is stored at the specified address. \\
+        \hline
+        Operation: & MEM[\$s + offset] = \$t; \\
+        \hline
+        Encoding: & 1010 11ss ssst tttt iiii iiii iiii iiii \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & lb \$t, offset(\$s) \\
+        \hline
+        Description: & A byte is loaded into a register from the specified address. \\
+        \hline
+        Operation: & \$t = MEMByte[\$s + offset]; \\
+        \hline
+        Encoding: & 1000 00ss ssst tttt iiii iiii iiii iiii \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & lbu \$t, offset(\$s) \\
+        \hline
+        Description: & A byte is loaded into a register from the specified address with zero extend. \\
+        \hline
+        Operation: & \$t = zero-extend( MEMByte[\$s + offset] ); \\
+        \hline
+        Encoding: & 1001 00ss ssst tttt iiii iiii iiii iiii \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & sb \$t, offset(\$s) \\
+        \hline
+        Description: & The least significant byte of \$t is stored at the specified address. \\
+        \hline
+        Operation: & MEM[\$s + offset] = (0xff \& \$t); \\
+        \hline
+        Encoding: & 1010 00ss ssst tttt iiii iiii iiii iiii \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & syscall \\
+        \hline
+        Description: & Generates a software interrupt. \\
+        \hline
+        Operation: & nothing \\
+        \hline
+        Encoding: & 0000 00-- ---- ---- ---- ---- --00 1100 \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & cache \\
+        \hline
+        Description: & Nothing, alias to NOP \\
+        \hline
+        Operation: & nothing \\
+        \hline
+        Encoding: & 1011 11ss ssst tttt iiii iiii iiii iiii \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+\clearpage  %the maximize number of picutres/tables without this command is 18
+            %for more information, search for 'LaTeX Error: Too many unprocessed floats'
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & eret \\
+        \hline
+        Description: & Return from trap \\
+        \hline
+        Operation: & PC = EPC \\
+        \hline
+        Encoding: & 0100 0010 0000 0000 0000 0000 0001 1000 \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & mfc0 \$t, \$d \\
+        \hline
+        Description: & Move the value of a CP0 register to a general register. \\
+        \hline
+        Operation: & \$t = CP0[\$d] \\
+        \hline
+        Encoding: & 0100 0000 000t tttt dddd d000 0000 0000 \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & mtc0 \$d, \$t \\
+        \hline
+        Description: & Move the value of a general register to a CP0 register. \\
+        \hline
+        Operation: & CP0[\$d] = \$t \\
+        \hline
+        Encoding: & 0100 0000 100t tttt dddd d000 0000 0000 \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & tlbwi \\
+        \hline
+        Description: & Write a TLB entry using Index, EntryHi, EntryLo0, EntryLo1 from CP0 register. \\
+        \hline
+        Operation: & Write a TLB entry. \\
+        \hline
+        Encoding: & 0100 0010 0000 0000 0000 0000 0000 0010 \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & lhu \$t, \$s, imm \\
+        \hline
+        Description: & Load half word from memory to general register. \\
+        \hline
+        Operation: & \$t = zero-extend( MEMHalfWord[\$s + offset] ); \\
+        \hline
+        Encoding: & 1001 01ss ssst tttt iiii iiii iiii iiii \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    
