@@ -112,11 +112,11 @@
             \hline
             3 & EntryLo1 & 作为TLBWI及其他TLB指令接口,管理奇数页入口 \\
             \hline
-            10 & EntryHi & TLB异常时,系统将虚拟地址部分写入EntryHi寄存器中用于TLB匹配 \\
-            \hline
             8 & BadVAddr & 捕捉最近一次地址错误或TLB异常(重填、失效、修改)时的虚拟地址 \\
             \hline
             9 & Count & 每隔一个时钟周期增加1,用作计时器,并可使能控制 \\
+            \hline
+            10 & EntryHi & TLB异常时,系统将虚拟地址部分写入EntryHi寄存器中用于TLB匹配 \\
             \hline
             11 & Compare & 当Count值与Compare相等时,SI\_TimerInt 引脚是变高电平直到有数值写入Compare，用于定时中断 \\
             \hline
@@ -409,7 +409,7 @@
             \item
                 操作系统和文件系统烧写到Flash中%
             \item
-                编译出的二进制文件写到ROM中
+                bootloader编译出的二进制文件生成ROM
             \item
                 CPU代码烧写到FPGA中。
         \end{enumerate}
@@ -425,11 +425,12 @@
         操作系统启动阶段：
         \begin{enumerate}
             \item
-                bootasm.S工作结束后，进入操作系统entry.S文件中进行寄存器初始化。
+                bootasm.S工作结束后，进入操作系统entry.S文件中进行初始化。
             \item
-                entry.S：通用寄存器清零，CP0寄存器设置为默认值，异常处理基地址进行初始化，之后跳转到init.c中的kern\_init。
+                entry.S：栈寄存器初始化，之后跳转到init.c中的kern\_init。
             \item
-                kern\_init：完成TLB初始化（全部TLB表项清零），物理内存与虚拟内存的转换页表的初始化（创建初始页表）
+                kern\_init：完成异常中断初始化，TLB初始化（全部TLB表项清零），%
+                物理内存与虚拟内存的转换页表的初始化（创建初始页表）
             \item
                 最后完成操作系统的进程和文件管理系统，至此ucore系统开始正常工作,
         \end{enumerate}
