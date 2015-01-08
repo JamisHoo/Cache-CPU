@@ -14,15 +14,16 @@
             完成数据和地址的算术、逻辑和移位运算，%
             输入两个数据根据ALUOp得出输出结果。
             \item
-            根据指令系统的需求，完成指令系统中乘法之外的算术指令。
+            根据指令系统的需求，完成指令系统中全部的算术指令（包括乘法相关指令）。
             \end{enumerate}
 
             实现方式：
             \begin{enumerate}
             \item
-            ALU两个输入数据，ALUOp目前整理出9种运算。
+            ALU有两个输入数据，通过ALUOp生成不同结果。%
+            ALUOp目前整理出17种运算，详细定义见数据通路表。
             \item
-            输出最终运算结果，三个标志位。
+            只输出最终运算结果。不需要标志位。
             \end{enumerate}
 
         \subsubsection{乘法器}
@@ -35,13 +36,15 @@
             实现方式：
             \begin{enumerate}
             \item
-            使用IPCore实现。
+            乘法直接使用VHDL语言中提供的乘运算符实现。
             \item
             直接与主ALU相结合，在ALUOp中加入乘法的操作码，实现乘法的计算。
             \item
-            乘法指令需要的计算时间较长，无法在一个时钟上升沿中完成计算。但是由于是多周期CPU，
-            指令执行的控制过程比较灵活，可以在乘法指令时增加多个时钟上升沿，
-            当乘法完成后在继续执行下一条指令
+            乘法指令需要的计算时间较长，但是只要时钟频率低于$50MHz$，%
+            都可以在一个时钟周期内完成运算。%
+            因此，在预定的时钟频率下，%
+            乘法运算对时钟周期数的需求与其他运算相同，%
+            暂不考虑为乘法指令设计多个时钟周期的问题。
             \item
             MFLO，MFHI，MTLO，MTHI，MULT指令查看与修改。
             在ALUOp中也加入支持MTHI、MTLO的操作码，实现对LO和HI的修改。
@@ -101,29 +104,29 @@
             \caption{需要实现的CP0寄存器}\label{table_cp0_reg}
             \begin{tabularx}{\textwidth}{|l|l|X|}
             \hline
-            序号 & 名称 & 功能 \\
+            寄存器编号 & 名称 & 功能 \\
             \hline
             0 & Index & 用于TLBWI指令访问TLB入口的索引序号 \\
             \hline
-            1 & EntryLo0 & 作为TLBWI及其他TLB指令接口,管理偶数页入口 \\
+            2 & EntryLo0 & 作为TLBWI及其他TLB指令接口,管理偶数页入口 \\
             \hline
-            2 & EntryLo1 & 作为TLBWI及其他TLB指令接口,管理奇数页入口 \\
+            3 & EntryLo1 & 作为TLBWI及其他TLB指令接口,管理奇数页入口 \\
             \hline
-            3 & EntryHi & TLB异常时,系统将虚拟地址部分写入EntryHi寄存器中用于TLB匹配 \\
+            8 & BadVAddr & 捕捉最近一次地址错误或TLB异常(重填、失效、修改)时的虚拟地址 \\
             \hline
-            4 & BadVAddr & 捕捉最近一次地址错误或TLB异常(重填、失效、修改)时的虚拟地址 \\
+            9 & Count & 每隔一个时钟周期增加1,用作计时器,并可使能控制 \\
             \hline
-            5 & Count & 每隔一个时钟周期增加1,用作计时器,并可使能控制 \\
+            10 & EntryHi & TLB异常时,系统将虚拟地址部分写入EntryHi寄存器中用于TLB匹配 \\
             \hline
-            6 & Compare & 当Count值与Compare相等时,SI\_TimerInt 引脚是变高电平直到有数值写入Compare，用于定时中断 \\
+            11 & Compare & 当Count值与Compare相等时,SI\_TimerInt 引脚是变高电平直到有数值写入Compare，用于定时中断 \\
             \hline
-            7 & Status & 表示协理器的操作模式、中断使能及诊断状态 \\
+            12 & Status & 表示协理器的操作模式、中断使能及诊断状态 \\
             \hline
-            8 & Cause & 记录最近依次异常的原因,控制软件中断请求以及中断协理派分的向量 \\
+            13 & Cause & 记录最近依次异常的原因,控制软件中断请求以及中断协理派分的向量 \\
             \hline
-            9 & EPC & 存储异常处理之后程序恢复执行的地址 \\
+            14 & EPC & 存储异常处理之后程序恢复执行的地址 \\
             \hline
-            10 & EBase & 识别多协理器系统中不同的协理器异常向量的基地址 \\
+            15 & EBase & 识别多协理器系统中不同的协理器异常向量的基地址 \\
             \hline
             \end{tabularx}
             \end{table}
@@ -163,7 +166,7 @@
                 \item
                     虚拟地址高19位作为虚页号VPN进行选择TLB表项，第20位通过奇偶判断，选择两个物理页之一
                 \item
-                    出于简化的考虑，不维护进程号ASID、全局标记G，默认所有G均为1，只维护每个物理地址的D标记
+                    出于简化的考虑，不维护进程号ASID和全局标记G，默认所有G均为1，只维护每个物理地址的D和V标记
                 \end{enumerate}
 
             \item
@@ -188,16 +191,19 @@
                 操作系统：
                 \begin{enumerate}
                 \item
-                    进入异常处理向量（trap/vector.S）。
+                    进入异常处理向量0x80000180。
                 \item
-                    跳转到处理函数部分（trap/exception.S）。
+                    跳转到处理函数部分（trap/trapentry.S/__alltraps）。
                 \item
-                    先保存异常现场，之后进入mips\_trap函数（trap/trap.c）。
+                    先保存异常现场，之后进入trap函数（trap/trap.c）。
                 \item
-                    根据cause寄存器的值进行分类，调用handle\_tlbmiss函数。
+                    根据是否发生嵌套异常调整trapframe，%
+                    之后进入trap_dispatch函数（trap/trap.c）。
+                \item
+                    根据cause寄存器的值进行分类，调用tlb\_miss\_handler函数。
                 \item
                     得到异常地址对应的物理页号，%
-                    之后进行tlb\_refill（include/thumips\_tlb.h）。
+                    之后进行tlb\_write（mm/tlb.c）。
                 \item
                     操作系统维护index，%
                     写EntryLo0、EntryLo1、EntryHi、 PageMask、Index五个寄存器，%
@@ -217,7 +223,7 @@
             实现的异常有内存访问异常、地址不对齐异常、%
             系统调用、未定义的指令异常、未定义的寄存器异常。
             \item
-            外部中断：键盘、通讯端口。
+            中断：串口中断、时钟中断。
             \end{enumerate}
 
             实现方式：
@@ -234,9 +240,9 @@
                 \item
                 异常处理，在数据通路上添加异常处理部分，%
                 在多周期的任意一个周期检测到异常后，%
-                在Cause设置异常代码、
-                在EPC寄存器设置异常处理的返回地址，
-                将Status寄存器的EXL为设置为1，表示进入内核态处理异常
+                在Cause设置异常代码、%
+                在EPC寄存器设置异常处理的返回地址，%
+                将Status寄存器的EXL为设置为1，表示进入内核态处理异常%
                 之后根据EBase跳转到异常处理向量基地址，%
                 之后操作系统接管。
                 \item
@@ -251,17 +257,23 @@
             操作系统
                 \begin{enumerate}
                 \item
-                进入异常处理向量（trap/vector.S）。
+                进入异常处理向量0x80000180。
                 \item
-                跳转到处理函数部分（trap/exception.S）。
+                跳转到处理函数部分（trap/trapentry.S/__alltraps）。
                 \item
-                先保存异常现场，之后进入mips\_trap函数（trap/trap.c）。
+                先保存异常现场，之后进入trap函数（trap/trap.c）。
+                \item
+                根据是否发生嵌套异常调整trapframe，%
+                之后进入trap_dispatch函数（trap/trap.c）。
                 \item
                 根据cause寄存器的值进行分类，%
-                调用interrupt\_handler、syscall等等函数进行处理，%
-                如果是地址不对齐异常，未定义的指令或未定义的异常，直接退出。
+                调用cons\_getc、syscall等等函数进行处理，%
+                如果是地址不对齐异常，或者未定义的异常，直接退出。%
+                如果是未定义的指令异常，可能是除法指令所导致的，%
+                通过ri\_handler函数尝试进行模拟除法，%
+                如果仍然不能得到正确结果则退出程序。
                 \item
-                使用ERET指令从异常返回，将EXL位重新设置为０，表示进入用户态
+                使用ERET指令从异常返回，将EXL位重新设置为0，表示进入用户态
                 重新执行取地址命令
                 \end{enumerate}
             \end{enumerate}
@@ -289,8 +301,6 @@
             \hline
             10 & RI & 执行未定义指令异常 \\
             \hline
-            11 & Co-Processor Unavailable & 试图访问不存在的协处理器异常 \\
-            \hline
             \end{tabular}
             \end{table}
 
@@ -309,8 +319,9 @@
                 实现方式
                 \begin{enumerate}
                 \item
-                通过多路选择器选择ALU的输入数据，与当前PC进行运算%
-                实现PC的多种变化方式。
+                在写回模块对PC进行操作，将立即数或寄存器的值与当前PC进行运算%
+                实现PC的多种变化方式。%
+                决定是否跳转的比较操作也在这一模块完成。
                 \item
                 针对异常状态、从异常返回两种情况的PC变化，从CP0寄存器中引出EPC与EBase两个地址到PC计算单元。
                 通过当前的状态进行判断PC的取值。
@@ -361,28 +372,20 @@
 
                 \end{enumerate}
         \subsubsection{扩展部分}
-            在开发过程中需要分模块进行测试，因此在开发阶段计划实现一个分模块的测试工具。
+            在开发过程中测试是必不可少的环节，%
+            因此，此次实验的扩展部分计划实现一个类似gdb的工具，%
+            并给出一份较为详细的测试方案。
 
-            \begin{enumerate}
-            \item
-            使用仿真工具ModelSim或者Xilinx自带的ISim进行仿真，
-            在给定的输入波形下产生对应的输出波形，将输入与输出波形都输出到文件中。
-            之后再使用该测试工具（用python或者c++等高级语言实现），对输出与标准输出进行比较，判断该模块是否正常工作。
-
-            \item
-            在模块测试阶段，使用Xilinx提供的ipcore生成一块片内RAM，作为临时的存储区域。
-            能够做到在一个时钟上升沿内进行读写操作，操作比一般RAM简便。
-            由此在MMU和MEM部分未完成的情况下，可以对其他模块进行独立的测试，而且可以进行内存的访问。
-
-            \item
-            每个模块正常工作之后，将各个模块进行组合，形成整体的CPU设计，再进行后续调试工作。
-
-            \end{enumerate}
-            对于测试工具部分会实时与老师进行沟通，明确老师对于测试工具的要求。
-
-            如果操作系统已经能够在CPU上正常运行，而且距离项目结束还有比较长的时间，则可以考虑对网口进行扩展。
-
-
+            调试工具在电脑端提供与gdb类似的终端，%
+            支持gdb中的print、break等基本命令。%
+            在硬件上，通过串口进行指令的输入与数据的输出，%
+            尽可能减少对原有CPU设计的修改。
+            
+            在每个模块正常工作之后，将各个模块进行组合，形成整体的CPU设计。%
+            通过操作系统的lab循序渐进地对CPU进行测试，%
+            此时可以使用开发的类gdb工具，%
+            设置断点、输出信号进行调试。
+            
         \subsubsection{指令集与数据通路}
             指令集为标准MIPS系统子集
 
@@ -397,16 +400,16 @@
             而且对指令进行解码，能够得到相应的控制线。%
             在多周期的不同周期利用控制线对数据通路进行控制，使指令正常执行。
             
-            数据通路图比较大，因此不显示在需求文档中。另附图片文件显示。
+            数据通路图在设计文档中有详细体现。
 
             
     \subsection{BIOS}
         准备阶段：
         \begin{enumerate}
             \item
-                操作系统和其他程序烧写到Flash中%
+                操作系统和文件系统烧写到Flash中%
             \item
-                bootasm.S编译出的二进制文件写到ROM中
+                bootloader编译出的二进制文件生成ROM
             \item
                 CPU代码烧写到FPGA中。
         \end{enumerate}
@@ -422,11 +425,12 @@
         操作系统启动阶段：
         \begin{enumerate}
             \item
-                bootasm.S工作结束后，进入操作系统entry.S文件中进行寄存器初始化。
+                bootasm.S工作结束后，进入操作系统entry.S文件中进行初始化。
             \item
-                entry.S：通用寄存器清零，CP0寄存器设置为默认值，异常处理基地址进行初始化，之后跳转到init.c中的kern\_init。
+                entry.S：栈寄存器初始化，之后跳转到init.c中的kern\_init。
             \item
-                kern\_init：完成TLB初始化（全部TLB表项清零），物理内存与虚拟内存的转换页表的初始化（创建初始页表）
+                kern\_init：完成异常中断初始化，TLB初始化（全部TLB表项清零），%
+                物理内存与虚拟内存的转换页表的初始化（创建初始页表）
             \item
                 最后完成操作系统的进程和文件管理系统，至此ucore系统开始正常工作,
         \end{enumerate}
