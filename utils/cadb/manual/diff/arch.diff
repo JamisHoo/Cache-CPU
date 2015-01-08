@@ -1,0 +1,22 @@
+ architecture bhv of cacpu is
++signal out_datas : std_logic_vector(4095 downto 0);
+ ...
+ begin
+     ...
++    debug_out_datas <= out_datas;
++    -- output signals
++    out_datas(2 downto 0) <= state(2 downto 0);
++    out_datas(7 downto 3) <= (others => '0');
++    ...
++    out_datas(32) <= cpu_clk;
++    out_datas(39 downto 33) <= (others => '0');
++    ...
++    out_datas(495 downto 464) <= general_values(31 downto 0);
++    out_datas(527 downto 496) <= general_values(63 downto 32);
++    out_datas(4095 downto 528) <= (others => '0');
++    -- define breakpoint 
++    monitor(63 downto 35) <= (others => '0');
++    monitor(34 downto 32) <= state;
++    monitor(31 downto  0) <= this_PC;
+    ...
+ end bhv;

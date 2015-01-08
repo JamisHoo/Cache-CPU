@@ -1,0 +1,16 @@
+ entity cacpu is
+     port(
+         -- clock
+         clk : in std_logic;
+         -- reset
+         e : in std_logic;
++        -- debug tool output
++        debug_out_datas : out std_logic_vector(4095 downto 0);
++        -- debug tool breakpoint condition
++        monitor : out std_logic_vector(63 downto 0);
+         -- other ports
+         baseram_addr: out std_logic_vector(19 downto 0);
+         baseram_data: inout std_logic_vector(31 downto 0);
+         ...
+         );
+ end cacpu;

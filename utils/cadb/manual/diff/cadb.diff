@@ -1,0 +1,40 @@
+ entity cadb is
+     port(
+          -- clock, use by cadb, can be shared
+          clk: in std_logic;
+          -- reset, used by cadb, can be shared
+          e: in std_logic;
++         -- ports of module debugged
++         baseram_addr: out std_logic_vector(19 downto 0);
++         baseram_data: inout std_logic_vector(31 downto 0);
++         ...
+          -- serial port, used by cadb, cannot be shared
+          serialport_txd: out  STD_LOGIC;
+          serialport_rxd: in  STD_LOGIC;
+         );
+ end cadb;
+ architecture bhv of cadb is
++-- module debugged
++component cacpu is
++    port(
++         clk: in std_logic;
++         e: in std_logic;
++         debug_out_datas: out std_logic_vector(4095 downto 0);
++         monitor: out std_logic_vector(63 downto 0);
++         -- other ports
++         baseram_addr: out std_logic_vector(19 downto 0);
++         baseram_data: inout std_logic_vector(31 downto 0);
++         ...
++        );
++end component;
+ signal send_data: std_logic_vector(4095 downto 0);
+ signal m_monitor: std_logic_vector(63 downto 0);
+ signal bp_clk: std_logic;
+ begin
++     u1: cacpu port map(clk=>bp_clk, e=>e,
++                        debug_out_datas=>send_data,
++                        monitor => m_monitor,
++                        baseram_addr=>baseram_addr, baseram_data=>baseram_data,
++                        ...
++                      );
+ end bhv;
