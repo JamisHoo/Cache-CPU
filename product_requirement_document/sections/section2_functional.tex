@@ -193,12 +193,12 @@
                 \item
                     进入异常处理向量0x80000180。
                 \item
-                    跳转到处理函数部分（trap/trapentry.S/__alltraps）。
+                    跳转到处理函数部分（trap/trapentry.S/\_\_alltraps）。
                 \item
                     先保存异常现场，之后进入trap函数（trap/trap.c）。
                 \item
                     根据是否发生嵌套异常调整trapframe，%
-                    之后进入trap_dispatch函数（trap/trap.c）。
+                    之后进入trap\_dispatch函数（trap/trap.c）。
                 \item
                     根据cause寄存器的值进行分类，调用tlb\_miss\_handler函数。
                 \item
@@ -259,12 +259,12 @@
                 \item
                 进入异常处理向量0x80000180。
                 \item
-                跳转到处理函数部分（trap/trapentry.S/__alltraps）。
+                跳转到处理函数部分（trap/trapentry.S/\_\_alltraps）。
                 \item
                 先保存异常现场，之后进入trap函数（trap/trap.c）。
                 \item
                 根据是否发生嵌套异常调整trapframe，%
-                之后进入trap_dispatch函数（trap/trap.c）。
+                之后进入trap\_dispatch函数（trap/trap.c）。
                 \item
                 根据cause寄存器的值进行分类，%
                 调用cons\_getc、syscall等等函数进行处理，%

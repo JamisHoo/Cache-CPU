@@ -1,36 +1,271 @@
 \section{附录}
     \subsection{指令系统}
-    \begin{figure}[!hbp]
-            \centering
-            \includegraphics[width=\textwidth]{chart/insert1.jpg}
-    \end{figure}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & addiu \$d, \$s, \$t \\
+        \hline
+        Description: & Adds a register and a sign-extended immediate value and stores the result in a register \\
+        \hline
+        Operation: & \$t=\$s + imm; \\
+        \hline
+        Encoding: & 0010 00ss ssst tttt iiii iiii iiii iiii \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & addu \$d, \$s, \$t \\
+        \hline
+        Description: & Adds two registers and stores the result in a register \\
+        \hline
+        Operation: & \$d = \$s + \$t; \\
+        \hline
+        Encoding: & 0000 00ss ssst tttt dddd d000 0010 0001 \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
     
-    \begin{figure}[!hbp]
-            \centering
-            \includegraphics[width=\textwidth]{chart/insert2.jpg}
-    \end{figure}
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & slt \$d, \$s, \$t \\
+        \hline
+        Description: & If \$s is less than \$t, \$d is set to one. It gets zero otherwise. \\
+        \hline
+        Operation: & if \$s < \$t \$d = 1 else \$d = 0; \\
+        \hline
+        Encoding: & 0000 00ss ssst tttt dddd d000 0010 1010 \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & slti \$t, \$s, imm \\
+        \hline
+        Description: & If \$s is less than immediate, \$t is set to one. It gets zero otherwise. \\
+        \hline
+        Operation: & if \$s < imm \$t = 1 else \$t = 0 \\
+        \hline
+        Encoding: & 0010 10ss ssst tttt iiii iiii iiii iiii \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & sltiu \$t, \$s, imm \\
+        \hline
+        Description: & If \$s is less than the unsigned immediate, \$t is set to one. It gets zero otherwise. \\
+        \hline
+        Operation: & if \$s < imm \$t = 1 else \$t = 0; \\
+        \hline
+        Encoding: & 0010 11ss ssst tttt iiii iiii iiii iiii \\
+        \hline
+    \end{tabularx}
+    \end{table}
     
-    \begin{figure}[!hbp]
-            \centering
-            \includegraphics[width=\textwidth]{chart/insert3.jpg}
-    \end{figure}
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & sltu \$d, \$s, \$t \\
+        \hline
+        Description: & If \$s is less than \$t, \$d is set to one. It gets zero otherwise. \\
+        \hline
+        Operation: & if \$s < \$t \$d = 1 else \$d = 0; \\
+        \hline
+        Encoding: & 0000 00ss ssst tttt dddd d000 0010 1011 \\
+        \hline
+    \end{tabularx}
+    \end{table}
 
-    \begin{figure}[!hbp]
-            \centering
-            \includegraphics[width=\textwidth]{chart/insert4.jpg}
-    \end{figure}
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & subu \$d, \$s, \$t \\
+        \hline
+        Description: & Subtracts two registers and stores the result in a register \\
+        \hline
+        Operation: & \$d = \$s - \$t; \\
+        \hline
+        Encoding: & 0000 00ss ssst tttt dddd d000 0010 0011 \\
+        \hline
+    \end{tabularx}
+    \end{table}
 
-    \begin{figure}[!hbp]
-            \centering
-            \includegraphics[width=\textwidth]{chart/insert5.jpg}
-    \end{figure}
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & mult \$s, \$t \\
+        \hline
+        Description: & Multiplies \$s by \$t and stores the result in \$HI|\$LO. \\
+        \hline
+        Operation: & \$HI|\$LO = \$s * \$t; \\
+        \hline
+        Encoding: & 0000 00ss ssst tttt 0000 0000 0001 1000 \\
+        \hline
+    \end{tabularx}
+    \end{table}
 
-    \begin{figure}[!hbp]
-            \centering
-            \includegraphics[width=\textwidth]{chart/insert6.jpg}
-    \end{figure}
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & mflo \$d \\
+        \hline
+        Description: & The contents of register LO are moved to the specified register. \\
+        \hline
+        Operation: & \$d = \$LO; \\
+        \hline
+        Encoding: & 0000 0000 0000 0000 dddd d000 0001 0010 \\
+        \hline
+    \end{tabularx}
+    \end{table}
 
-    \begin{figure}[!hbp]
-            \centering
-            \includegraphics[width=\textwidth]{chart/insert7.jpg}
-    \end{figure}
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & mfhi \$d \\
+        \hline
+        Description: & The contents of register HI are moved to the specified register. \\
+        \hline
+        Operation: & \$d = \$HI; \\
+        \hline
+        Encoding: & 0000 0000 0000 0000 dddd d000 0001 0000 \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & mtlo \$s \\
+        \hline
+        Description: & The contents of register LO are replaced by the specified register. \\
+        \hline
+        Operation: & \$LO = \$s; \\
+        \hline
+        Encoding: & 0000 00ss sss0 0000 0000 0000 0001 0011 \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & mthi \$s \\
+        \hline
+        Description: & The contents of register HI are replaced by the specified register. \\
+        \hline
+        Operation: & \$HI = \$s; \\
+        \hline
+        Encoding: & 0000 00ss sss0 0000 0000 0000 0001 0001 \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & and \$d, \$s, \$t \\
+        \hline
+        Description: & Bitwise ands two registers and stores the result in a register. \\
+        \hline
+        Operation: & \$d = \$s \& \$t; \\
+        \hline
+        Encoding: & 0000 00ss ssst tttt dddd d000 0010 0100 \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & andi \$t, \$s, imm \\
+        \hline
+        Description: & Bitwise ands a register and an immediate value and stores the result in a register. \\
+        \hline
+        Operation: & \$t = \$s \& imm; \\
+        \hline
+        Encoding: & 0011 00ss ssst tttt iiii iiii iiii iiii \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & lui \$t, imm \\
+        \hline
+        Description: & The immediate value is shifted left 16 bits and stored in the register.
+                         The lower 16 bits are zeroes. \\
+        \hline
+        Operation: & \$t = (imm << 16); \\
+        \hline
+        Encoding: & 0011 11-- ---t tttt iiii iiii iiii iiii \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & nor \$d, \$s, \$t \\
+        \hline
+        Description: & Bitwise logical ors two registers and stores the logical not result in a register. \\
+        \hline
+        Operation: & \$d = $\sim$ (\$s | \$t); \\
+        \hline
+        Encoding: & 0000 00ss ssst tttt dddd d000 0010 0111 \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & or \$d, \$s, \$t \\
+        \hline
+        Description: & Bitwise logical ors two registers and stores the result in a register. \\
+        \hline
+        Operation: & \$d = \$s | \$t; \\
+        \hline
+        Encoding: & 0000 00ss ssst tttt dddd d000 0010 0101 \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & ori \$t, \$s, imm \\
+        \hline
+        Description: & Bitwise ors a register and an immediate value and stores the result in a register. \\
+        \hline
+        Operation: & \$t = \$s | imm; \\
+        \hline
+        Encoding: & 0011 01ss ssst tttt iiii iiii iiii iiii \\
+        \hline
+    \end{tabularx}
+    \end{table}
+
+    \begin{table}[!hbp]
+    \begin{tabularx}{\textwidth}{|c|X|}
+        \hline
+        Syntax: & ori \$t, \$s, imm \\
+        \hline
+        Description: & Bitwise ors a register and an immediate value and stores the result in a register. \\
+        \hline
+        Operation: & \$t = \$s | imm; \\
+        \hline
+        Encoding: & 0011 01ss ssst tttt iiii iiii iiii iiii \\
+        \hline
+    \end{tabularx}
+    \end{table}
