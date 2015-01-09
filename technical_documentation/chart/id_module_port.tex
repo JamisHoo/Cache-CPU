@@ -86,7 +86,7 @@
 
                 产生时间：当前指令InsD上升沿之后。
 
-                有效时间：下一条指令InsD上升沿之后。 
+                有效时间：下一条指令InsD上升沿之前。 
             } \\
             &
             \multicolumn{2}{X}{
@@ -109,7 +109,7 @@
 
                 产生时间：当前指令InsD上升沿之后。
 
-                有效时间：下一条指令InsD上升沿之后。 
+                有效时间：下一条指令InsF上升沿之前。 
             } \\
             \midrule
             comp\_op        & out       & std\_logic\_vector(2 downto 0) \\
@@ -121,7 +121,7 @@
 
                 产生时间：当前指令InsD上升沿之后。
 
-                有效时间：下一条指令InsD上升沿之后。 
+                有效时间：下一条指令InsD上升沿之前。 
             } \\
             &
             \multicolumn{2}{X}{
@@ -149,7 +149,7 @@
 
                 产生时间：当前指令InsD上升沿之后。
 
-                有效时间：下一条指令InsD上升沿之后。 
+                有效时间：下一条指令InsD上升沿之前。 
             } \\
             &
             \multicolumn{2}{X}{
@@ -178,7 +178,7 @@
 
                 产生时间：当前指令InsD上升沿之后。
 
-                有效时间：下一条指令InsD上升沿之后。 
+                有效时间：下一条指令InsD上升沿之前。 
             } \\
             \midrule
             mem\_op         & out       & std\_logic\_vector(2 downto 0) \\
@@ -198,7 +198,7 @@
             \multicolumn{2}{X}{
                 产生时间：当前指令InsD上升沿之后。
 
-                有效时间：下一条指令InsD上升沿之后。
+                有效时间：下一条指令InsD上升沿之前。
             } \\
             \midrule
             wb\_op          & out       & std\_logic\_vector(4 downto 0) \\
@@ -209,7 +209,7 @@
 
                 产生时间：当前指令InsD上升沿之后。
 
-                有效时间：下一条指令InsD上升沿之后。 
+                有效时间：下一条指令InsD上升沿之前。 
             } \\
             &
             \multicolumn{2}{X}{
@@ -255,7 +255,7 @@
             \multicolumn{2}{X}{
                 产生时间：当前指令InsD上升沿之后。
 
-                有效时间：下一条指令InsD上升沿之后 
+                有效时间：下一条指令InsD上升沿之前。
             } \\
             \midrule
             tlbwi\_enable   & out       & std\_logic \\
@@ -266,7 +266,18 @@
 
                 产生时间：当前指令InsD上升沿之后。
 
-                有效时间：下一条指令InsD上升沿之后。
+                有效时间：下一条指令InsD上升沿之前。
+            } \\
+            \midrule
+            align\_type   & out       & std\_logic\_vector(1 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                说明：访存对齐方式
+
+                产生时间：当前指令InsD上升沿之后。
+
+                有效时间：下一条指令InsD上升沿之前。
             } \\
             \midrule
             exc\_code   & out       & std\_logic\_vector(1 downto 0) \\

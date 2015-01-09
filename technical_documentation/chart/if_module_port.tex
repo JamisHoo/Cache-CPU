@@ -26,6 +26,13 @@
                 CPU当前状态
             } \\
             \midrule
+            mmu\_ready           & in        & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                标志访存是否结束
+            } \\
+            \midrule
             PCSrc           & in        & std\_logic\_vector(31 downto 0) \\
             \cmidrule(l){2-3}
             &
@@ -71,9 +78,9 @@
 
                     来源：ID模块。
 
-                    到达时间：当前指令InsF上升沿到来之前。
-
                     产生时间：上一条指令ID上升沿之后。
+
+                    持续时间：直到下一条指令的IF阶段。
             } \\
             &
             \multicolumn{2}{X}{
