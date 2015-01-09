@@ -1,40 +1,27 @@
  entity cadb is
      port(
-          -- clock, use by cadb, can be shared
-          clk: in std_logic;
-          -- reset, used by cadb, can be shared
-          e: in std_logic;
-+         -- ports of module debugged
-+         baseram_addr: out std_logic_vector(19 downto 0);
-+         baseram_data: inout std_logic_vector(31 downto 0);
-+         ...
-          -- serial port, used by cadb, cannot be shared
-          serialport_txd: out  STD_LOGIC;
-          serialport_rxd: in  STD_LOGIC;
+         clk : in std_logic;
+         rst : in std_logic;
++        led1: out std_logic_vector(6 downto 0);
++        led2: out std_logic_vector(6 downto 0);
+         serialport_txd : out std_logic;
+         serialport_rxd : in std_logic
          );
  end cadb;
  architecture bhv of cadb is
-+-- module debugged
-+component cacpu is
-+    port(
-+         clk: in std_logic;
-+         e: in std_logic;
-+         debug_out_datas: out std_logic_vector(4095 downto 0);
-+         monitor: out std_logic_vector(63 downto 0);
-+         -- other ports
-+         baseram_addr: out std_logic_vector(19 downto 0);
-+         baseram_data: inout std_logic_vector(31 downto 0);
-+         ...
++component clock is
++    port(clk: in std_logic;
++         rst: in std_logic;
++         led1: out std_logic_vector(6 downto 0);
++         led2: out std_logic_vector(6 downto 0);
++         out_datas: out STD_LOGIC_VECTOR(4095 downto 0);
++         monitor: out STD_LOGIC_VECTOR(63 downto 0)
 +        );
 +end component;
- signal send_data: std_logic_vector(4095 downto 0);
- signal m_monitor: std_logic_vector(63 downto 0);
- signal bp_clk: std_logic;
+ ... 
  begin
-+     u1: cacpu port map(clk=>bp_clk, e=>e,
-+                        debug_out_datas=>send_data,
-+                        monitor => m_monitor,
-+                        baseram_addr=>baseram_addr, baseram_data=>baseram_data,
-+                        ...
-+                      );
++     u1: clock port map(clk => bp_clk, rst => rst, led1 => led1, led2 => led2,
++                        out_datas => send_data, monitor => m_monitor
++                       );
+ ... 
  end bhv;
