@@ -1,0 +1,23 @@
+
+
+NET "rst" LOC = T1;
+NET "clk" LOC = U26;
+NET "led1[6]" LOC = B26;
+NET "led1[5]" LOC = C25;
+NET "led1[4]" LOC = D24;
+NET "led1[3]" LOC = A25;
+NET "led1[2]" LOC = B24;
+NET "led1[1]" LOC = C26;
+NET "led1[0]" LOC = D26;
+NET "led2[6]" LOC = C24;
+NET "led2[5]" LOC = D22;
+NET "led2[4]" LOC = E23;
+NET "led2[3]" LOC = B23;
+NET "led2[2]" LOC = A23;
+NET "led2[1]" LOC = D23;
+NET "led2[0]" LOC = B25;
+
+# PlanAhead Generated physical constraints 
+
+NET "serialport_rxd" LOC = R26;
+NET "serialport_txd" LOC = P24;
