@@ -1,0 +1,67 @@
+        \begin{tabularx}{\textwidth}{lll}
+            \toprule
+            端口名          & 端口方向  & 端口类型 \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{端口描述} \\
+            \midrule
+            clk             & in        & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                串口发送部分开始信号。
+            } \\
+            \midrule
+            slc             & out        & std\_logic\_vector(15 downto 0) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                串口发送的字节编号，用于从上层模块获取对应字节。
+            } \\
+            \midrule
+            data             & in        & std\_logic\_vector ( 7 downto 0 ) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                串口发送的字节值，使用编号slc从上层模块获取。
+            } \\
+            \midrule
+            serialport\_txd        & out      & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                串口写端口。
+            } \\
+            \midrule
+            serialport\_rxd             & in        & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                串口读端口。
+            } \\
+            \midrule
+            data\_coming             & out        & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                标志位，表示客户端指令到来。
+            } \\
+            \midrule
+            coming\_data             & out        & std\_logic\_vector ( 135 downto 0 ) \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                来自客户端的指令信息。
+                高64位为客户端第二个参数；
+                中64位为客户端第一个参数；
+                低8位表示指令类型。
+            } \\
+            \midrule
+            data\_read             & in        & std\_logic \\
+            \cmidrule(l){2-3}
+            &
+            \multicolumn{2}{X}{
+                标志位，表示这一指令已经被读取，可以消除指令到来信号。
+            } \\
+            \bottomrule
+        \end{tabularx}
