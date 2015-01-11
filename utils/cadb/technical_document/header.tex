@@ -9,20 +9,6 @@
 \usepackage{ltablex} % Required for auto page break tabular
 \usepackage{booktabs} % Required for table
 \usepackage{dirtree} % Required for directory tree
-\usepackage{verbatim} % Required for typesetting diff 
-\makeatletter
-
-\long\def\diffcolor#1#2\@nil{color\string#1diff}
-
-\def\verbatim@processline{%
-\nointerlineskip\noindent\rlap{%
-\colorbox{\expandafter\diffcolor\next..\@nil}{%
-\the\verbatim@line}}\par}
-\makeatother
-
-\definecolor{color diff}{rgb}{1,1,1}
-\definecolor{color-diff}{rgb}{1,.5,.5}
-\definecolor{color+diff}{rgb}{.5,1,.5}
 
 \def\UrlBreaks{\do\[\do\\\do\]\do\^\do\_\do\`\do\.\do\@\do\\\do\/\do\!\do\_\do\|\do\;\do\>\do\]\do\)\do\,\do\?\do\'\do+\do\=\do\#}
 
@@ -54,7 +40,7 @@
 \renewcommand\tablename{表}
 
 % contents depth
-\setcounter{tocdepth}{4}
+\setcounter{tocdepth}{2}
 
 % numbered paragraph
 \setcounter{secnumdepth}{4}
@@ -69,7 +55,7 @@
 \normalfont \normalsize 
 % \textsc{university, school or department name} \\ [25pt] % Your university, school and/or department name(s)
 \horrule{0.5pt} \\[0.4cm] % Thin top horizontal rule
-\huge Cache Debugger设计手册 \\ % The assignment title
+\huge Cache Debugger技术文档 \\ % The assignment title
 \horrule{2pt} \\[0.5cm] % Thick bottom horizontal rule
 }
 
@@ -89,6 +75,8 @@
 \newpage % blank after contents
 
 \input{sections/section_introduction.tex}
-\input{sections/technical_hardware.tex}
+\input{sections/hardware.tex}
+\input{sections/software.tex}
+\input{sections/advanced_usage.tex}
 
 \end{document}
