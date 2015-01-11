@@ -21,7 +21,7 @@
             \begin{enumerate}
             \item
             ALU有两个输入数据，通过ALUOp生成不同结果。%
-            ALUOp目前整理出17种运算，详细定义见数据通路表。
+            ALUOp目前整理出17种运算，在数据通路文件中的ALU控制工作表有详细定义。
             \item
             只输出最终运算结果。不需要标志位。
             \end{enumerate}
@@ -300,6 +300,20 @@
             8 & SYSCALL & 系统调用 \\
             \hline
             10 & RI & 执行未定义指令异常 \\
+            \hline
+            \end{tabular}
+            \end{table}
+
+                        \begin{table}
+            \centering
+            \caption{需要实现的中断}
+            \begin{tabular}{|c|c|c|}
+            \hline
+            中断号 & 中断名 & 描述 \\
+            \hline
+            2 & 串口中断 & 串口有数据输入 \\
+            \hline
+            7 & 时钟中断 & 记时中断 \\
             \hline
             \end{tabular}
             \end{table}
