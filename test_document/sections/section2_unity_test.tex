@@ -28,13 +28,96 @@
             所有运算操作结果正确，乘法运算可以在25MHz频率下一个周期内得出正确结果。
 
     \subsection{指令解码模块}
-        Assign to : 李天润
+        \subsubsection{功能概述}
+            在指令解码周期的时钟上升沿，%
+            产生该指令所需的全部控制信号，%
+            并对当前指令、通用寄存器编号进行锁存。
+
+        \subsubsection{测试方法}
+            通过拨码开关输入指令，%
+            状态机始终控制在解码阶段，%
+            通过手动时钟提供时钟上升沿，%
+            将产生的控制信号输出到LED灯查看。%
+
+        \subsubsection{测试用例}
+            使用全部MIPS32指令进行测试。%
+            但是因为实验板上LED灯只有16个，%
+            一次只能查看部分信号，%
+            且输入指令占用全部的32个拨码开关，%
+            导致测试效果不佳。%
+
+            因此在该阶段只进行了少量测试，%
+            指令解码模块的测试工作后延至单指令测试阶段。
+
+        \subsubsection{测试结果}
+            指令解码模块在测试中发现了如下问题：
+            \begin{enumerate}
+            \item
+                JAL和J指令的定义在原有指导文档上有误，%
+                地址的高四位并不发生改变。%
+                上网查找了标准的MIPS32指令进行修正，%
+                之后JAL和J指令能够正常工作。
+            \item
+                ALU控制信号ALUOp错误。%
+                编码过程中曾对ALUOp进行过一次修改，%
+                但并没有体现在数据通路表中。%
+                修改了数据通路表和相关代码后工作正常。
+            \end{enumerate}
 
     \subsection{访存模块}
         Assign to : 胡津铭
 
     \subsection{MMU模块}
-        Assign to  : 李天润
+        \subsubsection{功能概述}
+            该模块实现虚拟地址到物理地址的转换，%
+            并将物理地址转换为RAM、Flash、ROM的真实地址，%
+            实现TLB表的查找、重填以及相关异常的触发。%
+
+        \subsubsection{测试方法}
+            主要测试地址转换过程与TLB表的查询过程。%
+            由于拨码开关和LED等数量有限，%
+            因此固定访存地址的低16位，%
+            拨码开关只改变可能影响内存映射的高16位地址。%
+            其余拨码开关通过组合，%
+            查看不同的输出信号。%
+            在VHDL代码中固化一个TLB表项，%
+            通过拨码开关控制写入TLB。
+
+        \subsubsection{测试用例}
+            测试用例参见表\ref{mmu_module}
+            \begin{table}[!hbp]
+            \centering
+            \caption{MMU模块测试用例}
+            \label{mmu_module}
+            \begin{tabularx}{\textwidth}{|l|X|}
+            \hline
+            类型 & 说明 \\
+            \hline
+            非映射地址转换 &　地址高16位选择非映射地址区间，%
+                            观察输出的to\_physical\_addr信号是否正确。%
+                            在非映射状态对RAM、Flash与串口均进行测试。   \\
+            \hline
+            映射地址转换 & 地址高16位选择映射地址区间，%
+                            观察观察输出的to\_physical\_addr信号是否正确。%
+                            对RAM、Flash与串口均进行测试。    \\
+            \hline
+            异常触发 & 不写入TLB表项进行映射地址的访存，触发TLBMiss异常。%
+                        修改TLB表项，dirty位置1，触发TLBModify异常。%
+                        修改输入的align\_type对齐方式，触发地址不对齐异常。    \\
+            \hline
+            串口状态位 & 串口状态位封装在MMU内部，%
+                        在MMU模块测试串口是否可读可写。 \\
+            \hline
+            \end{tabularx}
+            \end{table}
+
+        \subsubsection{测试结果}
+            该模块测试中发现了TLB命中策略的问题，%
+            两个EntryLo页的命中与标准实现相反。%
+
+            后在向勇老师的课件中，%
+            找到一份TLB的详细实现方案,%
+            在此基础上稍作修改即可实现TLB。
 
     \subsection{CP0模块}
         Assign to  : 孙皓
