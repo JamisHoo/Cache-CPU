@@ -18,7 +18,7 @@
             除此之外，还需要检查高频下乘法速度是否满足需要。
 
         \subsubsection{测试用例}
-            除了简单测例、边界测例外，还需要测试加减法运算的溢出。
+            除了简单测例、边界测例外，还需要测试加、减、移位运算的溢出。
             测例诸如%
             0xffffffff+1、%
             0xffffffff+2、%
@@ -65,7 +65,21 @@
             \end{enumerate}
 
     \subsection{访存模块}
-        Assign to : 胡津铭
+        \subsubsection{测试方法}
+            \begin{enumerate}
+            \item
+            通过拨码开关输入访问存储（包括Ram、Flash、串口）的物理地址、数据、使能，%
+            将读取到的数据通过LED显示出来，检查数据的正确性。
+            \item
+            使用状态机，在高频下连续地向存储中读写数据，检查数据的正确性。
+            \end{enumerate}
+            访问串口时需要在PC端同步接受、发送。
+        \subsubsection{测试结果}
+            Ram、Flash可在50MHz时钟下正常工作，%
+            串口在25MHz以上时钟工作时，%
+            连续两个时钟周期写入有一定几率出现错误，原因不详。%
+            考虑到操作系统使用串口时不可能出现连续两个时钟访问串口，%
+            此问题无需修复。
 
     \subsection{MMU模块}
         \subsubsection{功能概述}
