@@ -1,22 +1,104 @@
 \section{单指令测试}
-    Assign to : 孙皓 \& 李天润
 
     \subsection{算数指令}
 
         \subsubsection{测试方法}
-            输入信号怎么给
+            算数指令是最基本的指令，因此放在最前面测试。
 
-            观察什么输出信号
+            算数指令大多会写会通用寄存器组，由于之前已经确定通用寄存器组可以正确工作，此处只需检查给到通用寄存器组的地址、数值、写信号是否正确即可。
 
-            怎样判定一条指令正确执行了
+            由于此时整个CPU的整合尚未完全完成，不能确定访存路径是否正确，通过拨码开关代替访存部分，即将所有需要从访存取得的数据改由拨码开关输入%
+            ，同时手动按时钟进行输入。通过LED灯检查给通用寄存器组的写信号是否符合预期。
+
+            另外，随着测试的进行，调试工具也在同步开发。在指令测试的后半部分时，加入调试工具，在电脑端查看输出信号。
 
         \subsubsection{测试样例}
-            测试时使用的指令
+            由于开始时所有通用寄存器的数值均为0，需要给入恰当的数据才能有效检查，因此按照由易入难的顺序进行测试。
+            \begin{enumerate}
+            \item
+                ADDIU \\
+                ADDIU 1 0 4 \\
+                ADDIU 2 1 -1
+            \item
+                ADDU \\
+                ADDIU 1 0 4 \\
+                ADDIU 2 0 -2 \\
+                ADDU 3 1 2
+            \item
+                SLT \\
+                ADDIU 1 0 4 \\
+                ADDIU 3 0 5 \\
+                SLT 2 1 3 \\
+                SLT 2 3 1 \\
+                ADDIU 3 0 -2 \\
+                SLT 2 1 3 \\
+                SLT 2 3 1 \\
+            \item
+                SLTI \\
+                ADDIU 1 0 4 \\
+                SLTI 3 1 3 \\
+                SLTI 3 1 5 \\
+                SLTI 3 1 -1
+            \item
+                SLTIU \\
+                ADDIU 1 0 4 \\
+                SLTIU 3 1 3 \\
+                SLTIU 3 1 5 \\
+                SLTIU 3 1 -1
+            \item
+                SLTU \\
+                ADDIU 1 0 4 \\
+                ADDIU 3 0 5 \\
+                SLTU 2 1 3 \\
+                SLTU 2 3 1 \\
+                ADDIU 3 0 -2 \\
+                SLTU 2 1 3 \\
+                SLTU 2 3 1 \\
+            \item
+                SUBU \\
+                ADDIU 1 0 4 \\
+                ADDIU 2 0 -2 \\
+                SUBU 3 1 2
+            \item
+                MULT,MFLO,MFHI\\
+                ADDIU 1 0 4 \\
+                ADDIU 3 0 5 \\
+                MULT 1 3 \\
+                MFLO 2 \\
+                MFHI 2
+            \item
+                MTLO,MTHI \\
+                ADDIU 1 0 4 \\
+                ADDIU 3 0 5 \\
+                MTLO 1 \\
+                MTHI 3 \\
+                MFLO 2 \\
+                MFHI 2
+            \item
+                AND,ANDI,LUI,NOR,OR,ORI,XOR,XORI,SLL,SLLV,SRA,SRAV,SRL,SRLV,LHU采用类似的方法进行测试
+            \end{enumerate}
+
 
         \subsubsection{问题与解决}
+        测试的过程中发现了一系列错误，包括写会通用寄存器的操作控制信号设计有误，写地址来源在一种控制信号组合下有误等。
+
+        通过检查给到通用寄存器的信号，可以判断是否发生错误。发生错误后，要逆着数据通路检查沿途的控制信号、数据信号。%
+        这个操作一开始通过LED灯进行检查，之后加入调试工具，可以直接在每次时钟之后看到所有沿途信号，进行检查。
+        最终，以上指令均检查完成
 
     \subsection{跳转指令}
+        \subsubsection{测试方法}
+        跳转指令除了通用寄存器，还需要检查PC的变化，以及RPC的保存。
+
+        \subsubsection{测试说明}
+        跳转指令包括BEQ,BGEZ,BGTZ,BLEZ,BLTZ,BNE,J,JAL,JALR,JR,ERET \\
+        检查时，需要对正、负值都进行检查。
+
+        \subsubsection{测试结果}
+        确认以上指令可以按照实验指导书的定义运行。\\
+        另外，之后运行ucore时发现实验指导书的定义是错误的，尤其是J类指令的左移两位问题，在确定新的要求后进行了修改。
 
     \subsection{访存指令}
 
     \subsection{特殊指令}
+        此部分包括SYSCALL,CACHE,NOP,TLBWI,采用与其他指令相同的方法进行输入，然后通过对控制信号的监控进行检查。
