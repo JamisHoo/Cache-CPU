@@ -86,8 +86,8 @@ int main(int argc,char** argv) {
     port_settings.c_lflag = 0;
     port_settings.c_cc[VMIN] = 1;
     port_settings.c_cc[VTIME] = 5;
-    cfsetospeed(&port_settings, B19200);
-    cfsetispeed(&port_settings, B19200);
+    cfsetospeed(&port_settings, B38400);
+    cfsetispeed(&port_settings, B38400);
     tcsetattr(com, TCSANOW, &port_settings);
 
     std::cout << "Prepared to send and receive... " << std::endl;
