@@ -108,10 +108,10 @@ int _ReadInteger() {
 
 // original author is Kai Jia
 // modified by Jamis Hoo
-#define MEM_BUF_SIZE	2048
+#define MEM_BUF_SIZE	4096
 void* _Alloc(int size) {
 	static char buf[MEM_BUF_SIZE];
-	static int cur_size;
+	static int cur_size = 0;
 	char *ret = buf + cur_size;
 	size += (4 - (size & 3)) & 3;
 	cur_size += size;
