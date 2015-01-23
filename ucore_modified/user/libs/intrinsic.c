@@ -55,12 +55,11 @@ void __noreturn _Halt(void) {
 }
 
 /* modified by Jasmis Hoo */
+// This function is full of bugs
 #define BUFSIZE 4096
-char* _ReadLine(const char *prompt) {
+char* _ReadLine() {
     static char buffer[BUFSIZE];
-    if (prompt != NULL) {
-        cprintf("%s", prompt);
-    }
+    static char* buff_cur = buffer;
     int ret, i = 0;
     while (1) {
         char c;
@@ -69,7 +68,7 @@ char* _ReadLine(const char *prompt) {
         }
         else if (ret == 0) {
             if (i > 0) {
-                buffer[i] = '\0';
+                buff_cur[i] = '\0';
                 break;
             }
             return NULL;
@@ -80,7 +79,7 @@ char* _ReadLine(const char *prompt) {
         }
         else if (c >= ' ' && i < BUFSIZE - 1) {
             cprintf("%c", c);
-            buffer[i ++] = c;
+            buff_cur[i ++] = c;
         }
         else if (c == '\b' && i > 0) {
             cprintf("%c", c);
@@ -88,16 +87,17 @@ char* _ReadLine(const char *prompt) {
         }
         else if (c == '\n' || c == '\r') {
             cprintf("%c", c);
-            buffer[i] = '\0';
+            buff_cur[i] = '\0';
             break;
         }
     }
-    return buffer;
+    buff_cur += i + 1;
+    return buff_cur - i - 1;
 }
 
 // original author is Kai Jia
 int _ReadInteger() {
-	char *str = _ReadLine(NULL);
+	char *str = _ReadLine();
 	int rst = 0;
 	while (*str) {
 		rst = (rst << 3) + (rst << 1) + (*str - '0');

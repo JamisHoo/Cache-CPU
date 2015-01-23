@@ -18,7 +18,6 @@ decaf_Halt:
 j _Halt
 
 decaf_ReadLine:
-move $a0, $zero
 j _ReadLine
 
 decaf_ReadInteger:
