@@ -1,0 +1,16 @@
+class Fib {
+    int fib(int x) {
+        if (x < 2) return x;
+        return fib(x - 1) + fib(x - 2);
+    }
+}
+
+class Main {
+    static void main() {
+        class Fib fib;
+        fib = new Fib();
+        int i;
+        for (i = 0; i < 25; i = i + 1)
+            Print("fib(", i, ") == ", fib.fib(i), "\n");
+    }
+}
