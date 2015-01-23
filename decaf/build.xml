@@ -87,6 +87,9 @@
 	</target>
 
 	<target name="clean" description="Clean...">
+        <delete file="${src.dir}/decaf/frontend/Parser.java" />
+        <delete file="${src.dir}/decaf/frontend/Parser.output" />
+        <delete file="${src.dir}/decaf/frontend/Lexer.java" />
 		<delete dir="${result.dir}" />
 	</target>
 </project>
