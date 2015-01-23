@@ -320,6 +320,7 @@ public class Mips implements MachineDescription {
 				emit(null, String.format(MipsAsm.FORMAT2, "move", "$v0",
 						bb.varReg), null);
 			}
+            /* added by Jamis Hoo */
             if (graph.getFuncty().label.name.equals("main"))
                 emit(null, "move $v0, $zero", null);
 
