@@ -41,7 +41,10 @@ static void
 disk0_read_blks_nolock(uint32_t blkno, uint32_t nblks) {
     // extern unsigned char _binary_bin_sfs_img_start[];
     // changed by cacpu because flash has only 16 bits of valid data
-    uintptr_t _binary_bin_sfs_img_start = 0xbe600000;
+    /* modifed by Jamis Hoo on Jan 23 */
+    // modify from 0xbe600000 to 0xbe200000
+    // There's bad sectors in flash, we've got to jump over those sectors.
+    uintptr_t _binary_bin_sfs_img_start = 0xbe200000;
     uintptr_t start = ((uintptr_t)_binary_bin_sfs_img_start) + blkno * DISK0_BLKSIZE * 2;
     memcpy_flash(disk0_buffer, (char*)start, nblks*DISK0_BLKSIZE);
 }

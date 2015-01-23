@@ -24,5 +24,5 @@ if [ $# -lt 1 ]
     exit
 fi
 
-python controller.py flash erase 0x300000 0x4e0000
-python controller.py flash write 0x300000 $1
+python controller.py flash erase 0x100000 0x4e0000
+python controller.py flash write 0x100000 $1
