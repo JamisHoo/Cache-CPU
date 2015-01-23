@@ -1,0 +1,82 @@
+\section{简介}
+    本实验主要目的是修改Decaf/Mind编译器，%
+    使之能够在简单的MIPS32指令系统处理器以及操作系统$\mu$core上运行。
+    \subsection*{实验环境}
+    \begin{enumerate}
+        \item
+        支持MIPS32指令子集的多周期CPU，主频6.25MHz。
+        \item
+        可在上述CPU上运行的类Unix操作系统$\mu$core。
+        \item
+        Decaf/Mind编译器，可以将decaf程序源代码编译成MIPS32汇编代码。
+    \end{enumerate}
+
+\section{实现方法}
+    \subsection{指令集}
+        现有Decaf编译器生成的部分指令不在CPU支持范围内。%
+        这些指令和相应的解决方法如下：
+        \begin{enumerate}
+        \item
+        add、sub、neg
+            
+        将这三条生成的指令分别修改为addu、subu、negu。%
+        区别在于修改后的指令在算术溢出时不会产生异常，%
+        不会对正常运行产生影响。
+        \item
+        mul
+
+        将mul指令拆分成mult和mflo两条指令，%
+        拆分后指令与原指令等价。%
+        需要在翻译、TAC生成、基本块、寄存器分配、%
+        汇编代码生成这5个部分修改Decaf编译器。
+        \item
+        div、rem
+
+        使用加减交替法将除法替换成加减算术运算、移位运算和逻辑运算。%
+        将加减交替法实现成一个库函数。%
+        修改Decaf编译器使之将除法、模运算编译成函数调用。%
+        需要在翻译、TAC生成、库函数调用3个部分修改Decaf编译器。
+        \end{enumerate}
+
+    \subsection{函数调用约定}
+        $\mu$core操作系统遵循o32ABI标准，%
+        函数调用的前16字节参数通过寄存器a0$\sim$a3传递。%
+        Decaf编译器得到的程序所有参数都通过栈传递。%
+        对于Decaf编译得到的内部函数之间的调用，%
+        程序可以正常运行，但对库函数则不能正常调用。
+
+        考虑到本次实验所需要实现的库函数参数均未超过16字节，%
+        而且a0$\sim$a3是调用者保存寄存器，%
+        可以使用汇编语言在调用函数和被调用函数之间添加一层调用，%
+        将栈上保存的参数储存到a0$\sim$a3寄存器中，%
+        不需要对栈帧指针等其他内容做任何维护。
+
+    \subsection{库函数}
+        使用C语言实现PrintString、PrintInt、PrintBool、%
+        ReadLine、ReadInteger、Halt、Allocate、除法、模运算%
+        共计9个库函数。%
+        按照前文提到的库函数调用方法，%
+        将Decaf编译器产生的汇编程序与库函数链接即可得到二进制文件。
+
+    \subsection{程序退出}
+        $\mu$core操作系统默认程序退出应当返回0，否则按出错处理。%
+        Decaf语言main函数为void类型，不返回值。%
+        处理方法是在main函数退出前添加一条指令move \$v0, \$zero，%
+        需要修改汇编代码生成部分。
+
+    \subsection{读取string类型}
+        Decaf语言中string类型存储字符串的首指针，%
+        从标准输入读取string类型实际上是%
+        将含有字符串的缓冲区的首指针赋值给string变量。%
+        另外Decaf语言默认带有垃圾回收机制，对象不需要显示释放，%
+        但这在$\mu$core操作系统上几乎无法实现。%
+        由此造成的直接后果是操作系统不知道何时应该释放string的存储空间，%
+        在每次从标准输入读取string后必须将其保存直至程序退出。
+
+
+\section{实验结果}
+    修改后的Decaf编译器能够正确运行含有乘法、除法运算的math程序，%
+    能够正确运行含有递归函数调用的fibonacci程序，%
+    能够正确运行含有标准输入输出、模运算的blackjack程序。
+
+

@@ -1,0 +1,77 @@
+\documentclass{article}
+\usepackage[usenames,dvipsnames]{color} % Required for custom colors
+\usepackage{graphicx} % Required to insert images
+\usepackage{listings} % Required for insertion of code
+\usepackage{amsmath} % Required for some math formulas
+\usepackage{enumitem} % Required for customed enum
+\usepackage{url} % Auto line break in URL
+\usepackage{tabularx} % Auto line break in tabular
+\usepackage{caption} % change the style of tablename/figurename
+
+\def\UrlBreaks{\do\[\do\\\do\]\do\^\do\_\do\`\do\.\do\@\do\\\do\/\do\!\do\_\do\|\do\;\do\>\do\]\do\)\do\,\do\?\do\'\do+\do\=\do\#}
+
+\usepackage{hyperref} % add clickable link to contents
+\hypersetup {
+    colorlinks = false, % links colored or not
+    hidelinks = true, % border
+    linkcolor = blue, % color TOC links in blue
+    urlcolor = red, % color URLs in red
+    linktoc = all % 'all' will create links for everything in the TOC
+}
+
+% Uncomment the lines below if you wish to use Chinese characters
+\usepackage{fontspec}  % Chinese characters support
+\usepackage{indentfirst} % Add indent at the first paragraph
+\XeTeXlinebreaklocale "zh" % Automatic line break
+\XeTeXlinebreakskip = 0pt plus 1pt % Automatic line break
+% \setmainfont{STSong} % Use a Chinese font
+% \setmainfont[Path = ./]{AdobeSongStd-Light.otf} % use font in ./
+\setmainfont[Path = ./fonts/]{AdobeFangsongStd-Regular.otf}
+
+% Use Chinese for figure name
+\renewcommand\figurename{图}
+
+% Use Chinese for contents name
+\renewcommand\contentsname{目录}
+
+% Use Chinese for table name
+\renewcommand\tablename{表}
+
+% contents depth
+\setcounter{tocdepth}{4}
+
+% numbered paragraph
+\setcounter{secnumdepth}{4}
+
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION
+%----------------------------------------------------------------------------------------
+
+\newcommand{\horrule}[1]{\rule{\linewidth}{#1}} % Create horizontal rule command with 1 argument of height
+
+\title{	
+\normalfont \normalsize 
+% \textsc{university, school or department name} \\ [25pt] % Your university, school and/or department name(s)
+\horrule{0.5pt} \\[0.4cm] % Thin top horizontal rule
+\huge 编译原理扩展实验\\实验报告 \\ % The assignment title
+\horrule{2pt} \\[0.5cm] % Thick bottom horizontal rule
+}
+
+\author{胡津铭 李天润 孙皓} % Your name
+
+\date{\normalsize\the\year 年\the\month 月\the\day 日} % Today's date or a custom date
+
+
+
+
+% document begin
+\begin{document}
+\maketitle % Print the title
+
+\tableofcontents % Print the contents
+
+\newpage % blank after contents
+\input{sections.tex}
+
+
+\end{document}
