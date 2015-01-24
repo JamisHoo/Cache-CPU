@@ -19,6 +19,7 @@
 #include <sys/time.h>
 #include <fcntl.h>
 #include <termios.h>
+#include <cstring>
 #include <cstdlib>
 #include <cassert>
 #include <memory>

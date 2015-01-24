@@ -16,6 +16,7 @@
 #define CONFIG_H_
 
 #include <string>
+#include <cstring>
 #include <memory>
 #include <fstream>
 #include <unordered_map>
