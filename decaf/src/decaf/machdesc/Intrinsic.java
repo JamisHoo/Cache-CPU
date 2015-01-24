@@ -5,7 +5,7 @@ import decaf.type.BaseType;
 
 public final class Intrinsic {
 
-    /* added by Jamis Hoo */
+    /* added by Hao Sun */
     /** 
      * division<br>
      * arguments: x, y(x / y, both are signed int)<br>
@@ -15,7 +15,7 @@ public final class Intrinsic {
     public static final Intrinsic LIB_DIV = new Intrinsic("decaf_Div", 2, 
             BaseType.INT);
 
-    /* added by Jamis Hoo */
+    /* added by Hao Sun */
     /** 
      * modulo<br>
      * arguments: x, y(x % y, both are signed int)<br>
@@ -25,7 +25,7 @@ public final class Intrinsic {
     public static final Intrinsic LIB_REM = new Intrinsic("decaf_Rem", 2, 
             BaseType.INT);
 
-    /* modified by Jamis Hoo */
+    /* modified by Hao Sun */
 	/**
 	 * 分配内存，如果失败则自动退出程序<br>
 	 * 参数: 为要分配的内存块大小（单位为字节）<br>
@@ -35,14 +35,14 @@ public final class Intrinsic {
 	public static final Intrinsic ALLOCATE = new Intrinsic("decaf_Alloc", 1,
 			BaseType.INT);
 
-    /* modified by Jamis Hoo */
+    /* modified by Hao Sun */
 	/**
 	 * 读取一行字符串（最大63个字符）<br>
 	 * 返回: 读到的字符串首地址<br>
 	 * 返回类型: string
 	 */
 
-    /* modified by Jamis Hoo */
+    /* modified by Hao Sun */
 	public static final Intrinsic READ_LINE = new Intrinsic("decaf_ReadLine", 0,
 			BaseType.STRING);
 	/**
@@ -51,7 +51,7 @@ public final class Intrinsic {
 	 * 返回类型: int
 	 */
 
-    /* modified by Jamis Hoo */
+    /* modified by Hao Sun */
 	public static final Intrinsic READ_INT = new Intrinsic("decaf_ReadInteger", 0,
 			BaseType.INT);
 	/**
@@ -61,7 +61,7 @@ public final class Intrinsic {
 	 * 返回类型: bool
 	 */
 
-    /* modified by Jamis Hoo */
+    /* modified by Hao Sun */
 	public static final Intrinsic STRING_EQUAL = new Intrinsic("decaf_StringEqual",
 			2, BaseType.BOOL);
 	/**
@@ -69,7 +69,7 @@ public final class Intrinsic {
 	 * 参数: 要打印的数字
 	 */
 
-    /* modified by Jamis Hoo */
+    /* modified by Hao Sun */
 	public static final Intrinsic PRINT_INT = new Intrinsic("decaf_PrintInt", 1,
 			BaseType.VOID);
 	/**
@@ -77,7 +77,7 @@ public final class Intrinsic {
 	 * 参数: 要打印的字符串
 	 */
 
-    /* modified by Jamis Hoo */
+    /* modified by Hao Sun */
 	public static final Intrinsic PRINT_STRING = new Intrinsic("decaf_PrintString",
 			1, BaseType.VOID);
 	/**
@@ -85,11 +85,11 @@ public final class Intrinsic {
 	 * 参数: 要打印的布尔变量
 	 */
 
-    /* modified by Jamis Hoo */
+    /* modified by Hao Sun */
 	public static final Intrinsic PRINT_BOOL = new Intrinsic("decaf_PrintBool", 1,
 			BaseType.VOID);
 
-    /* modified by Jamis Hoo */
+    /* modified by Hao Sun */
 	/**
 	 * 结束程序<br>
 	 * 可以作为子程序调用，也可以直接Goto

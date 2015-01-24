@@ -3,7 +3,7 @@
 #include <ulib.h>
 #include <file.h>
 
-/* added by Jamis Hoo */
+/* added by Terran Lee */
 int _Div(int x, int y) {
     int quotient = 0;
     int remainder = 0;
@@ -19,7 +19,7 @@ int _Div(int x, int y) {
     return ((x > 0 && y > 0) || (x < 0 && y < 0))? quotient: -quotient;
 }
 
-/* added by Jamis Hoo */
+/* added by Terran Lee */
 int _Rem(int x, int y) {
     int quotient = 0;
     int remainder = 0;
@@ -54,7 +54,7 @@ void __noreturn _Halt(void) {
     exit(0);
 }
 
-/* modified by Jasmis Hoo */
+/* modified by Terran Lee */
 // This function is full of bugs
 #define BUFSIZE 4096
 char* _ReadLine() {
@@ -107,7 +107,7 @@ int _ReadInteger() {
 }
 
 // original author is Kai Jia
-// modified by Jamis Hoo
+// modified by Terran Lee
 #define MEM_BUF_SIZE	4096
 void* _Alloc(int size) {
 	static char buf[MEM_BUF_SIZE];

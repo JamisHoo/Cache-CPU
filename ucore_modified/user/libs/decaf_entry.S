@@ -1,4 +1,4 @@
-# added by Jamis Hoo 
+# added by Hao Sun
 
 .globl  decaf_PrintString,  decaf_PrintInt, decaf_PrintBool, decaf_Halt, decaf_ReadLine, decaf_ReadInteger, decaf_Alloc, decaf_Div, decaf_Rem
 
