@@ -22,6 +22,9 @@
         将这三条生成的指令分别修改为addu、subu、negu。%
         区别在于修改后的指令在算术溢出时不会产生异常，%
         不会对正常运行产生影响。
+
+        在Mips类genAsmForBB函数中将add修改成addu，%
+        将sub修改成subu，将neg修改成negu。
         \item
         mul
 
@@ -29,13 +32,24 @@
         拆分后指令与原指令等价。%
         需要在翻译、TAC生成、基本块、寄存器分配、%
         汇编代码生成这5个部分修改Decaf编译器。
+
+        在Translater类genMul函数中将一条mul修改成两条指令，%
+        在Tac类Kind枚举中加入MULT、MFLO，%
+        在Tac类中加入成员函数genMult、genMflo，%
+        在BasicBlock类computeDefAndLiveUse函数中加入对MULT和MFLO的处理，%
+        在RegisterAllocator类alloc函数中加入对MULT和MFLO的处理，%
+        在Mips类genAsmForBB函数中增加对MULT和MFLO的处理。
+
         \item
         div、rem
 
         使用加减交替法将除法替换成加减算术运算、移位运算和逻辑运算。%
         将加减交替法实现成一个库函数。%
         修改Decaf编译器使之将除法、模运算编译成函数调用。%
-        需要在翻译、TAC生成、库函数调用3个部分修改Decaf编译器。
+        需要在翻译、库函数调用两个部分修改Decaf编译器。
+
+        在TransPass2类visitBinary函数中将DIV和REM修改成传递两个参数的函数调用，%
+        在Intrinsic类中增加对decaf\_Div和decaf\_Rem函数的处理。
         \end{enumerate}
 
     \subsection{函数调用约定}
@@ -49,6 +63,7 @@
         而且a0$\sim$a3是调用者保存寄存器，%
         可以使用汇编语言在调用函数和被调用函数之间添加一层调用，%
         将栈上保存的参数储存到a0$\sim$a3寄存器中，%
+        例如将第一个参数从sp+4复制到a0寄存器，%
         不需要对栈帧指针等其他内容做任何维护。
 
     \subsection{库函数}
@@ -57,12 +72,21 @@
         共计9个库函数。%
         按照前文提到的库函数调用方法，%
         将Decaf编译器产生的汇编程序与库函数链接即可得到二进制文件。
+        
+        在Intrinsic类中将函数名称改成对带有decaf\_前缀的中间层函数调用，%
+        在decaf\_entry.S中将位于栈上的参数复制到参数寄存器中，%
+        并通过j指令直接跳转到目标库函数入口，%
+        不会对栈帧寄存器、ra寄存器产生任何影响。%
+        目标库函数实现在intrinsic.c中。%
 
     \subsection{程序退出}
         $\mu$core操作系统默认程序退出应当返回0，否则按出错处理。%
         Decaf语言main函数为void类型，不返回值。%
         处理方法是在main函数退出前添加一条指令move \$v0, \$zero，%
         需要修改汇编代码生成部分。
+
+        在Mips类emitTrace函数中增加判断，%
+        如果是函数名为main则在函数退出恢复栈帧指针时将v0寄存器清零。
 
     \subsection{string类型}
         Decaf语言中string类型存储字符串的首指针，%
@@ -78,4 +102,10 @@
     能够正确运行含有递归函数调用的fibonacci程序，%
     能够正确运行含有标准输入输出、模运算的blackjack程序。
 
+\section{人员分工}
+    在本次实验中，%
+    胡津铭负责对Decaf/Mind编译器的修改，%
+    李天润负责编写C语言库函数，%
+    孙皓负责库编写库函数调用中间层函数。
 
+    所有添加、修改已在源代码中标注。
