@@ -66,4 +66,5 @@ This cross-compiler is implemented in Java,
 and it doesn't support all the features of Decaf/Mind.
 
 
-
+##LICENSE
+Copyright (c) 2014-2015 Jamis Hoo, Terran Lee, Hao Sun. 
