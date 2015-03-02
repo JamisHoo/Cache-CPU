@@ -6,7 +6,7 @@ It's implemented mainly in VHDL.
 Cache is just our team name, but not stands for the fast memory used by CPU.
 A Unix-like tiny OS ucore can run on this processor.
 A decaf/Mind cross-compiler can generate code runs on ucore OS.
-Both the OS and the compier is included in this project.
+Both the OS and the compiler is included in this project.
 
 ## 48 instructions
 addi,
